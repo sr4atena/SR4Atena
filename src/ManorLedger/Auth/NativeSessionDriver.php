@@ -1,4 +1,11 @@
 <?php
+/**
+ * The only implementation that touches PHP's session_* functions and the
+ * session cookie. It exists so every ini setting the cookie policy depends on
+ * (strict mode, __Host- attributes, save path) is applied in one place instead
+ * of being spread over a pool config, a bootstrap and a controller, and so the
+ * rest of Auth can be tested against ArraySessionDriver.
+ */
 declare(strict_types=1);
 
 namespace ManorLedger\Auth;

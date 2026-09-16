@@ -5,21 +5,56 @@ Roblox Open Cloud Analytics API into a curated analytics dashboard for the
 experience **The Locust's Manor**. It is deliberately simple: one language,
 one process model (cron + php-fpm), one JSON-on-disk storage layer.
 
-```
-              07:00 Europe/Rome (cron)
-  Roblox API ───► bin/refresh ───► data/cache/*.json  (raw, 28-day window)
-                                    │
-                                    ▼  incremental merge (never loses history)
-                               data/history.json
-                                    │
-                               bin/build (Analytics)
-                                    ▼
-                             data/dashboard.json  ◄─── served read-only by
-                                                        public/index.php (auth)
+The decisions behind this shape, with the alternatives rejected and the
+measurements behind them, are in [DESIGN-DECISIONS.md](DESIGN-DECISIONS.md).
+
+## Data flow
+
+```mermaid
+flowchart LR
+  API["Roblox Open Cloud<br/>Analytics API"] -->|"07:00 Europe/Rome<br/>systemd timer, noon retry"| REF["bin/refresh"]
+  REF --> CACHE[("data/cache/*.json<br/>raw, 28-day window")]
+  REF --> SNAP[("data/snapshots/*.gz")]
+  CACHE -->|"merge: newer day wins,<br/>nothing is deleted"| HIST[("data/history.json")]
+  HIST --> BUILD["bin/build<br/>Analytics"]
+  BUILD --> DASH[("data/dashboard.json")]
+  DASH --> RD["GET /api/dashboard<br/>after login"]
+  RD --> BR["browser"]
+
+  subgraph WS["workstation, 08:00 Europe/Rome"]
+    YT["YouTube Data API<br/>tools/transcript.py"] --> VOI["bin/voices"]
+    VOI --> VJ[("data/voices.json")]
+  end
+  VJ --> PUB["bin/voices-publish"]
+  PUB --> RV["GET /api/voices<br/>after login"]
+  RV --> BR
 ```
 
 Pages are **never** rendered from live Roblox calls. The browser only ever
 receives the pre-computed `dashboard.json`, after login.
+
+## Where it runs
+
+```mermaid
+flowchart TB
+  subgraph WS["workstation, residential connection"]
+    T1["systemd --user timer, 08:00 Europe/Rome"] --> VOI["bin/voices, bin/voices-publish<br/>holds the YouTube and model keys"]
+  end
+  subgraph VPS["VPS, no inbound port"]
+    CFD["cloudflared"] --> NG["nginx 127.0.0.1:8090"]
+    NG --> FPM["php-fpm pool, user manor"]
+    T2["timer 07:00 Europe/Rome<br/>bin/refresh, bin/build, user manor-fetch"] --> DATA
+    FPM --> DATA[("/var/lib/manor-ledger<br/>history, dashboard, voices")]
+    FPM --> WEB[("/var/lib/manor-ledger/web<br/>sessions, throttle, users, audit log")]
+  end
+  BR["browser"] -->|"HTTPS"| EDGE["Cloudflare edge, TLS terminates here"]
+  EDGE -->|"tunnel"| CFD
+  VOI -->|"rsync over SSH"| DATA
+```
+
+The two service accounts and the separate `web/` directory are explained in
+[DEPLOY.md](DEPLOY.md) and in decision 5 of
+[DESIGN-DECISIONS.md](DESIGN-DECISIONS.md).
 
 ## Directory layout
 
@@ -218,6 +253,44 @@ plus a bucket labelled `"Altri"`.
 
 ### `data/voices.json` (written by `bin/voices` on the workstation, served by `GET /api/voices`)
 
+One `bin/voices` run, for a single video:
+
+```mermaid
+sequenceDiagram
+  participant B as VoicesBuilder
+  participant Y as YouTubeClient
+  participant F as CommentFilter
+  participant T as TranscriptFetcher
+  participant P as tools/transcript.py
+  participant S as VideoSummarizer
+  participant M as LlmClient
+  B->>Y: comments(id)
+  Y-->>B: raw comments
+  B->>F: filter(comments)
+  F-->>B: kept; chatter aimed at the creator dropped
+  B->>T: fetch(id)
+  T->>P: proc_open, 60 s timeout
+  P-->>T: status, language, text
+  alt ok or missing, a property of the video
+    T->>T: cache the answer on disk
+  else error or blocked, a property of the moment
+    T->>T: retry, never cache
+  end
+  T-->>B: transcript
+  B->>S: summarize(video, transcript, comments)
+  S->>S: cached summary? then no model call at all
+  S->>M: json(summary profile, fenced prompt)
+  M->>M: retries on 429/5xx, then the fallback profile
+  M-->>S: JSON answer
+  S->>S: shape, length caps, Italian check with one rewrite
+  alt the transcript was permanent
+    S->>S: write data/voices-cache/ID.json
+  else the transcript failed transiently
+    S-->>B: summary returned, not cached
+  end
+  Note over B,M: once per run, Synthesizer makes the single synthesis call
+```
+
 The contract, the reasons behind it and the field measurements that shaped it
 are in [PLAN-voices.md](PLAN-voices.md) §8. Thumbnails are served by
 `GET /media/yt/{id}.jpg` after the id is validated against `^[A-Za-z0-9_-]{11}$`;
@@ -228,6 +301,39 @@ both routes require a session and are `Cache-Control: private`.
 Single-tenant, file-backed, read-only dashboard. There is **no** mutating
 endpoint other than `POST /login` and `POST /logout`, so the attack surface is
 the login form and the session cookie.
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant N as nginx
+  participant C as LoginController
+  participant A as Authenticator
+  participant X as Csrf
+  participant T as LoginThrottle
+  participant U as UserStore
+  participant H as PasswordHasher
+  participant S as Session
+  participant L as AuditLog
+  B->>N: POST /login
+  N->>C: fastcgi; limit_req 10r/m, else 429
+  C->>X: sameOrigin(request), validate(_csrf)
+  X-->>C: either failing is the same 403
+  C->>A: attempt(username, password, ip)
+  A->>T: check(ip, username)
+  T-->>A: locked, or free to continue
+  A->>U: find(username)
+  U-->>A: record, or null
+  A->>H: verify(password, hash or dummy hash)
+  H-->>A: same cost when the user does not exist
+  opt the user has a TOTP secret
+    A->>S: park the username for 5 minutes
+    B->>C: POST /login with the code
+    A->>A: Totp::verify, step above the last accepted one
+  end
+  A->>S: login(user), session id regenerated
+  A->>L: login.ok with user, ip, role
+  C-->>B: 302 /
+```
 
 - Passwords: `password_hash(PASSWORD_ARGON2ID)` (memory 64 MiB, time 4,
   threads 1); bcrypt fallback only when the runtime lacks argon2 (tests log a
@@ -246,7 +352,9 @@ the login form and the session cookie.
 - Security headers on every response: strict CSP (`default-src 'none';
   script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src
   'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'`),
-  HSTS, `X-Content-Type-Options`, `Referrer-Policy: no-referrer`,
+  HSTS, `X-Content-Type-Options`, `Referrer-Policy: same-origin` (Firefox
+  omits `Origin` on same-origin form posts, and `no-referrer` then left the
+  CSRF check with nothing to compare),
   `Permissions-Policy`, `Cross-Origin-Opener-Policy`.
 - Audit log: `data/auth.log` — timestamp, event, username, IP. No secrets.
 

@@ -19,6 +19,7 @@ technical health, with anomaly detection to surface what needs attention.
 
 ## Contents
 
+- [Where to look first](#where-to-look-first)
 - [What it shows](#what-it-shows)
 - [How it works](#how-it-works)
 - [Economic model](#economic-model)
@@ -28,6 +29,35 @@ technical health, with anomaly detection to surface what needs attention.
 - [Security](#security)
 - [Data policy](#data-policy)
 - [Development](#development)
+
+## Where to look first
+
+Seven files that carry most of the reasoning, in the order they are probably
+worth reading:
+
+- [`docs/DESIGN-DECISIONS.md`](docs/DESIGN-DECISIONS.md) — twelve decisions,
+  each with the alternative that was rejected and the measurement or failure
+  that settled it.
+- [`src/ManorLedger/Auth/Authenticator.php`](src/ManorLedger/Auth/Authenticator.php)
+  — the whole login sequence in one file: throttle, lookup, verification that
+  hashes even for an unknown user, optional TOTP as a second request, session,
+  audit line.
+- [`src/ManorLedger/Roblox/RateBudget.php`](src/ManorLedger/Roblox/RateBudget.php)
+  — the rate limit is per Roblox account, not per process, so the window lives
+  in a file under an exclusive lock and is corrected from the API's own
+  `x-ratelimit-*` headers.
+- [`src/ManorLedger/Storage/History.php`](src/ManorLedger/Storage/History.php)
+  — the merge rules that let the dashboard outlive the API's 28-day retention:
+  a newer day wins, a missing day is kept, nothing is deleted.
+- [`src/ManorLedger/Analytics/Anomalies.php`](src/ManorLedger/Analytics/Anomalies.php)
+  — anomaly scoring against a same-weekday baseline on a median-absolute-deviation
+  scale, with the direction of a change kept apart from whether it is bad news.
+- [`src/ManorLedger/Voices/Synthesizer.php`](src/ManorLedger/Voices/Synthesizer.php)
+  — the one model call a day, and the fields computed from dates here instead
+  of being asked of the model.
+- [`tests/`](tests) — 274 tests that touch no network: every HTTP transport,
+  clock and subprocess is injected, including the Roblox API's 429, 202-polling
+  and range-too-wide branches.
 
 ## What it shows
 
@@ -191,7 +221,7 @@ The dashboard is private. Threat model and controls are in
   regeneration on login, idle and absolute timeouts, CSRF token + origin check
   on every POST;
 - a strict Content Security Policy with no inline scripts or styles, HSTS,
-  `nosniff`, `no-referrer`, `frame-ancestors 'none'`;
+  `nosniff`, `Referrer-Policy: same-origin`, `frame-ancestors 'none'`;
 - the only endpoints are `/login`, `/logout`, `/api/dashboard`, `/healthz`;
   nothing mutates state from the web, and the API key is unreachable from the
   web process (separate user, `open_basedir`, `disable_functions`).
@@ -212,7 +242,9 @@ make build     # rebuild data/dashboard.json
 ```
 
 Conventions and the data contracts: [docs/DEV.md](docs/DEV.md),
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). CI runs lint and tests on PHP
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The decisions behind the design,
+with the alternatives rejected and the measurements behind them:
+[docs/DESIGN-DECISIONS.md](docs/DESIGN-DECISIONS.md). CI runs lint and tests on PHP
 8.2, 8.3 and 8.4 and builds the dashboard from the synthetic fixture.
 
 ## Licence

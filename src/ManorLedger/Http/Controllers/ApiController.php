@@ -1,4 +1,13 @@
 <?php
+/**
+ * The dashboard document, and nothing else.
+ *
+ * The browser never queries Roblox and this endpoint never computes: it
+ * streams the file bin/build produced, so a page load costs one authorised
+ * read and a slow or rate-limited API can only ever make the data old, not the
+ * site unavailable. A missing file is a 503 with Retry-After, not an empty
+ * dashboard.
+ */
 declare(strict_types=1);
 
 namespace ManorLedger\Http\Controllers;

@@ -1,4 +1,14 @@
 <?php
+/**
+ * The only two state-changing routes in the application: POST /login and
+ * POST /logout.
+ *
+ * It holds no authentication logic — that is Authenticator's — and exists to
+ * keep the HTTP-level guarantees in one readable place: CSRF token and origin
+ * are checked before anything else, an already authenticated session never
+ * reaches the form, and every failure renders the same message so the response
+ * says nothing about which step failed.
+ */
 declare(strict_types=1);
 
 namespace ManorLedger\Http\Controllers;

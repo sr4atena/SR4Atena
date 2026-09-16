@@ -1,4 +1,12 @@
 <?php
+/**
+ * The one HTML page behind the session: a shell that carries no figures.
+ *
+ * Everything the view shows arrives later from /api/dashboard, so the markup
+ * holds no data to leak into a cache or a referrer and the page is identical
+ * for every user. It falls back to a placeholder template so a deploy without
+ * a built frontend still answers.
+ */
 declare(strict_types=1);
 
 namespace ManorLedger\Http\Controllers;
