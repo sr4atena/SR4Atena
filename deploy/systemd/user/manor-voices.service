@@ -1,0 +1,20 @@
+[Unit]
+Description=Manor Ledger: read YouTube, summarise it, publish to the server
+Documentation=file:///home/sr/SR4Atena/docs/PLAN-voices.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/SR4Atena
+Environment=MANOR_DATA_DIR=%h/SR4Atena/data
+
+# This job deliberately runs here and not on the server: YouTube refuses
+# caption requests from datacenter addresses, so the extraction has to happen
+# from a residential connection. The server only serves what this publishes.
+ExecStart=/opt/lampp/bin/php bin/voices
+ExecStart=/bin/bash bin/voices-publish
+
+# The run paces itself against YouTube, so give it room rather than killing it.
+TimeoutStartSec=45min
+Nice=10

@@ -1,0 +1,13 @@
+[Unit]
+Description=Manor Ledger: YouTube analysis every morning at 08:00 Rome time
+
+[Timer]
+# The timezone lives in the calendar spec, so the job follows Italian daylight
+# saving without the machine clock having to change.
+OnCalendar=*-*-* 08:00:00 Europe/Rome
+# If the workstation was asleep at 08:00, run once when it comes back.
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=default.target
