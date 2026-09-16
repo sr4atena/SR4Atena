@@ -9,3 +9,4 @@ composer.lock
 .DS_Store
 # Local deployment overrides
 /deploy/*.local.*
+!/deploy/deploy.local.env.example

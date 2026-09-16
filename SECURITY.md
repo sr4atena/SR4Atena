@@ -84,6 +84,34 @@ and session ids are never logged.
 asset is Apache ECharts, pinned to an exact version with its SHA-256 recorded
 next to the file. PHPUnit is a dev-only dependency.
 
+**Third-party model and what leaves the machine.** The *Voci* view sends
+text to Google's Gemini API: public video titles and descriptions, public
+comments that passed a deterministic relevance filter, and public
+auto-generated captions. Nothing of ours goes with it: no Roblox figures, no
+user records, no server data. Calls are made from the owner's workstation
+under a paid (not free-tier) key, so the applicable data-handling terms are
+those of the paid API; they should be re-read whenever the key or plan
+changes, and the answer recorded here. The key never reaches the server. A
+local model (Ollama, `qwen2.5:14b-instruct`) is wired as a fallback and every
+summary records which model produced it, so a mixed or degraded run is
+visible on the page rather than silent.
+
+Model output is untrusted input to the rest of the system: it is validated
+against a fixed JSON shape, length-capped, inserted with `textContent`, and
+never executed or fed back into another prompt unvalidated. Comments are a
+prompt-injection surface; the prompts delimit them and declare them data, and
+nothing downstream trusts a summary beyond displaying it.
+
+**Why the YouTube job runs on a workstation.** YouTube refuses caption
+requests from datacenter address ranges. Rather than route around that with
+residential proxies, which would mean evading a platform control, the
+extraction runs where it is permitted and publishes a file. The server only
+serves it, and holds no YouTube or model credential.
+
+**Origin address.** The server sits behind a Cloudflare Tunnel so that its
+address is never published; the deployment scripts therefore read it from a
+git-ignored `deploy/deploy.local.env` rather than carrying a default.
+
 ## Known limitations
 
 - Single-factor by default; TOTP is opt-in per user.

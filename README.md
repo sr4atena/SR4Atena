@@ -36,6 +36,7 @@ technical health, with anomaly detection to surface what needs attention.
 | **Valore** (default) | How much is the game earning and what is it worth? | Revenue in Robux and in net USD, 7-day run-rate, estimated valuation over time (conservative / base band), cumulative USD, same-weekday week-over-week table, sale scenarios at plateau. |
 | **Crescita** | Is the audience growing and coming back? | DAU / MAU, stickiness, D1 / D7 retention, weekday seasonality index, DAU by platform, new vs returning, visits, session length, peak concurrent users. |
 | **Monetizzazione** | Who pays, how much, and where do players come from? | ARPDAU / ARPPU, paying users and conversion, revenue share by platform, acquisition funnel (impressions → clicks → plays) and its conversion rates, recommendation play-through rate, ads. |
+| **Voci** | What are players saying about the game, and how has that changed? | The fifteen most-watched YouTube videos about the game, each summarised from its transcript and its game-related comments; a two-column table of praise and requested fixes with each fix labelled *recent*, *persistent* or *old*; a verdict that reasons over time rather than averaging; verbatim player quotes. |
 | **Salute** | Is anything broken or degrading? | Anomaly signals first (robust z-score vs same-weekday baseline), then FPS, crash rate and counts, out-of-memory exits, server frame rate, memory, DataStore / MemoryStore request status, abuse reports. |
 
 Every chart card carries a one-sentence *"Cosa dice"* explanation and chips
@@ -75,6 +76,13 @@ Roblox API ──► bin/refresh ──► data/cache/*.json     raw, 28-day win
   scores) and the economic model below. `DashboardBuilder` assembles one JSON
   document that the browser renders; the contract is documented in
   [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- **Voices** (`ManorLedger\Voices`): YouTube Data API for the video list and
+  comments, `youtube-transcript-api` for captions, a deterministic comment
+  filter that drops chatter aimed at the creator, then one model call per
+  video (cached by id) and one synthesis call per day. This job runs on the
+  owner's workstation and publishes to the server, because YouTube refuses
+  caption requests from datacenter addresses; the server only serves the
+  result. Design record: [docs/PLAN-voices.md](docs/PLAN-voices.md).
 - **Web** (`ManorLedger\Http`, `ManorLedger\Auth`): a front controller with an
   exact-match router, a login form, and a single read-only API route. Pages
   never call Roblox; they only read the pre-built JSON.
@@ -112,6 +120,7 @@ bin/            CLI entry points: refresh, build, import-legacy, user, serve
 config/         metrics catalog, dimension pairs, glossary, app settings
 src/ManorLedger/
   Roblox/       API client, rate budget, metric catalog, refresher
+  Voices/       YouTube client, comment filter, transcripts, model adapter, synthesis
   Storage/      atomic JSON store, incremental history, gzip snapshots
   Analytics/    series maths, economics, seasonality, anomalies, builder
   Auth/         argon2id hashing, users, sessions, CSRF, throttle, TOTP, audit
@@ -160,6 +169,12 @@ deploy/install.sh                                      # updates
 ```
 
 The script is idempotent and documented in [docs/DEPLOY.md](docs/DEPLOY.md).
+The server address is not in the repository: copy `deploy/deploy.local.env.example`
+to `deploy/deploy.local.env` (git-ignored) and set `MANOR_VPS`.
+
+The YouTube analysis is the one job that does **not** run on the server: a
+`systemd --user` timer on the workstation (`deploy/systemd/user/`) runs
+`bin/voices` at 08:00 Europe/Rome and `bin/voices-publish` pushes the result.
 The daily job is a hardened systemd unit (`manor-ledger-refresh.timer`,
 07:00 Europe/Rome with a noon retry). It runs as `manor-fetch`, the only
 account able to read the API key; the web pool runs as a separate user that

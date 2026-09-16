@@ -1,7 +1,7 @@
 # Plan: "Voci" — what YouTube says about the game
 
-Status: **design approved and field-tested, not implemented.** This document is
-the brief for whoever implements it. It records the decisions taken, the
+Status: **implemented and in production since 2026-09-16.** This document was
+the brief for the implementation and is kept as its design record. It records the decisions taken, the
 measurements behind them, the data contract, the order of work and the
 acceptance criteria. Read `ARCHITECTURE.md`, `DEV.md` and `SECURITY.md` first;
 everything below follows their conventions.
@@ -91,7 +91,7 @@ YouTube key and the LLM key stay on the workstation.
    is the chosen model for both calls; `qwen2.5:14b-instruct` on the local
    Ollama is the fallback and needs no key. See §6.
 3. **SSH access from workstation to VPS** — already in place
-   (`ubuntu@<server>`, key `~/.ssh/id_ed25519`).
+   (address kept out of the repository in `deploy/deploy.local.env`; key `~/.ssh/id_ed25519`).
 
 ## 5. Keeping the list to Roblox
 

@@ -13,7 +13,12 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-VPS="${MANOR_VPS:-ubuntu@<server>}"
+# The server address is deliberately not in the repository: the origin sits
+# behind a Cloudflare Tunnel precisely so that it is never published. It comes
+# from the environment or from the git-ignored deploy/deploy.local.env.
+_root="$(cd "$(dirname "$0")/.." && pwd)"
+[ -f "$_root/deploy/deploy.local.env" ] && . "$_root/deploy/deploy.local.env"
+VPS="${MANOR_VPS:?set MANOR_VPS=user@host in the environment or in deploy/deploy.local.env}"
 KEY="${MANOR_SSH_KEY:-$HOME/.ssh/id_ed25519}"
 HOST="${MANOR_HOST:-manor.handgivers.it}"
 APP_DIR=/opt/manor-ledger

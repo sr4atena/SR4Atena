@@ -39,6 +39,7 @@ Namespaces map to folders:
 - `ManorLedger\Roblox` – `AnalyticsClient`, `RateBudget`, `MetricCatalog`
 - `ManorLedger\Storage` – `JsonStore` (atomic write + flock), `History`, `Snapshots`
 - `ManorLedger\Analytics` – `Series`, `Economics`, `Seasonality`, `Anomalies`, `DashboardBuilder`
+- `ManorLedger\Voices` – `YouTubeClient`, `CommentFilter`, `TranscriptFetcher`, `ThumbnailStore`, `LlmClient`, `VideoSummarizer`, `Synthesizer`, `VoicesBuilder` (runs on the workstation, publishes `data/voices.json`)
 - `ManorLedger\Auth` – `PasswordHasher`, `UserStore`, `Session`, `Csrf`, `LoginThrottle`, `Totp`
 - `ManorLedger\Http` – `Request`, `Response`, `Router`, `SecurityHeaders`, controllers
 - `ManorLedger\Support` – `Config`, `Clock`, `Paths`
@@ -214,6 +215,13 @@ are ignored.
 Any value can be `null`, including a whole KPI. `ItemMonetizationRevenue|Platform`
 is not collected, and the country breakdown is already reduced to the top eight
 plus a bucket labelled `"Altri"`.
+
+### `data/voices.json` (written by `bin/voices` on the workstation, served by `GET /api/voices`)
+
+The contract, the reasons behind it and the field measurements that shaped it
+are in [PLAN-voices.md](PLAN-voices.md) §8. Thumbnails are served by
+`GET /media/yt/{id}.jpg` after the id is validated against `^[A-Za-z0-9_-]{11}$`;
+both routes require a session and are `Cache-Control: private`.
 
 ## Authentication model
 
