@@ -14,8 +14,10 @@ UMask=0027
 Environment=MANOR_HOST=manor.handgivers.it
 # --if-older-than lets the same unit serve as a retry: a second timer fires at
 # noon and is a no-op when the morning run succeeded.
-ExecStart=/usr/bin/php /opt/manor-ledger/bin/refresh --if-older-than=8
-ExecStart=/usr/bin/php /opt/manor-ledger/bin/build
+# MemoryDenyWriteExecute below blocks PCRE's JIT, which PHP would warn about
+# on every run. Disabling the JIT explicitly keeps the sandbox and the logs clean.
+ExecStart=/usr/bin/php -d pcre.jit=0 /opt/manor-ledger/bin/refresh --if-older-than=8
+ExecStart=/usr/bin/php -d pcre.jit=0 /opt/manor-ledger/bin/build
 TimeoutStartSec=20min
 Nice=10
 
