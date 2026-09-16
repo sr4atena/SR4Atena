@@ -12,7 +12,8 @@ const cache = new Map();
 function nf(options) {
   const key = JSON.stringify(options);
   let f = cache.get(key);
-  if (!f) { f = new Intl.NumberFormat(LOCALE, options); cache.set(key, f); }
+  // it-IT leaves 4-digit numbers ungrouped (8394): the contract wants 8.394.
+  if (!f) { f = new Intl.NumberFormat(LOCALE, { useGrouping: 'always', ...options }); cache.set(key, f); }
   return f;
 }
 function df(options) {
