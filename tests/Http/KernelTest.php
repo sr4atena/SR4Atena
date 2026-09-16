@@ -90,7 +90,10 @@ final class KernelTest extends TestCase
         self::assertStringContainsString("script-src 'self'", SecurityHeaders::CSP);
         self::assertSame('max-age=31536000; includeSubDomains', $response->header('Strict-Transport-Security'));
         self::assertSame('nosniff', $response->header('X-Content-Type-Options'));
-        self::assertSame('no-referrer', $response->header('Referrer-Policy'));
+        // same-origin, not no-referrer: stripping the Referer on same-origin
+        // form posts leaves the CSRF origin check blind on browsers that omit
+        // the Origin header, which made the login form unusable.
+        self::assertSame('same-origin', $response->header('Referrer-Policy'));
         self::assertSame('camera=(), microphone=(), geolocation=()', $response->header('Permissions-Policy'));
         self::assertSame('same-origin', $response->header('Cross-Origin-Opener-Policy'));
         self::assertSame('DENY', $response->header('X-Frame-Options'));

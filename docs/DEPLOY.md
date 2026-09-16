@@ -20,7 +20,8 @@ systemd timer 07:00 Europe/Rome ─► bin/refresh (user manor-fetch, key in /et
 | Path on the host | Owner / mode | Content |
 |---|---|---|
 | `/opt/manor-ledger` | root, 755 / 644 | the repository (no `data/`, no tests) |
-| `/var/lib/manor-ledger` | manor-fetch:manor, 2750 | cache, snapshots, history, dashboard, users, sessions, throttle, audit log |
+| `/var/lib/manor-ledger` | manor-fetch:manor, 2750 | cache, snapshots, history, dashboard (the web pool reads, never writes) |
+| `/var/lib/manor-ledger/web` | manor:manor, 700 | state the web pool owns: sessions, throttle, users, audit log |
 | `/etc/manor-ledger/api-key` | root:manor-fetch, 640 | Roblox Open Cloud key (read scope) |
 | `/etc/nginx/sites-available/manor-ledger.conf` | root | loopback-only site |
 | `/etc/php/8.3/fpm/pool.d/manor-ledger.conf` | root | dedicated pool |
@@ -55,8 +56,8 @@ reloads nginx / php-fpm (no downtime). It never touches the data directory.
 ```bash
 systemctl list-timers manor-ledger-refresh.timer         # next run
 journalctl -u manor-ledger-refresh.service -n 50         # last job log
-sudo -u manor MANOR_DATA_DIR=/var/lib/manor-ledger php /opt/manor-ledger/bin/user list
-tail -f /var/lib/manor-ledger/auth.log                   # logins, lockouts
+sudo -u manor MANOR_DATA_DIR=/var/lib/manor-ledger php /opt/manor-ledger/bin/user list   # MANOR_STATE_DIR defaults to the data dir
+tail -f /var/lib/manor-ledger/web/auth.log                   # logins, lockouts
 tail -f /var/log/nginx/manor-ledger.access.log
 ```
 

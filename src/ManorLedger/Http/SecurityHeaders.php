@@ -25,7 +25,7 @@ final class SecurityHeaders
             'Strict-Transport-Security' => $hsts,
             'X-Content-Type-Options'    => 'nosniff',
             'X-Frame-Options'           => 'DENY',
-            'Referrer-Policy'           => 'no-referrer',
+            'Referrer-Policy'           => 'same-origin',
             'Permissions-Policy'        => 'camera=(), microphone=(), geolocation=()',
             'Cross-Origin-Opener-Policy'   => 'same-origin',
             'Cross-Origin-Resource-Policy' => 'same-origin',

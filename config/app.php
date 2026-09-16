@@ -9,6 +9,11 @@ declare(strict_types=1);
 $root = dirname(__DIR__);
 $env  = static fn (string $key, string|int|float $default) => getenv($key) !== false ? getenv($key) : $default;
 $dataDir = rtrim((string)$env('MANOR_DATA_DIR', $root . '/data'), '/');
+// State the web process owns and writes: sessions, login throttling, user
+// records, audit log. It is a separate directory because in production the
+// refresh job and the web pool run as different users; the job owns the data
+// and the pool may only read it, so the pool needs somewhere of its own.
+$stateDir = rtrim((string)$env('MANOR_STATE_DIR', $dataDir), '/');
 
 return [
     'app' => [
@@ -21,14 +26,15 @@ return [
     ],
     'paths' => [
         'data'       => $dataDir,
+        'state'      => $stateDir,
         'cache'      => $dataDir . '/cache',
         'snapshots'  => $dataDir . '/snapshots',
         'history'    => $dataDir . '/history.json',
         'dashboard'  => $dataDir . '/dashboard.json',
-        'users'      => $dataDir . '/users.json',
-        'throttle'   => $dataDir . '/throttle',
-        'sessions'   => $dataDir . '/sessions',
-        'authLog'    => $dataDir . '/auth.log',
+        'users'      => $stateDir . '/users.json',
+        'throttle'   => $stateDir . '/throttle',
+        'sessions'   => $stateDir . '/sessions',
+        'authLog'    => $stateDir . '/auth.log',
         'apiKey'     => (string)$env('MANOR_API_KEY_FILE', $dataDir . '/api-key'),
         'metrics'    => $root . '/config/metrics.json',
         'dimensions' => $root . '/config/dimensions.json',

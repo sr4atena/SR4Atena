@@ -52,11 +52,23 @@ at 16 KB, uploads are disabled.
 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:;
 connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action
 'self'`, `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`,
-`Referrer-Policy: no-referrer`, `Permissions-Policy`, and
-`Cross-Origin-Opener-Policy: same-origin`. HTML and API responses are
+`Referrer-Policy: same-origin`, `Permissions-Policy`, and
+`Cross-Origin-Opener-Policy: same-origin`. The referrer policy is
+`same-origin` rather than `no-referrer` on purpose: some browsers omit the
+`Origin` header on same-origin form posts, so suppressing the `Referer` as
+well would leave the CSRF origin check with nothing to read and make the
+login form unusable. HTML and API responses are
 `Cache-Control: no-store`. There is no inline JavaScript or CSS anywhere.
 
-**Least privilege on the host.** The web pool runs as a dedicated system user
+**Least privilege on the host.** Two unprivileged accounts split the work.
+`manor-fetch` runs the daily job, owns the data directory and is the only
+account that can read the API key. `manor` runs the web pool: it may read the
+built dashboard but not write it, and it owns a separate `web/` directory for
+the state it does write, namely sessions, login throttling, user records and
+the audit log. A compromise of the web process therefore cannot reach the
+credential or corrupt the history.
+
+The web pool runs as a dedicated system user
 with `open_basedir`, `disable_functions` for process execution, `expose_php`
 off and `allow_url_fopen` off. The code tree is root-owned and read-only for
 that user. The Roblox key is readable only by root and the refresh job's
