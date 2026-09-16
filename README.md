@@ -161,8 +161,9 @@ deploy/install.sh                                      # updates
 
 The script is idempotent and documented in [docs/DEPLOY.md](docs/DEPLOY.md).
 The daily job is a hardened systemd unit (`manor-ledger-refresh.timer`,
-07:00 Europe/Rome with a noon retry) running as an unprivileged user that is
-the only process able to read the API key.
+07:00 Europe/Rome with a noon retry). It runs as `manor-fetch`, the only
+account able to read the API key; the web pool runs as a separate user that
+can read the built dashboard but not the key.
 
 ## Security
 

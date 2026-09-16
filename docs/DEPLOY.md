@@ -14,14 +14,14 @@ browser ──TLS──► Cloudflare edge ──tunnel──► cloudflared (ho
                                                                         │ reads
                                                                    /var/lib/manor-ledger/dashboard.json
 
-systemd timer 07:00 Europe/Rome ─► bin/refresh (user manor, key in /etc/manor-ledger) ─► bin/build
+systemd timer 07:00 Europe/Rome ─► bin/refresh (user manor-fetch, key in /etc/manor-ledger) ─► bin/build
 ```
 
 | Path on the host | Owner / mode | Content |
 |---|---|---|
 | `/opt/manor-ledger` | root, 755 / 644 | the repository (no `data/`, no tests) |
-| `/var/lib/manor-ledger` | manor, 750 | cache, snapshots, history, dashboard, users, sessions, throttle, audit log |
-| `/etc/manor-ledger/api-key` | root:manor, 640 | Roblox Open Cloud key (read scope) |
+| `/var/lib/manor-ledger` | manor-fetch:manor, 2750 | cache, snapshots, history, dashboard, users, sessions, throttle, audit log |
+| `/etc/manor-ledger/api-key` | root:manor-fetch, 640 | Roblox Open Cloud key (read scope) |
 | `/etc/nginx/sites-available/manor-ledger.conf` | root | loopback-only site |
 | `/etc/php/8.3/fpm/pool.d/manor-ledger.conf` | root | dedicated pool |
 | `/etc/systemd/system/manor-ledger-refresh.{service,timer}` | root | daily job |
