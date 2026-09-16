@@ -10,9 +10,9 @@ $styles = $styles ?? ['/assets/css/app.css'];
 <meta name="color-scheme" content="dark">
 <meta name="robots" content="noindex, nofollow">
 <title><?= e($title) ?></title>
-<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="<?= e($asset('img/favicon.svg')) ?>" type="image/svg+xml">
 <?php foreach ($styles as $href): ?>
-<link rel="stylesheet" href="<?= e($href) ?>?v=<?= e($assetVersion) ?>">
+<link rel="stylesheet" href="<?= e($asset($href)) ?>">
 <?php endforeach ?>
 </head>
 <body>

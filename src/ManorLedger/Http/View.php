@@ -29,6 +29,7 @@ final class View
             throw new RuntimeException("Template not found: {$template}");
         }
         $vars['assetVersion'] = $this->assetVersion;
+        $vars['asset'] = fn (string $path): string => $this->asset($path);
         $renderer = static function (string $__file, array $__vars): string {
             extract($__vars, EXTR_SKIP);
             ob_start();
@@ -55,6 +56,22 @@ final class View
         return $this->render('layout', ['title' => $title, 'content' => $content, 'styles' => $styles]);
     }
 
+    /**
+     * URL of an asset, with the build version in the path.
+     *
+     * The version has to be part of the path rather than a query string: an ES
+     * module imports its siblings with plain relative paths, which inherit the
+     * directory but drop the query, so a query-based version would leave every
+     * module except the entry point cached across deploys.
+     */
+    public function asset(string $path): string
+    {
+        $path = ltrim($path, '/');
+        $path = str_starts_with($path, 'assets/') ? substr($path, 7) : $path;
+
+        return '/assets/v' . $this->assetVersion . '/' . $path;
+    }
+
     public function assetVersion(): string
     {
         return $this->assetVersion;
@@ -63,9 +80,14 @@ final class View
     /** Cache-busting string from the newest asset mtime; stable across requests, changes on deploy. */
     public static function assetVersionFor(string $publicDir): string
     {
+        // Recursive: the view modules live in assets/js/views, and a version
+        // that ignored them would leave the page pointing at stale code.
         $latest = 0;
-        foreach (glob($publicDir . '/assets/{css,js}/*.{css,js}', GLOB_BRACE) ?: [] as $file) {
-            $latest = max($latest, (int)filemtime($file));
+        $dir = new \RecursiveDirectoryIterator($publicDir . '/assets', \FilesystemIterator::SKIP_DOTS);
+        foreach (new \RecursiveIteratorIterator($dir) as $file) {
+            if (preg_match('/\.(css|js)$/', $file->getFilename()) === 1) {
+                $latest = max($latest, (int)$file->getMTime());
+            }
         }
         return base_convert((string)$latest, 10, 36);
     }

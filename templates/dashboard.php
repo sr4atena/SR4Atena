@@ -12,7 +12,7 @@
  */
 declare(strict_types=1);
 
-$v = '?v=' . e($assetVersion);
+/** @var callable(string):string $asset */
 $initial = mb_strtoupper(mb_substr($user['username'], 0, 1));
 ?>
 <!DOCTYPE html>
@@ -23,8 +23,8 @@ $initial = mb_strtoupper(mb_substr($user['username'], 0, 1));
 <meta name="color-scheme" content="dark">
 <meta name="referrer" content="no-referrer">
 <title><?= e($appName) ?></title>
-<link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg<?= $v ?>">
-<link rel="stylesheet" href="/assets/css/app.css<?= $v ?>">
+<link rel="icon" type="image/svg+xml" href="<?= e($asset('img/favicon.svg')) ?>">
+<link rel="stylesheet" href="<?= e($asset('css/app.css')) ?>">
 </head>
 <body>
 <a class="skip" href="#main">Vai al contenuto</a>
@@ -95,7 +95,7 @@ $initial = mb_strtoupper(mb_substr($user['username'], 0, 1));
   </div>
 </aside>
 
-<script src="/assets/vendor/echarts/echarts.min.js<?= $v ?>"></script>
-<script type="module" src="/assets/js/app.js<?= $v ?>"></script>
+<script src="<?= e($asset('vendor/echarts/echarts.min.js')) ?>"></script>
+<script type="module" src="<?= e($asset('js/app.js')) ?>"></script>
 </body>
 </html>
