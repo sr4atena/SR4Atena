@@ -34,8 +34,8 @@ RSYNC_SSH="ssh -i $KEY -o BatchMode=yes"
 
 echo "→ syncing code to $VPS:/tmp/manor-ledger"
 rsync -az --delete -e "$RSYNC_SSH" \
-  --exclude '.git' --exclude 'data' --exclude 'vendor' --exclude '.phpunit.cache' \
-  --exclude 'tests' --exclude 'composer.lock' \
+  --exclude '/.git' --exclude '/data' --exclude '/vendor' --exclude '/.phpunit.cache' \
+  --exclude '/tests' --exclude 'composer.lock' \
   ./ "$VPS:/tmp/manor-ledger/"
 
 if [ -n "$API_KEY_FILE" ]; then
