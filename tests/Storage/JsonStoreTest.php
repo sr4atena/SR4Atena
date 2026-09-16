@@ -63,4 +63,22 @@ final class JsonStoreTest extends TestCase
         $store->write(['second' => true]);
         self::assertSame(['second' => true], $store->read());
     }
+
+    public function testHonoursAnExplicitFileMode(): void
+    {
+        $path = $this->dir . "/readable.json";
+        (new JsonStore($path, 0640))->write(['ok' => true]);
+
+        // The built dashboard is read by a different user than the one that
+        // writes it, so a hardcoded 0600 would break the deployment.
+        $this->assertSame('0640', substr(sprintf('%o', fileperms($path)), -4));
+    }
+
+    public function testDefaultsToOwnerOnly(): void
+    {
+        $path = $this->dir . "/private.json";
+        (new JsonStore($path))->write(['ok' => true]);
+
+        $this->assertSame('0600', substr(sprintf('%o', fileperms($path)), -4));
+    }
 }

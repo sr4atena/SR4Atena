@@ -41,7 +41,9 @@ $cache     = new JsonStore($paths['cache'] . '/metrics.json');
 $fetchedAt = $history->fetchedAt() ?? ($cache->read()['fetchedAt'] ?? null) ?? (new JsonStore($paths['history']))->mtime() ?? time();
 
 $dashboard = (new DashboardBuilder($config, $catalogById, $glossary))->build($history, (int)$fetchedAt);
-$store = new JsonStore($paths['dashboard']);
+// 0640: the php-fpm pool runs as a different user and must read this file,
+// while the group keeps it away from everyone else on the host.
+$store = new JsonStore($paths['dashboard'], 0640);
 $store->write($dashboard);
 
 if ($print) {

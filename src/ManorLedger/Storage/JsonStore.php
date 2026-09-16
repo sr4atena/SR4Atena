@@ -4,7 +4,10 @@
  *
  * Every runtime file (history, dashboard, users) goes through this class so
  * the durability rules live in one place: temp file + rename under an
- * exclusive lock, 0600 on the file, 0700 on a freshly created directory.
+ * exclusive lock, 0700 on a freshly created directory, and by default 0600 on
+ * the file. The mode is a constructor argument because not every document is a
+ * secret: the built dashboard has to be readable by the web process, which runs
+ * as a different user than the job that writes it.
  * A reader never sees a half-written document, and two writers cannot
  * interleave.
  */
@@ -18,7 +21,7 @@ final class JsonStore
 {
     private const JSON_FLAGS = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION;
 
-    public function __construct(private readonly string $path)
+    public function __construct(private readonly string $path, private readonly int $mode = 0600)
     {
     }
 
@@ -88,7 +91,7 @@ final class JsonStore
                 if (file_put_contents($tmp, $bytes, LOCK_EX) !== strlen($bytes)) {
                     throw new RuntimeException('Short write to ' . $tmp);
                 }
-                chmod($tmp, 0600);
+                chmod($tmp, $this->mode);
                 if (!rename($tmp, $this->path)) {
                     throw new RuntimeException('Cannot rename ' . $tmp . ' to ' . $this->path);
                 }
