@@ -1,0 +1,103 @@
+{
+ "fetchedAt": 1000,
+ "results": {
+  "ItemMonetizationRevenue": {
+   "status": "ok",
+   "granularity": "OneDay",
+   "days": 30,
+   "breakdown": null,
+   "series": [
+    {
+     "label": "",
+     "total": 600,
+     "points": [
+      {
+       "t": "2026-08-01T00:00:00+00:00",
+       "v": 100
+      },
+      {
+       "t": "2026-08-02T00:00:00+00:00",
+       "v": 200
+      },
+      {
+       "t": "2026-08-03T00:00:00+00:00",
+       "v": 300
+      }
+     ]
+    }
+   ]
+  },
+  "DailyActiveUsers": {
+   "status": "ok",
+   "granularity": "OneDay",
+   "days": 30,
+   "breakdown": "Platform",
+   "series": [
+    {
+     "label": "Phone",
+     "total": 10,
+     "points": [
+      {
+       "t": "2026-08-01T00:00:00+00:00",
+       "v": 10
+      }
+     ]
+    },
+    {
+     "label": "Computer",
+     "total": 5,
+     "points": [
+      {
+       "t": "2026-08-01T00:00:00+00:00",
+       "v": 5
+      }
+     ]
+    }
+   ]
+  },
+  "HourlyThing": {
+   "status": "ok",
+   "granularity": "OneHour",
+   "days": 2,
+   "breakdown": null,
+   "series": [
+    {
+     "label": "",
+     "total": 1,
+     "points": [
+      {
+       "t": "2026-08-01T13:00:00+00:00",
+       "v": 1
+      }
+     ]
+    }
+   ]
+  },
+  "ForwardD7Retention": {
+   "status": "error",
+   "granularity": "OneDay",
+   "days": 30,
+   "breakdown": null,
+   "series": [],
+   "message": "boom"
+  },
+  "DailyActiveUsers|Country": {
+   "status": "ok",
+   "granularity": "OneDay",
+   "days": 30,
+   "breakdown": "Country",
+   "series": [
+    {
+     "label": "US",
+     "total": 5,
+     "points": [
+      {
+       "t": "2026-08-01T00:00:00+00:00",
+       "v": 5
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

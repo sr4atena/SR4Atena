@@ -1,0 +1,127 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Refresh the raw Roblox caches, the history and the daily snapshot.
+ *
+ *   bin/refresh                       fetch everything now
+ *   bin/refresh --if-older-than=8     only when the metrics cache is older than 8 h (cron)
+ *   bin/refresh --only=DailyActiveUsers,DailyRevenue|Platform
+ *   bin/refresh --dry-run             show the plan, send nothing
+ *
+ * Exit codes: 0 ok (or nothing to do), 1 some rows failed or a fatal error,
+ * 2 bad usage. A non-blocking lock on data/refresh.lock keeps two crons apart.
+ */
+declare(strict_types=1);
+
+use ManorLedger\Roblox\AnalyticsClient;
+use ManorLedger\Roblox\MetricCatalog;
+use ManorLedger\Roblox\RateBudget;
+use ManorLedger\Roblox\Refresher;
+use ManorLedger\Storage\History;
+use ManorLedger\Storage\JsonStore;
+use ManorLedger\Storage\Snapshots;
+
+if (PHP_SAPI !== 'cli') {
+    fwrite(STDERR, "Command line only.\n");
+    exit(2);
+}
+
+require dirname(__DIR__) . '/src/autoload.php';
+$config = require dirname(__DIR__) . '/config/app.php';
+
+$usage = <<<TXT
+Usage: bin/refresh [--if-older-than=HOURS] [--only=Metric1,Metric2|Dimension] [--dry-run] [--help]
+
+TXT;
+
+$ifOlderThan = null;
+$only        = [];
+$dryRun      = false;
+foreach (array_slice($argv, 1) as $arg) {
+    if ($arg === '--help' || $arg === '-h') {
+        fwrite(STDOUT, $usage);
+        exit(0);
+    }
+    if ($arg === '--dry-run') {
+        $dryRun = true;
+    } elseif (preg_match('/^--if-older-than=(\d+(?:\.\d+)?)$/', $arg, $m) === 1) {
+        $ifOlderThan = (float)$m[1];
+    } elseif (preg_match('/^--only=(.+)$/', $arg, $m) === 1) {
+        $only = array_values(array_filter(array_map('trim', explode(',', $m[1])), static fn (string $s): bool => $s !== ''));
+    } else {
+        fwrite(STDERR, "Unknown argument: $arg\n" . $usage);
+        exit(2);
+    }
+}
+
+$log = static function (string $line): void {
+    fwrite(STDERR, $line . "\n");
+};
+
+$paths = $config['paths'];
+foreach ([$paths['data'], $paths['cache'], $paths['snapshots']] as $dir) {
+    if (!is_dir($dir) && !mkdir($dir, 0700, true) && !is_dir($dir)) {
+        $log("Cannot create directory $dir");
+        exit(1);
+    }
+}
+
+// Never two refreshes at once: they would share one rate-limit window and
+// both fail. The lock is released automatically when the process exits.
+$lockPath = $paths['data'] . '/refresh.lock';
+$lock = fopen($lockPath, 'c');
+if ($lock === false) {
+    $log("Cannot open lock file $lockPath");
+    exit(1);
+}
+chmod($lockPath, 0600);
+if (!flock($lock, LOCK_EX | LOCK_NB)) {
+    $log('[' . gmdate('Y-m-d H:i:s') . 'Z] Another refresh is already running: nothing to do.');
+    exit(0);
+}
+
+try {
+    $catalog = MetricCatalog::load($paths['metrics'], $paths['dimensions']);
+    $roblox  = $config['roblox'];
+    $budget  = new RateBudget(
+        $paths['cache'] . '/.budget.json',
+        true,
+        (int)$roblox['windowLimit'],
+        (int)$roblox['windowSecs'],
+        (int)$roblox['reserve'],
+    );
+    $universeId = (int)($config['app']['universeId'] ?? 0) ?: $catalog->universeId();
+    $clientFactory = static fn (string $apiKey): AnalyticsClient => new AnalyticsClient(
+        (string)$roblox['baseUrl'],
+        $universeId,
+        $apiKey,
+        $budget,
+        [
+            'concurrency' => (int)$roblox['concurrency'],
+            'maxTries'    => (int)$roblox['maxTries'],
+            'maxPolls'    => (int)$roblox['maxPolls'],
+            'pollWait'    => (float)$roblox['pollWait'],
+            'deadline'    => (int)$roblox['deadline'],
+            'windowSecs'  => (int)$roblox['windowSecs'],
+        ],
+    );
+
+    $refresher = new Refresher(
+        $config,
+        $catalog,
+        $clientFactory,
+        new JsonStore($paths['cache'] . '/metrics.json'),
+        new JsonStore($paths['cache'] . '/dimensions.json'),
+        new History($paths['history'], $catalog->unitOf(...)),
+        new Snapshots($paths['snapshots']),
+        $log,
+    );
+    $summary = $refresher->run($ifOlderThan, $only, $dryRun);
+    exit($summary['failed'] > 0 ? 1 : 0);
+} catch (Throwable $e) {
+    $log('[' . gmdate('Y-m-d H:i:s') . 'Z] ERROR: ' . $e->getMessage());
+    exit(1);
+} finally {
+    flock($lock, LOCK_UN);
+    fclose($lock);
+}

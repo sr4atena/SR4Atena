@@ -1,0 +1,1 @@
+{"error": {"code": 400, "message": "The requested time range exceeds the maximum allowed range of 28 days for this metric."}}

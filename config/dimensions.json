@@ -1,0 +1,643 @@
+{
+ "pairs": [
+  {
+   "metric": "AveragePlayTimeMinutesPerDAU",
+   "dimension": "AgeGroupV2",
+   "name": "Tempo di gioco medio per utente per AgeGroupV2",
+   "format": "min",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Minuti giocati in media da ciascun utente attivo nel giorno: misura quanto è coinvolgente la sessione tipo."
+  },
+  {
+   "metric": "AveragePlayTimeMinutesPerDAU",
+   "dimension": "Country",
+   "name": "Tempo di gioco medio per utente per Country",
+   "format": "min",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Minuti giocati in media da ciascun utente attivo nel giorno: misura quanto è coinvolgente la sessione tipo."
+  },
+  {
+   "metric": "AveragePlayTimeMinutesPerDAU",
+   "dimension": "Locale",
+   "name": "Tempo di gioco medio per utente per Locale",
+   "format": "min",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Minuti giocati in media da ciascun utente attivo nel giorno: misura quanto è coinvolgente la sessione tipo."
+  },
+  {
+   "metric": "AverageRevenuePerUser",
+   "dimension": "AgeGroupV2",
+   "name": "ARPDAU per AgeGroupV2",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux medi generati per utente attivo: la metrica sintetica di monetizzazione, confrontabile fra periodi e fra giochi."
+  },
+  {
+   "metric": "AverageRevenuePerUser",
+   "dimension": "Country",
+   "name": "ARPDAU per Country",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux medi generati per utente attivo: la metrica sintetica di monetizzazione, confrontabile fra periodi e fra giochi."
+  },
+  {
+   "metric": "AverageRevenuePerUser",
+   "dimension": "Locale",
+   "name": "ARPDAU per Locale",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux medi generati per utente attivo: la metrica sintetica di monetizzazione, confrontabile fra periodi e fra giochi."
+  },
+  {
+   "metric": "AverageSessionLengthMinutes",
+   "dimension": "AgeGroupV2",
+   "name": "Durata media sessione per AgeGroupV2",
+   "format": "min",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Minuti medi di una singola sessione: se cala dopo un update, qualcosa nel nuovo contenuto fa uscire prima i giocatori."
+  },
+  {
+   "metric": "AverageSessionLengthMinutes",
+   "dimension": "Country",
+   "name": "Durata media sessione per Country",
+   "format": "min",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Minuti medi di una singola sessione: se cala dopo un update, qualcosa nel nuovo contenuto fa uscire prima i giocatori."
+  },
+  {
+   "metric": "AverageSessionLengthMinutes",
+   "dimension": "Locale",
+   "name": "Durata media sessione per Locale",
+   "format": "min",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Minuti medi di una singola sessione: se cala dopo un update, qualcosa nel nuovo contenuto fa uscire prima i giocatori."
+  },
+  {
+   "metric": "AverageSessionLengthMinutes",
+   "dimension": "Platform",
+   "name": "Durata media sessione per Platform",
+   "format": "min",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Minuti medi di una singola sessione: se cala dopo un update, qualcosa nel nuovo contenuto fa uscire prima i giocatori."
+  },
+  {
+   "metric": "ClickCVR",
+   "dimension": "AcquisitionSource",
+   "name": "CTR pagina di dettaglio per AcquisitionSource",
+   "format": "pct",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "desc": "Quota di utenti che, arrivati sulla pagina del gioco, premono Play: valuta descrizione, immagini e recensioni."
+  },
+  {
+   "metric": "DailyActiveUsers",
+   "dimension": "AcquisitionSource",
+   "name": "Utenti attivi giornalieri (DAU) per AcquisitionSource",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero di utenti unici che hanno giocato nel giorno: è la metrica di dimensione del pubblico, la base di quasi tutti gli altri rapporti."
+  },
+  {
+   "metric": "DailyActiveUsers",
+   "dimension": "AgeGroupV2",
+   "name": "Utenti attivi giornalieri (DAU) per AgeGroupV2",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero di utenti unici che hanno giocato nel giorno: è la metrica di dimensione del pubblico, la base di quasi tutti gli altri rapporti."
+  },
+  {
+   "metric": "DailyActiveUsers",
+   "dimension": "Country",
+   "name": "Utenti attivi giornalieri (DAU) per Country",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero di utenti unici che hanno giocato nel giorno: è la metrica di dimensione del pubblico, la base di quasi tutti gli altri rapporti."
+  },
+  {
+   "metric": "DailyActiveUsers",
+   "dimension": "IsNewUser",
+   "name": "Utenti attivi giornalieri (DAU) per IsNewUser",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero di utenti unici che hanno giocato nel giorno: è la metrica di dimensione del pubblico, la base di quasi tutti gli altri rapporti."
+  },
+  {
+   "metric": "DailyActiveUsers",
+   "dimension": "Locale",
+   "name": "Utenti attivi giornalieri (DAU) per Locale",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero di utenti unici che hanno giocato nel giorno: è la metrica di dimensione del pubblico, la base di quasi tutti gli altri rapporti."
+  },
+  {
+   "metric": "DailyActiveUsers",
+   "dimension": "UserO18Eligibility",
+   "name": "Utenti attivi giornalieri (DAU) per UserO18Eligibility",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero di utenti unici che hanno giocato nel giorno: è la metrica di dimensione del pubblico, la base di quasi tutti gli altri rapporti."
+  },
+  {
+   "metric": "DailyActiveUsers",
+   "dimension": "UserSegmentationAccountAge",
+   "name": "Utenti attivi giornalieri (DAU) per UserSegmentationAccountAge",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero di utenti unici che hanno giocato nel giorno: è la metrica di dimensione del pubblico, la base di quasi tutti gli altri rapporti."
+  },
+  {
+   "metric": "DailyActiveUsers",
+   "dimension": "UserSegmentationEngagementLevel",
+   "name": "DAU per coinvolgimento",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero di utenti unici che hanno giocato nel giorno: è la metrica di dimensione del pubblico, la base di quasi tutti gli altri rapporti."
+  },
+  {
+   "metric": "DailyActiveUsers",
+   "dimension": "UserSegmentationPlatformSpenderStatus",
+   "name": "Utenti attivi giornalieri (DAU) per UserSegmentationPlatformSpenderStatus",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero di utenti unici che hanno giocato nel giorno: è la metrica di dimensione del pubblico, la base di quasi tutti gli altri rapporti."
+  },
+  {
+   "metric": "DailyActiveUsers",
+   "dimension": "Platform",
+   "name": "Utenti attivi giornalieri (DAU) per Platform",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero di utenti unici che hanno giocato nel giorno: è la metrica di dimensione del pubblico, la base di quasi tutti gli altri rapporti."
+  },
+  {
+   "metric": "DailyCohortRetention",
+   "dimension": "AcquisitionSource",
+   "name": "Retention per coorte giornaliera per AcquisitionSource",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Curva di sopravvivenza delle coorti giornaliere giorno per giorno: mostra dove esattamente si perdono i giocatori (va incrociata con la dimensione CohortDay)."
+  },
+  {
+   "metric": "DailyRevenue",
+   "dimension": "AgeGroupV2",
+   "name": "Ricavi per AgeGroupV2",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux incassati nel periodo: il totale di quanto il gioco genera, da leggere sempre accanto al DAU per capire se cresce per volume o per efficienza."
+  },
+  {
+   "metric": "DailyRevenue",
+   "dimension": "Country",
+   "name": "Ricavi per Country",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux incassati nel periodo: il totale di quanto il gioco genera, da leggere sempre accanto al DAU per capire se cresce per volume o per efficienza."
+  },
+  {
+   "metric": "DailyRevenue",
+   "dimension": "Locale",
+   "name": "Ricavi per Locale",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux incassati nel periodo: il totale di quanto il gioco genera, da leggere sempre accanto al DAU per capire se cresce per volume o per efficienza."
+  },
+  {
+   "metric": "DailyRevenue",
+   "dimension": "RevenueSource",
+   "name": "Ricavi per RevenueSource",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux incassati nel periodo: il totale di quanto il gioco genera, da leggere sempre accanto al DAU per capire se cresce per volume o per efficienza."
+  },
+  {
+   "metric": "DailyRevenue",
+   "dimension": "UserSegmentationEngagementLevel",
+   "name": "Ricavi per UserSegmentationEngagementLevel",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux incassati nel periodo: il totale di quanto il gioco genera, da leggere sempre accanto al DAU per capire se cresce per volume o per efficienza."
+  },
+  {
+   "metric": "DailyRevenue",
+   "dimension": "UserSegmentationPayerStatus",
+   "name": "Ricavi per UserSegmentationPayerStatus",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux incassati nel periodo: il totale di quanto il gioco genera, da leggere sempre accanto al DAU per capire se cresce per volume o per efficienza."
+  },
+  {
+   "metric": "DailyRevenue",
+   "dimension": "UserSegmentationPlatformSpenderStatus",
+   "name": "Ricavi per UserSegmentationPlatformSpenderStatus",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux incassati nel periodo: il totale di quanto il gioco genera, da leggere sempre accanto al DAU per capire se cresce per volume o per efficienza."
+  },
+  {
+   "metric": "DailyRevenue",
+   "dimension": "Platform",
+   "name": "Ricavi per Platform",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux incassati nel periodo: il totale di quanto il gioco genera, da leggere sempre accanto al DAU per capire se cresce per volume o per efficienza."
+  },
+  {
+   "metric": "DauMauStickiness",
+   "dimension": "AgeGroupV2",
+   "name": "Stickiness (DAU/MAU) per AgeGroupV2",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Rapporto tra utenti giornalieri e mensili: dice quanti giorni al mese gioca in media un utente, ~0,2 significa 6 giorni su 30."
+  },
+  {
+   "metric": "DauMauStickiness",
+   "dimension": "Country",
+   "name": "Stickiness (DAU/MAU) per Country",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Rapporto tra utenti giornalieri e mensili: dice quanti giorni al mese gioca in media un utente, ~0,2 significa 6 giorni su 30."
+  },
+  {
+   "metric": "DauMauStickiness",
+   "dimension": "Locale",
+   "name": "Stickiness (DAU/MAU) per Locale",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Rapporto tra utenti giornalieri e mensili: dice quanti giorni al mese gioca in media un utente, ~0,2 significa 6 giorni su 30."
+  },
+  {
+   "metric": "EndToEndCVR",
+   "dimension": "AcquisitionSource",
+   "name": "Tasso di gioco end-to-end per AcquisitionSource",
+   "format": "pct",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "desc": "Quota di utenti che dall'impression arriva effettivamente a giocare: è il funnel di acquisizione completo in un solo numero."
+  },
+  {
+   "metric": "ForwardD1Retention",
+   "dimension": "AcquisitionSource",
+   "name": "Retention giorno 1 per AcquisitionSource",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Quota di giocatori nuovi che rientrano il giorno dopo la prima partita: è il termometro della prima impressione, se è bassa il problema sta nei primi minuti di gioco."
+  },
+  {
+   "metric": "ForwardD1Retention",
+   "dimension": "AgeGroupV2",
+   "name": "Retention giorno 1 per AgeGroupV2",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Quota di giocatori nuovi che rientrano il giorno dopo la prima partita: è il termometro della prima impressione, se è bassa il problema sta nei primi minuti di gioco."
+  },
+  {
+   "metric": "ForwardD1Retention",
+   "dimension": "Country",
+   "name": "Retention giorno 1 per Country",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Quota di giocatori nuovi che rientrano il giorno dopo la prima partita: è il termometro della prima impressione, se è bassa il problema sta nei primi minuti di gioco."
+  },
+  {
+   "metric": "ForwardD1Retention",
+   "dimension": "Locale",
+   "name": "Retention giorno 1 per Locale",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Quota di giocatori nuovi che rientrano il giorno dopo la prima partita: è il termometro della prima impressione, se è bassa il problema sta nei primi minuti di gioco."
+  },
+  {
+   "metric": "ForwardD1Retention",
+   "dimension": "Platform",
+   "name": "Retention giorno 1 per Platform",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Quota di giocatori nuovi che rientrano il giorno dopo la prima partita: è il termometro della prima impressione, se è bassa il problema sta nei primi minuti di gioco."
+  },
+  {
+   "metric": "ForwardD30Retention",
+   "dimension": "AcquisitionSource",
+   "name": "Retention giorno 30 per AcquisitionSource",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Quota di nuovi giocatori ancora attivi dopo un mese: indica quanti si sono trasformati in pubblico stabile."
+  },
+  {
+   "metric": "ForwardD7Retention",
+   "dimension": "AcquisitionSource",
+   "name": "Retention giorno 7 per AcquisitionSource",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Quota di nuovi giocatori ancora attivi dopo una settimana: misura se il gioco regge oltre la curiosità iniziale."
+  },
+  {
+   "metric": "ForwardD7Retention",
+   "dimension": "AgeGroupV2",
+   "name": "Retention giorno 7 per AgeGroupV2",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Quota di nuovi giocatori ancora attivi dopo una settimana: misura se il gioco regge oltre la curiosità iniziale."
+  },
+  {
+   "metric": "ForwardD7Retention",
+   "dimension": "Country",
+   "name": "Retention giorno 7 per Country",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Quota di nuovi giocatori ancora attivi dopo una settimana: misura se il gioco regge oltre la curiosità iniziale."
+  },
+  {
+   "metric": "ForwardD7Retention",
+   "dimension": "Locale",
+   "name": "Retention giorno 7 per Locale",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Quota di nuovi giocatori ancora attivi dopo una settimana: misura se il gioco regge oltre la curiosità iniziale."
+  },
+  {
+   "metric": "ImpressionCVR",
+   "dimension": "AcquisitionSource",
+   "name": "CTR sulle impression per AcquisitionSource",
+   "format": "pct",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "desc": "Quota di utenti che, vista la tua icona nelle liste Roblox, ci clicca: valuta l'efficacia di thumbnail e titolo."
+  },
+  {
+   "metric": "ItemMonetizationRevenue",
+   "dimension": "ProductKey",
+   "name": "Robux spesi (quasi realtime) per ProductKey",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux spesi per singolo oggetto con aggiornamento quasi immediato: serve a vedere subito come rende un item appena pubblicato."
+  },
+  {
+   "metric": "ItemMonetizationRevenue",
+   "dimension": "ProductType",
+   "name": "Robux spesi (quasi realtime) per ProductType",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux spesi per singolo oggetto con aggiornamento quasi immediato: serve a vedere subito come rende un item appena pubblicato."
+  },
+  {
+   "metric": "ItemMonetizationRevenue",
+   "dimension": "SalesLocation",
+   "name": "Robux spesi (quasi realtime) per SalesLocation",
+   "format": "robux",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Robux spesi per singolo oggetto con aggiornamento quasi immediato: serve a vedere subito come rende un item appena pubblicato."
+  },
+  {
+   "metric": "MonthlyActiveUsers",
+   "dimension": "AgeGroupV2",
+   "name": "Utenti attivi mensili (MAU) per AgeGroupV2",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Utenti unici negli ultimi 30 giorni: misura il bacino complessivo, più stabile del DAU e utile per valutare la crescita reale."
+  },
+  {
+   "metric": "MonthlyActiveUsers",
+   "dimension": "Country",
+   "name": "Utenti attivi mensili (MAU) per Country",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Utenti unici negli ultimi 30 giorni: misura il bacino complessivo, più stabile del DAU e utile per valutare la crescita reale."
+  },
+  {
+   "metric": "MonthlyActiveUsers",
+   "dimension": "Locale",
+   "name": "Utenti attivi mensili (MAU) per Locale",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Utenti unici negli ultimi 30 giorni: misura il bacino complessivo, più stabile del DAU e utile per valutare la crescita reale."
+  },
+  {
+   "metric": "PayingUsers",
+   "dimension": "AgeGroupV2",
+   "name": "Utenti paganti per AgeGroupV2",
+   "format": "int",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Quanti utenti unici hanno speso Robux nel periodo: misura l'ampiezza della base pagante, non il suo valore."
+  },
+  {
+   "metric": "PayingUsers",
+   "dimension": "Country",
+   "name": "Utenti paganti per Country",
+   "format": "int",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Quanti utenti unici hanno speso Robux nel periodo: misura l'ampiezza della base pagante, non il suo valore."
+  },
+  {
+   "metric": "PayingUsers",
+   "dimension": "Locale",
+   "name": "Utenti paganti per Locale",
+   "format": "int",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Quanti utenti unici hanno speso Robux nel periodo: misura l'ampiezza della base pagante, non il suo valore."
+  },
+  {
+   "metric": "PayingUsers",
+   "dimension": "UserSegmentationAccountAge",
+   "name": "Utenti paganti per UserSegmentationAccountAge",
+   "format": "int",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Quanti utenti unici hanno speso Robux nel periodo: misura l'ampiezza della base pagante, non il suo valore."
+  },
+  {
+   "metric": "PayingUsersCVR",
+   "dimension": "AgeGroupV2",
+   "name": "Tasso di conversione a pagante per AgeGroupV2",
+   "format": "pct",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Percentuale di utenti attivi che spende: dice se il collo di bottiglia è convincere a comprare (conversione bassa) o quanto si fa spendere (ARPPU basso)."
+  },
+  {
+   "metric": "PayingUsersCVR",
+   "dimension": "Country",
+   "name": "Tasso di conversione a pagante per Country",
+   "format": "pct",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Percentuale di utenti attivi che spende: dice se il collo di bottiglia è convincere a comprare (conversione bassa) o quanto si fa spendere (ARPPU basso)."
+  },
+  {
+   "metric": "PayingUsersCVR",
+   "dimension": "Locale",
+   "name": "Tasso di conversione a pagante per Locale",
+   "format": "pct",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "desc": "Percentuale di utenti attivi che spende: dice se il collo di bottiglia è convincere a comprare (conversione bassa) o quanto si fa spendere (ARPPU basso)."
+  },
+  {
+   "metric": "QualifiedEndToEndCVR",
+   "dimension": "AcquisitionSource",
+   "name": "Tasso di gioco qualificato per AcquisitionSource",
+   "format": "pct",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "desc": "Come l'end-to-end ma conta solo le sessioni abbastanza lunghe da essere reali: filtra chi entra ed esce subito."
+  },
+  {
+   "metric": "QualifiedUniqueUsersWithPlaySessions",
+   "dimension": "AcquisitionSource",
+   "name": "Utenti con partita qualificata per AcquisitionSource",
+   "format": "int",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "desc": "Come sopra, ma solo utenti con una sessione di durata significativa: misura l'acquisizione di qualità."
+  },
+  {
+   "metric": "TotalPlayTimeHours",
+   "dimension": "AgeGroupV2",
+   "name": "Ore giocate totali per AgeGroupV2",
+   "format": "hours",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Somma delle ore giocate da tutti i giocatori: rappresenta il volume assoluto di attenzione che il gioco cattura."
+  },
+  {
+   "metric": "TotalPlayTimeHours",
+   "dimension": "Country",
+   "name": "Ore giocate totali per Country",
+   "format": "hours",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Somma delle ore giocate da tutti i giocatori: rappresenta il volume assoluto di attenzione che il gioco cattura."
+  },
+  {
+   "metric": "TotalPlayTimeHours",
+   "dimension": "Locale",
+   "name": "Ore giocate totali per Locale",
+   "format": "hours",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Somma delle ore giocate da tutti i giocatori: rappresenta il volume assoluto di attenzione che il gioco cattura."
+  },
+  {
+   "metric": "UniqueUsersWithClicks",
+   "dimension": "AcquisitionSource",
+   "name": "Utenti con visita alla pagina per AcquisitionSource",
+   "format": "int",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "desc": "Quanti utenti unici hanno aperto la pagina del gioco: il secondo stadio del funnel di acquisizione."
+  },
+  {
+   "metric": "UniqueUsersWithImpressions",
+   "dimension": "AcquisitionSource",
+   "name": "Utenti raggiunti da impression per AcquisitionSource",
+   "format": "int",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "desc": "Quanti utenti unici hanno visto il gioco comparire da qualche parte: è la cima del funnel, la tua portata."
+  },
+  {
+   "metric": "UniqueUsersWithPlaySessions",
+   "dimension": "AcquisitionSource",
+   "name": "Utenti con almeno una partita per AcquisitionSource",
+   "format": "int",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "desc": "Quanti utenti unici hanno effettivamente giocato dopo essere stati raggiunti: il fondo del funnel."
+  },
+  {
+   "metric": "Visits",
+   "dimension": "AgeGroupV2",
+   "name": "Sessioni (visite) per AgeGroupV2",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero totale di sessioni avviate: diviso per il DAU dà le sessioni per utente, cioè quanto spesso si torna a giocare nella giornata."
+  },
+  {
+   "metric": "Visits",
+   "dimension": "Country",
+   "name": "Sessioni (visite) per Country",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero totale di sessioni avviate: diviso per il DAU dà le sessioni per utente, cioè quanto spesso si torna a giocare nella giornata."
+  },
+  {
+   "metric": "Visits",
+   "dimension": "Locale",
+   "name": "Sessioni (visite) per Locale",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero totale di sessioni avviate: diviso per il DAU dà le sessioni per utente, cioè quanto spesso si torna a giocare nella giornata."
+  },
+  {
+   "metric": "Visits",
+   "dimension": "Platform",
+   "name": "Sessioni (visite) per Platform",
+   "format": "int",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "desc": "Numero totale di sessioni avviate: diviso per il DAU dà le sessioni per utente, cioè quanto spesso si torna a giocare nella giornata."
+  },
+  {
+   "metric": "WeeklyCohortRetention",
+   "dimension": "AcquisitionSource",
+   "name": "Retention per coorte settimanale per AcquisitionSource",
+   "format": "pct",
+   "category": "Retention",
+   "category_it": "Retention",
+   "desc": "Come sopra ma su base settimanale: smussa il rumore e serve a valutare l'effetto degli update nel medio periodo."
+  }
+ ]
+}

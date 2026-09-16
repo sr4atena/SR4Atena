@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: PHP ${{ matrix.php }} · lint + unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, json, mbstring, zlib
+          coverage: none
+      - name: Install dev dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Lint
+        run: composer lint
+      - name: Unit tests
+        run: vendor/bin/phpunit --no-progress
+      - name: Build the dashboard from a synthetic history
+        run: |
+          mkdir -p data
+          php bin/import-legacy tests/fixtures/legacy-cache --catalog=config/metrics.json
+          php bin/build
+          test -s data/dashboard.json

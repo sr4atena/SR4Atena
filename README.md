@@ -1,0 +1,204 @@
+# Manor Ledger
+
+[![CI](https://github.com/sr4atena/SR4Atena/actions/workflows/ci.yml/badge.svg)](https://github.com/sr4atena/SR4Atena/actions/workflows/ci.yml)
+![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777bb4)
+![License: MIT](https://img.shields.io/badge/license-MIT-green)
+
+Analytics pipeline and dashboard for the Roblox experience **The Locust's Manor**.
+It ingests the Roblox Open Cloud Analytics API once a day, keeps an
+incremental history that outlives Roblox's 28-day retention, and serves a
+curated, dark-theme dashboard focused on one question first: *how much
+economic value is the game producing, and what would it be worth?*
+
+The second half of the dashboard is diagnostic: growth, monetisation and
+technical health, with anomaly detection to surface what needs attention.
+
+> Zero runtime dependencies (PHP 8.2+ with curl/json/zlib), no framework, no
+> build step. Apache ECharts is vendored for the charts. Everything else in
+> this repository is original code.
+
+## Contents
+
+- [What it shows](#what-it-shows)
+- [How it works](#how-it-works)
+- [Economic model](#economic-model)
+- [Repository layout](#repository-layout)
+- [Run it locally](#run-it-locally)
+- [Deploy](#deploy)
+- [Security](#security)
+- [Data policy](#data-policy)
+- [Development](#development)
+
+## What it shows
+
+| View | Question it answers | Key content |
+|---|---|---|
+| **Valore** (default) | How much is the game earning and what is it worth? | Revenue in Robux and in net USD, 7-day run-rate, estimated valuation over time (conservative / base band), cumulative USD, same-weekday week-over-week table, sale scenarios at plateau. |
+| **Crescita** | Is the audience growing and coming back? | DAU / MAU, stickiness, D1 / D7 retention, weekday seasonality index, DAU by platform, new vs returning, visits, session length, peak concurrent users. |
+| **Monetizzazione** | Who pays, how much, and where do players come from? | ARPDAU / ARPPU, paying users and conversion, revenue share by platform, acquisition funnel (impressions → clicks → plays) and its conversion rates, recommendation play-through rate, ads. |
+| **Salute** | Is anything broken or degrading? | Anomaly signals first (robust z-score vs same-weekday baseline), then FPS, crash rate and counts, out-of-memory exits, server frame rate, memory, DataStore / MemoryStore request status, abuse reports. |
+
+Every chart card carries a one-sentence *"Cosa dice"* explanation and chips
+for the acronyms it uses; a global glossary defines all of them. Hovering (or
+touching) a chart highlights the date on the axis and shows every series value
+in a floating tooltip; charts in the same view share the hovered date. The
+layout is a 12-column grid that collapses to one column on phones.
+
+## How it works
+
+```
+             07:00 Europe/Rome (systemd timer, noon retry)
+Roblox API ──► bin/refresh ──► data/cache/*.json     raw, 28-day window
+                                  │
+                                  ▼  merge: newer day wins, nothing is deleted
+                            data/history.json      long-lived daily series
+                                  │
+                              bin/build             Analytics\*
+                                  ▼
+                          data/dashboard.json  ──►  GET /api/dashboard (after login)
+```
+
+- **Ingestion** (`ManorLedger\Roblox`): one endpoint, `POST
+  v1/universes/{id}/metrics`, called with bounded concurrency through a
+  shared, file-locked **rate budget** that reads Roblox's `x-ratelimit-*`
+  headers and falls back to a conservative estimate. It handles long-running
+  operations (HTTP 202 + polling), "range too wide" errors (shrink and retry),
+  rejected breakdowns (fall back to the aggregate) and HTTP 429 (shared
+  back-off so parallel processes slow down together).
+- **Incremental history** (`ManorLedger\Storage\History`): every fetch is
+  folded into `history.json` keyed by metric → series label → day. A newer
+  fetch overwrites a day (Roblox revises the latest day upward, about +5 % for
+  revenue); days that are no longer in the API window are kept. A gzip
+  snapshot of each raw fetch is archived as well.
+- **Analytics** (`ManorLedger\Analytics`): pure functions on date → value maps
+  (rolling means, same-weekday deltas, seasonality index, robust anomaly
+  scores) and the economic model below. `DashboardBuilder` assembles one JSON
+  document that the browser renders; the contract is documented in
+  [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- **Web** (`ManorLedger\Http`, `ManorLedger\Auth`): a front controller with an
+  exact-match router, a login form, and a single read-only API route. Pages
+  never call Roblox; they only read the pre-built JSON.
+
+## Economic model
+
+The numbers on the *Valore* page are estimates built from explicit,
+configurable assumptions (`config/app.php`, `economics`), all shown in the UI:
+
+| Assumption | Default | Why |
+|---|---|---|
+| DevEx rate | 0.0038 USD per Robux | Roblox Developer Exchange rate. |
+| Royalty share | 17 % | Share of revenue paid to the publishing partner before the developer. |
+| Valuation multiple, base | 30 × monthly net | "The current level holds" scenario: the theoretical ceiling. |
+| Valuation multiple, conservative | 18 × monthly net | What a buyer would put on the table for a game past its growth phase. |
+| Plateau shares | 6 %, 10 %, 15 % of peak DAU | Sale scenarios once the audience settles. |
+
+- Net USD per day = Robux × DevEx × (1 − royalty).
+- Monthly net run-rate = **7-day mean** of net USD × 30. The mean, not the
+  median: this game roughly doubles at weekends, and a median over seven days
+  would systematically understate a week by about a third.
+- Valuation(t) = monthly net run-rate(t) × multiple, plotted over time as a
+  band between the two multiples.
+- The most recent revenue day is **provisional**: Roblox still revises it, so
+  it is excluded from means and drawn dimmed with a "provvisorio" marker.
+- Trend is read on **same-weekday** comparisons (Monday vs last Monday), never
+  day-over-day, because weekly seasonality dwarfs day-to-day change.
+
+Details and the full glossary: [docs/METRICS.md](docs/METRICS.md).
+
+## Repository layout
+
+```
+bin/            CLI entry points: refresh, build, import-legacy, user, serve
+config/         metrics catalog, dimension pairs, glossary, app settings
+src/ManorLedger/
+  Roblox/       API client, rate budget, metric catalog, refresher
+  Storage/      atomic JSON store, incremental history, gzip snapshots
+  Analytics/    series maths, economics, seasonality, anomalies, builder
+  Auth/         argon2id hashing, users, sessions, CSRF, throttle, TOTP, audit
+  Http/         request/response, router, security headers, controllers
+  Support/      config, clock, helpers
+public/         the only web root: index.php + static assets (ECharts vendored)
+templates/      login, layout, dashboard shell, error
+tests/          PHPUnit (no network, synthetic fixtures)
+deploy/         nginx site, php-fpm pool, systemd timer, cloudflared rule, install.sh
+docs/           architecture & data contracts, metrics, deploy, security notes
+data/           runtime state (git-ignored): cache, history, dashboard, users, key
+```
+
+## Run it locally
+
+Requirements: PHP 8.2+ with `curl`, `json`, `mbstring`, `zlib`. Docker is
+used only for tests when the host PHP is older.
+
+```bash
+git clone https://github.com/sr4atena/SR4Atena.git manor-ledger && cd manor-ledger
+
+# 1. a user (password is prompted, never passed on the command line)
+php bin/user add me --role=owner
+
+# 2. data: either fetch for real…
+echo -n "<your Open Cloud API key>" > data/api-key && chmod 600 data/api-key
+php bin/refresh && php bin/build
+#    …or build from the synthetic fixture to look around without a key
+php bin/import-legacy tests/fixtures/legacy-cache --catalog=config/metrics.json && php bin/build
+
+# 3. serve
+bin/serve            # http://127.0.0.1:8099
+```
+
+The Open Cloud key needs only the **Analytics: read** scope for the universe.
+
+## Deploy
+
+Production runs on a 1 GB Oracle Cloud Always Free VM shared with other
+services, behind a Cloudflare Tunnel: nginx and php-fpm listen on loopback
+only, no inbound port is opened, TLS terminates at the Cloudflare edge.
+
+```bash
+deploy/install.sh --api-key /path/to/key --with-data   # first time
+deploy/install.sh                                      # updates
+```
+
+The script is idempotent and documented in [docs/DEPLOY.md](docs/DEPLOY.md).
+The daily job is a hardened systemd unit (`manor-ledger-refresh.timer`,
+07:00 Europe/Rome with a noon retry) running as an unprivileged user that is
+the only process able to read the API key.
+
+## Security
+
+The dashboard is private. Threat model and controls are in
+[SECURITY.md](SECURITY.md); in short:
+
+- argon2id password hashes, constant-time verification including for unknown
+  users, per-IP and per-user lockout with exponential back-off, optional TOTP;
+- strict cookie (`__Host-`, `HttpOnly`, `Secure`, `SameSite=Strict`), id
+  regeneration on login, idle and absolute timeouts, CSRF token + origin check
+  on every POST;
+- a strict Content Security Policy with no inline scripts or styles, HSTS,
+  `nosniff`, `no-referrer`, `frame-ancestors 'none'`;
+- the only endpoints are `/login`, `/logout`, `/api/dashboard`, `/healthz`;
+  nothing mutates state from the web, and the API key is unreachable from the
+  web process (separate user, `open_basedir`, `disable_functions`).
+
+## Data policy
+
+This repository contains **code and configuration only**. Real metrics,
+revenue figures, the API key, user records and sessions live in `data/`,
+which is git-ignored, and on the server under `/var/lib/manor-ledger`.
+Test fixtures are synthetic.
+
+## Development
+
+```bash
+make deps      # PHPUnit via Composer (Docker)
+make check     # lint + tests
+make build     # rebuild data/dashboard.json
+```
+
+Conventions and the data contracts: [docs/DEV.md](docs/DEV.md),
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). CI runs lint and tests on PHP
+8.2, 8.3 and 8.4 and builds the dashboard from the synthetic fixture.
+
+## Licence
+
+MIT — see [LICENSE](LICENSE).

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Local dev server: bin/serve [port]. Debug pages on, data dir from MANOR_DATA_DIR if set.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+PHP_BIN="${PHP_BIN:-$(command -v php || echo /opt/lampp/bin/php)}"
+PORT="${1:-8099}"
+echo "Manor Ledger dev server on http://127.0.0.1:${PORT} (php: ${PHP_BIN})" >&2
+MANOR_DEBUG=1 exec "$PHP_BIN" -S "127.0.0.1:${PORT}" -t public public/index.php

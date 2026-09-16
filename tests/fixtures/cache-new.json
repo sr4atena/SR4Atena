@@ -1,0 +1,52 @@
+{
+ "fetchedAt": 2000,
+ "results": {
+  "ItemMonetizationRevenue": {
+   "status": "ok",
+   "granularity": "OneDay",
+   "days": 30,
+   "breakdown": null,
+   "series": [
+    {
+     "label": "",
+     "total": 715,
+     "points": [
+      {
+       "t": "2026-08-03T00:00:00+00:00",
+       "v": 315
+      },
+      {
+       "t": "2026-08-04T00:00:00+00:00",
+       "v": 400
+      }
+     ]
+    }
+   ]
+  },
+  "DailyActiveUsers": {
+   "status": "ratelimited",
+   "granularity": "OneDay",
+   "days": 30,
+   "breakdown": "Platform",
+   "series": []
+  },
+  "ForwardD7Retention": {
+   "status": "ok",
+   "granularity": "OneDay",
+   "days": 30,
+   "breakdown": null,
+   "series": [
+    {
+     "label": "",
+     "total": 0.03,
+     "points": [
+      {
+       "t": "2026-08-01T00:00:00+00:00",
+       "v": 0.03
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

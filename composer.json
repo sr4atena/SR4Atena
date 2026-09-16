@@ -1,0 +1,27 @@
+{
+    "name": "sr4atena/manor-ledger",
+    "description": "Roblox analytics dashboard for The Locust's Manor: daily ingestion, incremental history, economics and diagnostics.",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.2",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-zlib": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": { "ManorLedger\\": "src/ManorLedger/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "ManorLedger\\Tests\\": "tests/" }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "find src bin public tests -name '*.php' -print0 | xargs -0 -n1 -P4 php -l > /dev/null && echo 'lint ok'"
+    },
+    "config": { "sort-packages": true, "platform": { "php": "8.2" } }
+}

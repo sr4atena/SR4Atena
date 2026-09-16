@@ -1,0 +1,80 @@
+#!/usr/bin/env php
+<?php
+/**
+ * One-off migration from the legacy roblox-metrics cache into data/history.json.
+ *
+ *   bin/import-legacy [/path/to/legacy/cache] [--catalog=config/metrics.json] [--history=data/history.json]
+ *
+ * Replays every storico/*.json.gz oldest first, then data.json, then
+ * dimensions.json, through History::merge. Order matters: the merge lets the
+ * newest fetch overwrite a day, so the freshest (revised) values win.
+ */
+declare(strict_types=1);
+
+require dirname(__DIR__) . '/src/autoload.php';
+
+use ManorLedger\Storage\History;
+
+$root   = dirname(__DIR__);
+$config = require $root . '/config/app.php';
+
+$legacyDir   = '/home/sr/roblox-metrics/cache';
+$catalogPath = $config['paths']['metrics'];
+$historyPath = $config['paths']['history'];
+foreach (array_slice($argv, 1) as $arg) {
+    if (str_starts_with($arg, '--catalog=')) {
+        $catalogPath = substr($arg, 10);
+    } elseif (str_starts_with($arg, '--history=')) {
+        $historyPath = substr($arg, 10);
+    } elseif (!str_starts_with($arg, '--')) {
+        $legacyDir = rtrim($arg, '/');
+    }
+}
+if (!is_dir($legacyDir)) {
+    fwrite(STDERR, "legacy directory not found: $legacyDir\n");
+    exit(2);
+}
+
+$catalogById = [];
+foreach (json_decode((string)file_get_contents($catalogPath), true)['metrics'] ?? [] as $entry) {
+    if (isset($entry['id'])) {
+        $catalogById[$entry['id']] = $entry;
+    }
+}
+$history = new History($historyPath, static fn (string $id): string => $catalogById[$id]['format'] ?? 'dec');
+
+$sources = [];
+$snapshots = glob($legacyDir . '/storico/*.json.gz') ?: [];
+sort($snapshots, SORT_STRING);
+foreach ($snapshots as $path) {
+    $sources[] = [$path, static fn (): ?array => json_decode((string)gzdecode((string)file_get_contents($path)), true)];
+}
+foreach (['data.json', 'dimensions.json'] as $name) {
+    $path = $legacyDir . '/' . $name;
+    if (is_file($path)) {
+        $sources[] = [$path, static fn (): ?array => json_decode((string)file_get_contents($path), true)];
+    }
+}
+
+$total = 0;
+foreach ($sources as [$path, $load]) {
+    $doc = $load();
+    if (!is_array($doc)) {
+        fwrite(STDERR, "skipped (unreadable): $path\n");
+        continue;
+    }
+    $n = $history->merge($doc);
+    $total += $n;
+    printf("%-60s %7d points (fetchedAt %s)\n", basename($path), $n, isset($doc['fetchedAt']) ? gmdate('Y-m-d H:i', (int)$doc['fetchedAt']) : 'n/a');
+}
+$history->save();
+$dates = $history->dates();
+printf(
+    "merged %d points into %s: %d series keys, %s .. %s (%d days)\n",
+    $total,
+    $historyPath,
+    count($history->ids()),
+    $dates[0] ?? 'n/a',
+    $dates === [] ? 'n/a' : end($dates),
+    count($dates),
+);

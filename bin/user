@@ -1,0 +1,179 @@
+#!/usr/bin/env php
+<?php
+/**
+ * User management CLI (the only way to create or change accounts).
+ *
+ *   bin/user add <username> [--role=owner|viewer] [--password-stdin]
+ *   bin/user passwd <username> [--password-stdin]
+ *   bin/user totp <username>        enable TOTP (prints otpauth URI, asks for a code)
+ *   bin/user totp <username> --off  disable TOTP
+ *   bin/user rm <username>
+ *   bin/user list
+ *
+ * Passwords are never accepted as arguments: they would end up in shell history.
+ */
+declare(strict_types=1);
+
+require dirname(__DIR__) . '/src/autoload.php';
+
+use ManorLedger\Auth\PasswordHasher;
+use ManorLedger\Auth\Totp;
+use ManorLedger\Auth\UserStore;
+use ManorLedger\Support\Config;
+use ManorLedger\Support\SystemClock;
+
+const MIN_PASSWORD_LENGTH = 12;
+
+$config = Config::load(dirname(__DIR__) . '/config/app.php');
+$clock = new SystemClock();
+$users = new UserStore($config->string('paths.users'), $clock);
+$hasher = new PasswordHasher();
+$totp = new Totp($clock);
+
+$args = array_slice($argv, 1);
+$flags = [];
+foreach ($args as $i => $arg) {
+    if (str_starts_with($arg, '--')) {
+        [$name, $value] = array_pad(explode('=', substr($arg, 2), 2), 2, true);
+        $flags[$name] = $value;
+        unset($args[$i]);
+    }
+}
+$args = array_values($args);
+$command = $args[0] ?? 'help';
+$username = strtolower(trim($args[1] ?? ''));
+
+function fail(string $message, int $code = 1): never
+{
+    fwrite(STDERR, "error: {$message}\n");
+    exit($code);
+}
+
+function requireUsername(string $username): void
+{
+    if (!UserStore::isValidUsername($username)) {
+        fail('username must be 3-32 chars of [a-z0-9._-]', 2);
+    }
+}
+
+/** Reads one line from the terminal with echo disabled; falls back to plain read when not a tty. */
+function promptSecret(string $label): string
+{
+    fwrite(STDOUT, $label);
+    $isTty = function_exists('posix_isatty') ? posix_isatty(STDIN) : stream_isatty(STDIN);
+    if ($isTty) {
+        shell_exec('stty -echo');
+    }
+    $line = fgets(STDIN);
+    if ($isTty) {
+        shell_exec('stty echo');
+        fwrite(STDOUT, "\n");
+    }
+    if ($line === false) {
+        fail('no input');
+    }
+    return rtrim($line, "\r\n");
+}
+
+/** @param array<string, mixed> $flags */
+function readPassword(array $flags): string
+{
+    if (isset($flags['password-stdin'])) {
+        $line = fgets(STDIN);
+        if ($line === false) {
+            fail('expected the password on stdin');
+        }
+        $password = rtrim($line, "\r\n");
+    } else {
+        $password = promptSecret('Password: ');
+        if ($password !== promptSecret('Repeat password: ')) {
+            fail('passwords do not match');
+        }
+    }
+    if (strlen($password) < MIN_PASSWORD_LENGTH) {
+        fail('password must be at least ' . MIN_PASSWORD_LENGTH . ' characters');
+    }
+    return $password;
+}
+
+function note(PasswordHasher $hasher): void
+{
+    if (!$hasher->usesArgon2id()) {
+        fwrite(STDERR, "warning: argon2id unavailable in this PHP build, using bcrypt (rehashed automatically at first login on a build with argon2id)\n");
+    }
+}
+
+switch ($command) {
+    case 'add':
+        requireUsername($username);
+        $role = is_string($flags['role'] ?? null) ? $flags['role'] : 'viewer';
+        if (!UserStore::isValidRole($role)) {
+            fail('role must be owner or viewer', 2);
+        }
+        if ($users->find($username) !== null) {
+            fail("user {$username} already exists");
+        }
+        $password = readPassword($flags);
+        note($hasher);
+        $users->add($username, $hasher->hash($password), $role);
+        echo "added {$username} ({$role})\n";
+        break;
+
+    case 'passwd':
+        requireUsername($username);
+        if ($users->find($username) === null) {
+            fail("unknown user {$username}");
+        }
+        $password = readPassword($flags);
+        note($hasher);
+        $users->updatePassword($username, $hasher->hash($password));
+        echo "password updated for {$username}\n";
+        break;
+
+    case 'totp':
+        requireUsername($username);
+        if ($users->find($username) === null) {
+            fail("unknown user {$username}");
+        }
+        if (isset($flags['off'])) {
+            $users->setTotp($username, null);
+            echo "TOTP disabled for {$username}\n";
+            break;
+        }
+        $secret = $totp->generateSecret();
+        echo "Secret (base32): {$secret}\n";
+        echo 'URI: ' . $totp->otpauthUri($config->string('app.name'), $username, $secret) . "\n";
+        echo "Add it to your authenticator app, then confirm with a code.\n";
+        $code = trim(promptSecret('Code: '));
+        if ($totp->verify($secret, $code) === null) {
+            fail('code does not match; TOTP NOT enabled');
+        }
+        $users->setTotp($username, $secret);
+        echo "TOTP enabled for {$username}\n";
+        break;
+
+    case 'rm':
+        requireUsername($username);
+        $users->remove($username);
+        echo "removed {$username}\n";
+        break;
+
+    case 'list':
+        foreach ($users->all() as $user) {
+            printf(
+                "%-32s %-7s totp=%-3s created=%s last-login=%s\n",
+                $user['username'],
+                $user['role'],
+                $user['totpSecret'] !== null ? 'yes' : 'no',
+                $user['createdAt'] ?? '-',
+                $user['lastLoginAt'] ?? '-',
+            );
+        }
+        break;
+
+    default:
+        $doc = (string)file_get_contents(__FILE__);
+        preg_match('#/\*\*(.*?)\*/#s', $doc, $m);
+        echo preg_replace('/^\s*\*\s?/m', '', $m[1] ?? ''), "\n";
+        exit($command === 'help' ? 0 : 2);
+}

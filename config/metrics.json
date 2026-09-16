@@ -1,0 +1,3163 @@
+{
+ "universeId": "10674300622",
+ "game": "The Locust's Manor",
+ "categories": [
+  {
+   "key": "Engagement",
+   "name": "Engagement",
+   "count": 7
+  },
+  {
+   "key": "Monetization",
+   "name": "Monetizzazione",
+   "count": 6
+  },
+  {
+   "key": "Retention",
+   "name": "Retention",
+   "count": 6
+  },
+  {
+   "key": "Acquisition",
+   "name": "Acquisizione",
+   "count": 11
+  },
+  {
+   "key": "Performance & Stability",
+   "name": "Performance e stabilità",
+   "count": 15
+  },
+  {
+   "key": "Economy",
+   "name": "Economia interna",
+   "count": 3
+  },
+  {
+   "key": "Funnels",
+   "name": "Funnel",
+   "count": 11
+  },
+  {
+   "key": "Thumbnails",
+   "name": "Thumbnail",
+   "count": 6
+  },
+  {
+   "key": "Advertising",
+   "name": "Pubblicità",
+   "count": 6
+  },
+  {
+   "key": "Safety",
+   "name": "Sicurezza",
+   "count": 2
+  },
+  {
+   "key": "Custom Events",
+   "name": "Eventi personalizzati",
+   "count": 1
+  },
+  {
+   "key": "Matchmaking",
+   "name": "Matchmaking",
+   "count": 11
+  },
+  {
+   "key": "Data Store",
+   "name": "Data Store",
+   "count": 16
+  },
+  {
+   "key": "Memory Stores",
+   "name": "Memory Store",
+   "count": 5
+  },
+  {
+   "key": "Speech-to-Text",
+   "name": "Speech-to-Text",
+   "count": 2
+  },
+  {
+   "key": "Text-to-Speech",
+   "name": "Text-to-Speech",
+   "count": 3
+  }
+ ],
+ "metrics": [
+  {
+   "id": "AverageSessionLengthMinutes",
+   "name": "Durata media sessione",
+   "en": "Average session time",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "format": "min",
+   "desc": "Minuti medi di una singola sessione: se cala dopo un update, qualcosa nel nuovo contenuto fa uscire prima i giocatori.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "IsNewUser",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "Platform"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "TotalPlayTimeHours",
+   "name": "Ore giocate totali",
+   "en": "Playtime",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "format": "hours",
+   "desc": "Somma delle ore giocate da tutti i giocatori: rappresenta il volume assoluto di attenzione che il gioco cattura.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "IsNewUser",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "Visits",
+   "name": "Sessioni (visite)",
+   "en": "Sessions",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "format": "int",
+   "desc": "Numero totale di sessioni avviate: diviso per il DAU dà le sessioni per utente, cioè quanto spesso si torna a giocare nella giornata.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "IsNewUser",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "Platform"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "TotalSessionsEndedInBucket",
+   "name": "Sessioni per fascia di durata",
+   "en": "New user first session retention",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "format": "int",
+   "desc": "Distribuzione delle sessioni terminate per durata (dimensione SessionTimeBucket): rivela se gli abbandoni sono concentrati nei primissimi minuti.",
+   "granularity": "None",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Gender",
+    "OperatingSystem",
+    "Platform",
+    "SessionTimeBucket",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "SessionTimeBucket"
+   ],
+   "barSort": "label"
+  },
+  {
+   "id": "AveragePlayTimeMinutesPerDAU",
+   "name": "Tempo di gioco medio per utente",
+   "en": "Average playtime",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "format": "min",
+   "desc": "Minuti giocati in media da ciascun utente attivo nel giorno: misura quanto è coinvolgente la sessione tipo.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "IsNewUser",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DailyActiveUsers",
+   "name": "Utenti attivi giornalieri (DAU)",
+   "en": "Daily active users",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "format": "int",
+   "desc": "Numero di utenti unici che hanno giocato nel giorno: è la metrica di dimensione del pubblico, la base di quasi tutti gli altri rapporti.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "IsNewUser",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "Platform"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "MonthlyActiveUsers",
+   "name": "Utenti attivi mensili (MAU)",
+   "en": "Monthly active users",
+   "category": "Engagement",
+   "category_it": "Engagement",
+   "format": "int",
+   "desc": "Utenti unici negli ultimi 30 giorni: misura il bacino complessivo, più stabile del DAU e utile per valutare la crescita reale.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "IsNewUser",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "AverageRevenuePerUser",
+   "name": "ARPDAU",
+   "en": "Average revenue per DAU (ARPDAU)",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "format": "robux",
+   "desc": "Robux medi generati per utente attivo: la metrica sintetica di monetizzazione, confrontabile fra periodi e fra giochi.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "AverageRevenuePerPayingUser",
+   "name": "ARPPU",
+   "en": "Average revenue per paying user (ARPPU)",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "format": "robux",
+   "desc": "Robux medi spesi da chi effettivamente compra: misura il valore dei paganti e l'efficacia dei prezzi degli oggetti.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DailyRevenue",
+   "name": "Ricavi",
+   "en": "Revenue",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "format": "robux",
+   "desc": "Robux incassati nel periodo: il totale di quanto il gioco genera, da leggere sempre accanto al DAU per capire se cresce per volume o per efficienza.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "BalanceType",
+    "Country",
+    "Gender",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "RevenueSource",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "Platform"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "ItemMonetizationRevenue",
+   "name": "Robux spesi (quasi realtime)",
+   "en": "Robux Spent (Realtime)",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "format": "robux",
+   "desc": "Robux spesi per singolo oggetto con aggiornamento quasi immediato: serve a vedere subito come rende un item appena pubblicato.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneHour",
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "CollectibleItemTargetType",
+    "CollectibleItemTargetTypeId",
+    "CollectibleItemType",
+    "ProductKey",
+    "ProductType",
+    "SalesLocation"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "PayingUsersCVR",
+   "name": "Tasso di conversione a pagante",
+   "en": "Payer conversion rate",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "format": "pct",
+   "desc": "Percentuale di utenti attivi che spende: dice se il collo di bottiglia è convincere a comprare (conversione bassa) o quanto si fa spendere (ARPPU basso).",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "PayingUsers",
+   "name": "Utenti paganti",
+   "en": "Paying users",
+   "category": "Monetization",
+   "category_it": "Monetizzazione",
+   "format": "int",
+   "desc": "Quanti utenti unici hanno speso Robux nel periodo: misura l'ampiezza della base pagante, non il suo valore.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ForwardD1Retention",
+   "name": "Retention giorno 1",
+   "en": "Day 1 retention",
+   "category": "Retention",
+   "category_it": "Retention",
+   "format": "pct",
+   "desc": "Quota di giocatori nuovi che rientrano il giorno dopo la prima partita: è il termometro della prima impressione, se è bassa il problema sta nei primi minuti di gioco.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "Platform"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "ForwardD30Retention",
+   "name": "Retention giorno 30",
+   "en": "Day 30 retention",
+   "category": "Retention",
+   "category_it": "Retention",
+   "format": "pct",
+   "desc": "Quota di nuovi giocatori ancora attivi dopo un mese: indica quanti si sono trasformati in pubblico stabile.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ForwardD7Retention",
+   "name": "Retention giorno 7",
+   "en": "Day 7 retention",
+   "category": "Retention",
+   "category_it": "Retention",
+   "format": "pct",
+   "desc": "Quota di nuovi giocatori ancora attivi dopo una settimana: misura se il gioco regge oltre la curiosità iniziale.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DailyCohortRetention",
+   "name": "Retention per coorte giornaliera",
+   "en": "Daily cohort retention",
+   "category": "Retention",
+   "category_it": "Retention",
+   "format": "pct",
+   "desc": "Curva di sopravvivenza delle coorti giornaliere giorno per giorno: mostra dove esattamente si perdono i giocatori (va incrociata con la dimensione CohortDay).",
+   "granularity": "OneDay",
+   "days": 10,
+   "granularities": [
+    "None",
+    "OneDay"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "CohortDay",
+    "Country",
+    "Gender",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line",
+   "maxDays": 10,
+   "breakdown": [
+    "CohortDay"
+   ],
+   "barSort": "label"
+  },
+  {
+   "id": "WeeklyCohortRetention",
+   "name": "Retention per coorte settimanale",
+   "en": "Weekly cohort retention",
+   "category": "Retention",
+   "category_it": "Retention",
+   "format": "pct",
+   "desc": "Come sopra ma su base settimanale: smussa il rumore e serve a valutare l'effetto degli update nel medio periodo.",
+   "granularity": "OneWeek",
+   "days": 70,
+   "granularities": [
+    "None",
+    "OneWeek"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "CohortWeek",
+    "Country",
+    "Gender",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line",
+   "maxDays": 70,
+   "breakdown": [
+    "CohortWeek"
+   ],
+   "barSort": "label"
+  },
+  {
+   "id": "DauMauStickiness",
+   "name": "Stickiness (DAU/MAU)",
+   "en": "Stickiness (DAU/MAU)",
+   "category": "Retention",
+   "category_it": "Retention",
+   "format": "pct",
+   "desc": "Rapporto tra utenti giornalieri e mensili: dice quanti giorni al mese gioca in media un utente, ~0,2 significa 6 giorni su 30.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Country",
+    "Gender",
+    "Locale",
+    "OperatingSystem",
+    "Platform",
+    "UserO18Eligibility",
+    "UserSegmentationAccountAge",
+    "UserSegmentationActivationStatus",
+    "UserSegmentationEngagementLevel",
+    "UserSegmentationPayerStatus",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ClickCVR",
+   "name": "CTR pagina di dettaglio",
+   "en": "Users detail page CTR",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "format": "pct",
+   "desc": "Quota di utenti che, arrivati sulla pagina del gioco, premono Play: valuta descrizione, immagini e recensioni.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "Platform",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ImpressionCVR",
+   "name": "CTR sulle impression",
+   "en": "Users impression CTR",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "format": "pct",
+   "desc": "Quota di utenti che, vista la tua icona nelle liste Roblox, ci clicca: valuta l'efficacia di thumbnail e titolo.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "Platform",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "RFYDeepEngagementRate",
+   "name": "Deep engagement rate (RFY)",
+   "en": "Deep play through rate",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "format": "pct",
+   "desc": "Quota di utenti arrivati dai consigli che poi giocano a lungo: la metrica più premiata dalla distribuzione organica.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Gender"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "RFYQualifiedPTR",
+   "name": "Play-through qualificato (RFY)",
+   "en": "Qualified play through rate (recommendations)",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "format": "pct",
+   "desc": "Come sopra ma contando solo le sessioni reali: è il segnale che l'algoritmo Roblox usa per decidere se promuoverti.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Gender"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "RFYPlayThroughRate",
+   "name": "Play-through rate (Recommended For You)",
+   "en": "Play through rate",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "format": "pct",
+   "desc": "Quota di conversione a partita specificamente dalla home personalizzata di Roblox: indica quanto l'algoritmo ti sta spingendo bene.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroupV2",
+    "Gender"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "EndToEndCVR",
+   "name": "Tasso di gioco end-to-end",
+   "en": "Play rate per unique user",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "format": "pct",
+   "desc": "Quota di utenti che dall'impression arriva effettivamente a giocare: è il funnel di acquisizione completo in un solo numero.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "Platform",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "QualifiedEndToEndCVR",
+   "name": "Tasso di gioco qualificato",
+   "en": "Qualified play through rate per user",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "format": "pct",
+   "desc": "Come l'end-to-end ma conta solo le sessioni abbastanza lunghe da essere reali: filtra chi entra ed esce subito.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "Platform",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "UniqueUsersWithPlaySessions",
+   "name": "Utenti con almeno una partita",
+   "en": "Unique users with plays",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "format": "int",
+   "desc": "Quanti utenti unici hanno effettivamente giocato dopo essere stati raggiunti: il fondo del funnel.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "None",
+    "OneWeek"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "FunnelSource",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "Platform",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "QualifiedUniqueUsersWithPlaySessions",
+   "name": "Utenti con partita qualificata",
+   "en": "Unique users with qualified plays",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "format": "int",
+   "desc": "Come sopra, ma solo utenti con una sessione di durata significativa: misura l'acquisizione di qualità.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "None",
+    "OneWeek"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "FunnelSource",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "Platform",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "UniqueUsersWithClicks",
+   "name": "Utenti con visita alla pagina",
+   "en": "Users with detail page visits",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "format": "int",
+   "desc": "Quanti utenti unici hanno aperto la pagina del gioco: il secondo stadio del funnel di acquisizione.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "Platform",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "UniqueUsersWithImpressions",
+   "name": "Utenti raggiunti da impression",
+   "en": "Unique users with impressions",
+   "category": "Acquisition",
+   "category_it": "Acquisizione",
+   "format": "int",
+   "desc": "Quanti utenti unici hanno visto il gioco comparire da qualche parte: è la cima del funnel, la tua portata.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AcquisitionSource",
+    "AgeGroupV2",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "Platform",
+    "UserSegmentationPlatformActivationStatus",
+    "UserSegmentationPlatformSpenderStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "RotraceTotalCalls",
+   "name": "Chiamate API client nei primi 60s",
+   "en": "Client API calls in first 60s after join",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "int",
+   "desc": "Quante chiamate fa il client nel primo minuto dopo l'ingresso: un numero alto allunga il caricamento iniziale e aumenta gli abbandoni.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "None"
+   ],
+   "retention_days": 365,
+   "dimensions": [
+    "SimplifiedUrl"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ClientCrashCount",
+   "name": "Crash client",
+   "en": "Client crash count",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "int",
+   "desc": "Numero assoluto di crash sui dispositivi dei giocatori: ogni crash è una sessione interrotta e un giocatore probabilmente perso.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryGroup",
+    "OperatingSystem",
+    "Place",
+    "PlaceVersion",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ServerCrashCount",
+   "name": "Crash server",
+   "en": "Server crashes",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "int",
+   "desc": "Numero di crash dei server di gioco: ogni crash butta fuori tutti i giocatori di quella istanza contemporaneamente.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "CrashType",
+    "Place"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "SessionDurationSecondsAvg",
+   "name": "Durata sessione (secondi, lato server)",
+   "en": "Session time",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "sec",
+   "desc": "Durata media delle sessioni misurata dal server: usata come riferimento tecnico da incrociare con crash e FPS.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryGroup",
+    "OperatingSystem",
+    "Place",
+    "PlaceVersion",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ClientFpsAvg",
+   "name": "FPS medi client",
+   "en": "Client frame rate",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "fps",
+   "desc": "Frame al secondo medi sui dispositivi dei giocatori: sotto ~30 il gioco è percepito come scattoso e la retention ne soffre.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryGroup",
+    "OperatingSystem",
+    "Place",
+    "PlaceVersion",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ServerFrameRateAvg",
+   "name": "FPS medi server",
+   "en": "Server frame rate",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "fps",
+   "desc": "Frame al secondo del server (heartbeat, ideale 60): sotto 30 si vedono lag, teletrasporti e hit non registrati.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "Place"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "PeakConcurrentPlayers",
+   "name": "Giocatori contemporanei di picco (PCU)",
+   "en": "Peak concurrent players",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "int",
+   "desc": "Massimo numero di giocatori simultanei nel periodo: la misura della popolarità istantanea e del carico massimo da sostenere.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryGroup",
+    "OperatingSystem",
+    "Place",
+    "PlaceVersion",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ClientMemoryUsageAvg",
+   "name": "Memoria client",
+   "en": "Client memory usage",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "bytes",
+   "desc": "Memoria RAM media occupata sul dispositivo del giocatore: valore alto significa crash sui telefoni di fascia bassa.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryGroup",
+    "OperatingSystem",
+    "Place",
+    "PlaceVersion",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ClientMemoryUsagePercentageAvg",
+   "name": "Memoria client (% del limite)",
+   "en": "Client memory usage percentage",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "pct",
+   "desc": "Quanto della memoria disponibile del dispositivo viene usata: oltre l'80% i crash da esaurimento memoria diventano frequenti.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryGroup",
+    "OperatingSystem",
+    "Place",
+    "PlaceVersion",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "MemoryUsageAvg",
+   "name": "Memoria server",
+   "en": "Server memory usage by age / Server memory usage",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "mb",
+   "desc": "Memoria occupata dai server di gioco, scomponibile per categoria e per età del server: una crescita costante nel tempo indica un memory leak.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "HalfHour",
+    "None",
+    "OneDay",
+    "OneHour",
+    "OneMinute"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryUsageCategory",
+    "MemoryUsageSubCategory",
+    "Place",
+    "ServerAgeBucket"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "MemoryUsageCategory"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "ClientCrashRate15m",
+   "name": "Tasso di crash client (15 min)",
+   "en": "Client crash rate",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "pct",
+   "desc": "Percentuale di sessioni che crashano entro 15 minuti: normalizza i crash sul traffico, quindi è confrontabile nel tempo.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryGroup",
+    "OperatingSystem",
+    "Place",
+    "PlaceVersion",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ClientCpuTimeAvg",
+   "name": "Tempo CPU client",
+   "en": "Client CPU time",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "ms",
+   "desc": "Millisecondi di CPU per frame sul dispositivo del giocatore: se cresce, script o effetti stanno appesantendo i client.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "ClientCpuTimeCategory",
+    "ClientCpuTimeSubCategory",
+    "MemoryGroup",
+    "OperatingSystem",
+    "Place",
+    "PlaceVersion",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "CpuTimeAvg",
+   "name": "Tempo CPU server",
+   "en": "Server CPU time",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "ms",
+   "desc": "Millisecondi di CPU per frame sul server: la causa numero uno di calo degli FPS server, tipicamente script mal ottimizzati.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "CpuTimeCategory",
+    "CpuTimeSubCategory",
+    "Place"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "OomUnexpectedExits",
+   "name": "Uscite per esaurimento memoria",
+   "en": "Unexpected out of memory exits",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "int",
+   "desc": "Chiusure improvvise causate da memoria esaurita: puntano a perdite di memoria o asset troppo pesanti.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryGroup",
+    "OperatingSystem",
+    "Place",
+    "PlaceVersion",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "CpuCoreUtilization",
+   "name": "Utilizzo core CPU",
+   "en": "CPU core utilization",
+   "category": "Performance & Stability",
+   "category_it": "Performance e stabilità",
+   "format": "pct",
+   "desc": "Quanto sono saturati i core della CPU: se vicino al 100% il gioco è limitato dal calcolo e non scalerà con più giocatori.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "Place"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "EconomyTransactionCount",
+   "name": "Numero di transazioni",
+   "en": "Transactions",
+   "category": "Economy",
+   "category_it": "Economia interna",
+   "format": "int",
+   "desc": "Quante transazioni di valuta interna sono avvenute: misura il ritmo di attività dell'economia del gioco.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CurrencyType",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FlowType",
+    "Gender",
+    "IsNewUser",
+    "ItemSku",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform",
+    "TransactionType"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "TransactionType"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "EconomyAverageWalletBalance",
+   "name": "Saldo medio nel portafoglio",
+   "en": "Average wallet balance",
+   "category": "Economy",
+   "category_it": "Economia interna",
+   "format": "dec",
+   "desc": "Quanta valuta interna hanno in media i giocatori: se cresce senza sosta c'è inflazione e mancano i sink per spenderla.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CurrencyType",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform",
+    "TransactionType"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "EconomyTransactionAmount",
+   "name": "Volume delle transazioni",
+   "en": "Transaction amount",
+   "category": "Economy",
+   "category_it": "Economia interna",
+   "format": "dec",
+   "desc": "Valore totale scambiato nell'economia interna, suddivisibile per tipo di transazione e valuta: mostra dove entra ed esce la valuta.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CurrencyType",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FlowType",
+    "Gender",
+    "IsNewUser",
+    "ItemSku",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform",
+    "TransactionType"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "TransactionType"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "FunnelCohortCompletionRate",
+   "name": "Funnel coorte: completamento",
+   "en": "Cohort completion rate",
+   "category": "Funnels",
+   "category_it": "Funnel",
+   "format": "pct",
+   "desc": "Completamento del funnel per coorte di ingresso: mostra se le modifiche al gioco hanno migliorato il flusso per i nuovi arrivati.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FunnelName",
+    "FunnelStep",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "FunnelName"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "FunnelCohortSessionCompletionRate",
+   "name": "Funnel coorte: completamento sessioni",
+   "en": "Session cohort completion rate",
+   "category": "Funnels",
+   "category_it": "Funnel",
+   "format": "pct",
+   "desc": "Come sopra ma sulle sessioni della coorte: separa l'effetto apprendimento dall'effetto contenuto.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FunnelName",
+    "FunnelStep",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "FunnelName"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "FunnelCohortStep1Users",
+   "name": "Funnel coorte: utenti al primo step",
+   "en": "FunnelCohortStep1Users",
+   "category": "Funnels",
+   "category_it": "Funnel",
+   "format": "int",
+   "desc": "Quanti utenti della coorte entrano nel primo step: è il denominatore per leggere correttamente tutte le percentuali del funnel.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FunnelName",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "FunnelName"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "FunnelStepChurnRate",
+   "name": "Funnel sessioni: abbandono per step",
+   "en": "Churn",
+   "category": "Funnels",
+   "category_it": "Funnel",
+   "format": "pct",
+   "desc": "Percentuale di sessioni che si interrompe su ciascuno step: evidenzia i punti dove il giocatore molla a metà.",
+   "granularity": "None",
+   "days": 30,
+   "granularities": [
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FunnelName",
+    "FunnelStep",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform"
+   ],
+   "chart": "value",
+   "breakdown": [
+    "FunnelStep"
+   ],
+   "barSort": "label"
+  },
+  {
+   "id": "FunnelStepCompletionRate",
+   "name": "Funnel sessioni: completamento step",
+   "en": "Step completion",
+   "category": "Funnels",
+   "category_it": "Funnel",
+   "format": "pct",
+   "desc": "Percentuale di sessioni che supera ogni step: misura la difficoltà effettiva di ogni passaggio all'interno di una partita.",
+   "granularity": "None",
+   "days": 30,
+   "granularities": [
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FunnelName",
+    "FunnelStep",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform"
+   ],
+   "chart": "value",
+   "breakdown": [
+    "FunnelStep"
+   ],
+   "barSort": "label"
+  },
+  {
+   "id": "FunnelStepOverallCompletionRate",
+   "name": "Funnel sessioni: conversione totale",
+   "en": "Total conversion",
+   "category": "Funnels",
+   "category_it": "Funnel",
+   "format": "pct",
+   "desc": "Percentuale di sessioni che arriva in fondo al funnel: indicatore complessivo di quanto il flusso è percorribile.",
+   "granularity": "None",
+   "days": 30,
+   "granularities": [
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FunnelName",
+    "FunnelStep",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform"
+   ],
+   "chart": "value",
+   "breakdown": [
+    "FunnelName"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "FunnelStepTotalCount",
+   "name": "Funnel sessioni: totale per step",
+   "en": "Total Sessions",
+   "category": "Funnels",
+   "category_it": "Funnel",
+   "format": "int",
+   "desc": "Come il funnel utenti ma conta le sessioni: utile per flussi ripetibili più volte, come una partita o un round.",
+   "granularity": "None",
+   "days": 30,
+   "granularities": [
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FunnelName",
+    "FunnelStep",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform"
+   ],
+   "chart": "value",
+   "breakdown": [
+    "FunnelStep"
+   ],
+   "barSort": "label"
+  },
+  {
+   "id": "FunnelUserChurnRate",
+   "name": "Funnel utenti: abbandono per step",
+   "en": "Churn",
+   "category": "Funnels",
+   "category_it": "Funnel",
+   "format": "pct",
+   "desc": "Percentuale di utenti che si ferma su ciascuno step: il complemento del completamento, utile per ordinare le priorità di fix.",
+   "granularity": "None",
+   "days": 30,
+   "granularities": [
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FunnelName",
+    "FunnelStep",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform"
+   ],
+   "chart": "value",
+   "breakdown": [
+    "FunnelStep"
+   ],
+   "barSort": "label"
+  },
+  {
+   "id": "FunnelUserStepCompletionRate",
+   "name": "Funnel utenti: completamento step",
+   "en": "Step completion",
+   "category": "Funnels",
+   "category_it": "Funnel",
+   "format": "pct",
+   "desc": "Percentuale di utenti che supera ogni singolo step: individua il punto preciso in cui il tutorial o il flusso si rompe.",
+   "granularity": "None",
+   "days": 30,
+   "granularities": [
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FunnelName",
+    "FunnelStep",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform"
+   ],
+   "chart": "value",
+   "breakdown": [
+    "FunnelStep"
+   ],
+   "barSort": "label"
+  },
+  {
+   "id": "FunnelUserOverallCompletionRate",
+   "name": "Funnel utenti: conversione totale",
+   "en": "Total conversion",
+   "category": "Funnels",
+   "category_it": "Funnel",
+   "format": "pct",
+   "desc": "Percentuale di utenti che completa l'intero funnel dall'inizio alla fine: la sintesi della salute del flusso.",
+   "granularity": "None",
+   "days": 30,
+   "granularities": [
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FunnelName",
+    "FunnelStep",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform"
+   ],
+   "chart": "value",
+   "breakdown": [
+    "FunnelName"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "FunnelUserTotalCount",
+   "name": "Funnel utenti: totale per step",
+   "en": "Total users",
+   "category": "Funnels",
+   "category_it": "Funnel",
+   "format": "int",
+   "desc": "Quanti utenti unici raggiungono ciascuno step dei funnel che hai definito nel gioco: richiede la dimensione FunnelName.",
+   "granularity": "None",
+   "days": 30,
+   "granularities": [
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "FunnelName",
+    "FunnelStep",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform"
+   ],
+   "chart": "value",
+   "breakdown": [
+    "FunnelStep"
+   ],
+   "barSort": "label"
+  },
+  {
+   "id": "ThumbnailAverageSessionLengthMinutes",
+   "name": "Durata sessione per thumbnail",
+   "en": "ThumbnailAverageSessionLengthMinutes",
+   "category": "Thumbnails",
+   "category_it": "Thumbnail",
+   "format": "min",
+   "desc": "Durata media delle sessioni per thumbnail di provenienza: smaschera le copertine che attirano molti clic ma pubblico sbagliato.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "ThumbnailAsset",
+    "ThumbnailList"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ThumbnailImpressions",
+   "name": "Impression per thumbnail",
+   "en": "Impressions by thumbnail",
+   "category": "Thumbnails",
+   "category_it": "Thumbnail",
+   "format": "int",
+   "desc": "Quante volte è stata mostrata ciascuna immagine di copertina: è il denominatore per confrontare le performance delle thumbnail.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "ThumbnailAsset",
+    "ThumbnailList"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "ThumbnailAsset"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "ThumbnailQualifiedPlays",
+   "name": "Partite qualificate per thumbnail",
+   "en": "ThumbnailQualifiedPlays",
+   "category": "Thumbnails",
+   "category_it": "Thumbnail",
+   "format": "int",
+   "desc": "Quante partite reali ha generato ogni thumbnail: il numeratore del test A/B delle copertine.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "ThumbnailAsset",
+    "ThumbnailList"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "ThumbnailAsset"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "ThumbnailL7QualifiedPTR",
+   "name": "Play-through 7 giorni per thumbnail",
+   "en": "7D Qualified Play Through Rate by Thumbnail (Cumulative)",
+   "category": "Thumbnails",
+   "category_it": "Thumbnail",
+   "format": "pct",
+   "desc": "Lo stesso tasso cumulato su 7 giorni: più stabile e affidabile per decidere quale thumbnail tenere.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "ThumbnailAsset",
+    "ThumbnailList"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "ThumbnailQualifiedPTR",
+   "name": "Play-through rate per thumbnail",
+   "en": "Qualified play through rate by thumbnail",
+   "category": "Thumbnails",
+   "category_it": "Thumbnail",
+   "format": "pct",
+   "desc": "Tasso di conversione a partita di ciascuna thumbnail: dice quale immagine attira giocatori che poi restano davvero.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "ThumbnailAsset",
+    "ThumbnailList"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "ThumbnailAsset"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "ThumbnailWinningSegments",
+   "name": "Segmenti vincenti per thumbnail",
+   "en": "ThumbnailWinningSegments",
+   "category": "Thumbnails",
+   "category_it": "Thumbnail",
+   "format": "int",
+   "desc": "Per quali segmenti di pubblico ogni thumbnail risulta la migliore: guida la personalizzazione automatica delle copertine.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "ThumbnailAsset",
+    "ThumbnailList"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "AdsPublisherReportingVideo2DEpmNoUnvalidatedPc",
+   "name": "EPM video con premio",
+   "en": "Rewarded video earnings per mille (EPM)",
+   "category": "Advertising",
+   "category_it": "Pubblicità",
+   "format": "dec",
+   "desc": "Guadagno ogni mille impression video: dice quanto vale il tuo inventario pubblicitario, indipendentemente dal volume.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AdFormat",
+    "AdInstanceName",
+    "AdPlacementId",
+    "AdsPublisherReportingDataVersion",
+    "Country",
+    "Gender",
+    "OperatingSystem",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "AdsPublisherReportingTotalImpressions",
+   "name": "Impression pubblicitarie",
+   "en": "Impressions",
+   "category": "Advertising",
+   "category_it": "Pubblicità",
+   "format": "int",
+   "desc": "Quante volte sono stati mostrati annunci dentro il tuo gioco: il volume su cui si basano i ricavi advertising.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AdFormat",
+    "AdInstanceName",
+    "AdPlacementId",
+    "AdsPublisherReportingDataVersion",
+    "Country",
+    "Gender",
+    "OperatingSystem",
+    "Platform"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "AdFormat"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "AdsPublisherReportingVideo2DImpressions",
+   "name": "Impression video con premio",
+   "en": "Rewarded video impressions",
+   "category": "Advertising",
+   "category_it": "Pubblicità",
+   "format": "int",
+   "desc": "Quante volte è stato mostrato un video con ricompensa: misura quanto i giocatori accettano di guardarli.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AdFormat",
+    "AdInstanceName",
+    "AdPlacementId",
+    "AdsPublisherReportingDataVersion",
+    "Country",
+    "Gender",
+    "OperatingSystem",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "AdsPublisherReportingTotalRevenueRobux",
+   "name": "Ricavi pubblicitari",
+   "en": "Total revenue",
+   "category": "Advertising",
+   "category_it": "Pubblicità",
+   "format": "robux",
+   "desc": "Robux guadagnati complessivamente dalla pubblicità: il canale di ricavo alternativo agli acquisti in-game.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AdFormat",
+    "AdInstanceName",
+    "AdPlacementId",
+    "AdsPublisherReportingDataVersion",
+    "Country",
+    "Gender",
+    "OperatingSystem",
+    "Platform"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "AdFormat"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "AdsPublisherReportingVideo2DRevenueRobux",
+   "name": "Ricavi video con premio",
+   "en": "Rewarded video earnings",
+   "category": "Advertising",
+   "category_it": "Pubblicità",
+   "format": "robux",
+   "desc": "Robux generati dai video con ricompensa: di solito il formato pubblicitario che rende di più.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AdFormat",
+    "AdInstanceName",
+    "AdPlacementId",
+    "AdsPublisherReportingDataVersion",
+    "Country",
+    "Gender",
+    "OperatingSystem",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "AdsPublisherReportingVideo2DDailyUniqueViewer",
+   "name": "Spettatori unici giornalieri video",
+   "en": "Rewarded video daily unique viewers",
+   "category": "Advertising",
+   "category_it": "Pubblicità",
+   "format": "int",
+   "desc": "Quanti utenti unici al giorno guardano un video con premio: misura l'adozione reale del formato.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AdFormat",
+    "AdInstanceName",
+    "AdPlacementId",
+    "AdsPublisherReportingDataVersion",
+    "Country",
+    "Gender",
+    "OperatingSystem",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "UniqueAbuseReportSubmittersPer1000PlaytimeHours",
+   "name": "Segnalanti per 1000 ore giocate",
+   "en": "Abuse report submitters per 1000 playtime hours",
+   "category": "Safety",
+   "category_it": "Sicurezza",
+   "format": "dec",
+   "desc": "Segnalatori unici normalizzati sul tempo giocato: rende confrontabile la sicurezza nel tempo indipendentemente dalla crescita.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AbuseCategory",
+    "AbuseChannel"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "TotalAbuseReports",
+   "name": "Segnalazioni di abuso",
+   "en": "Total abuse reports",
+   "category": "Safety",
+   "category_it": "Sicurezza",
+   "format": "int",
+   "desc": "Numero totale di segnalazioni inviate dai giocatori: un picco indica un problema di moderazione o un exploit in corso.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AbuseCategory",
+    "AbuseChannel"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "CustomEventAvgPerUserValue",
+   "name": "Eventi personalizzati (media per utente)",
+   "en": "Custom events",
+   "category": "Custom Events",
+   "category_it": "Eventi personalizzati",
+   "format": "dec",
+   "desc": "Valore medio per utente degli eventi che registri tu via AnalyticsService: qui finisce tutto ciò che misuri di specifico del tuo gioco.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneDay",
+    "OneHour",
+    "OneWeek",
+    "OneMonth",
+    "None"
+   ],
+   "retention_days": 1468,
+   "dimensions": [
+    "AgeGroup",
+    "CustomEventName",
+    "CustomField1",
+    "CustomField2",
+    "CustomField3",
+    "Gender",
+    "IsNewUser",
+    "OperatingSystem",
+    "PayerStatus",
+    "Platform"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "CustomEventName"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "MatchmakingSignalsPlayHistoryDifferenceAvg",
+   "name": "Differenza di esperienza",
+   "en": "Play history difference",
+   "category": "Matchmaking",
+   "category_it": "Matchmaking",
+   "format": "dec",
+   "desc": "Scarto di esperienza pregressa fra i giocatori abbinati: se alto, i nuovi vengono schiacciati dai veterani.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 90,
+   "dimensions": [
+    "AgeGroup",
+    "Country",
+    "Locale",
+    "Place",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "MatchmakingSignalsAgeDifferenceAvg",
+   "name": "Differenza di età nei match",
+   "en": "Age difference",
+   "category": "Matchmaking",
+   "category_it": "Matchmaking",
+   "format": "dec",
+   "desc": "Scarto medio di età fra i giocatori messi insieme: rilevante per sicurezza e per omogeneità dell'esperienza.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 90,
+   "dimensions": [
+    "AgeGroup",
+    "Country",
+    "Locale",
+    "Place",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "MatchmakingSignalsEstimatePingAvg",
+   "name": "Ping stimato",
+   "en": "Estimated ping",
+   "category": "Matchmaking",
+   "category_it": "Matchmaking",
+   "format": "ms",
+   "desc": "Latenza media stimata dei giocatori assegnati ai server: valore alto significa partite scattose per motivi di rete, non di codice.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 90,
+   "dimensions": [
+    "AgeGroup",
+    "Country",
+    "Locale",
+    "Place",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "MatchmakingSignalsCommonChatGroupRatioAvg",
+   "name": "Quota chat testuale in comune",
+   "en": "Common text chat ratio",
+   "category": "Matchmaking",
+   "category_it": "Matchmaking",
+   "format": "pct",
+   "desc": "Quanto spesso i giocatori abbinati possono scriversi: influisce sul coordinamento nei giochi di squadra.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 90,
+   "dimensions": [
+    "AgeGroup",
+    "Country",
+    "Locale",
+    "Place",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "MatchmakingSignalsVoiceChatRatioAvg",
+   "name": "Quota chat vocale",
+   "en": "Voice chat ratio",
+   "category": "Matchmaking",
+   "category_it": "Matchmaking",
+   "format": "pct",
+   "desc": "Quanto spesso nei match ci sono giocatori con chat vocale attiva: utile per capire il livello di interazione sociale.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 90,
+   "dimensions": [
+    "AgeGroup",
+    "Country",
+    "Locale",
+    "Place",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "MatchmakingSignalsCommonDeviceTypeRatioAvg",
+   "name": "Quota dispositivo in comune",
+   "en": "Common device ratio",
+   "category": "Matchmaking",
+   "category_it": "Matchmaking",
+   "format": "pct",
+   "desc": "Quanto spesso i giocatori abbinati usano lo stesso tipo di dispositivo: conta dove mouse e touch danno vantaggi diversi.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 90,
+   "dimensions": [
+    "AgeGroup",
+    "Country",
+    "Locale",
+    "Place",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "MatchmakingSignalsCommonLanguageRatioAvg",
+   "name": "Quota lingua in comune",
+   "en": "Common language ratio",
+   "category": "Matchmaking",
+   "category_it": "Matchmaking",
+   "format": "pct",
+   "desc": "Quanto spesso i giocatori di una partita condividono la lingua: incide molto sulla possibilità di cooperare.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 90,
+   "dimensions": [
+    "AgeGroup",
+    "Country",
+    "Locale",
+    "Place",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "MatchmakingSignalsPreferredPlayerMatchRatioAvg",
+   "name": "Quota match con amici",
+   "en": "Average friends match ratio",
+   "category": "Matchmaking",
+   "category_it": "Matchmaking",
+   "format": "pct",
+   "desc": "Quanto spesso i giocatori finiscono in partita con amici o giocatori preferiti: forte predittore di retention.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 90,
+   "dimensions": [
+    "AgeGroup",
+    "Country",
+    "Locale",
+    "Place",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "MatchmakingSignalsOccupancyRatioAvg",
+   "name": "Rapporto di riempimento server",
+   "en": "Occupancy ratio",
+   "category": "Matchmaking",
+   "category_it": "Matchmaking",
+   "format": "pct",
+   "desc": "Quanto sono pieni i server rispetto alla capienza: troppo bassi e le partite sembrano vuote, troppo alti e non entra più nessuno.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 90,
+   "dimensions": [
+    "AgeGroup",
+    "Country",
+    "Locale",
+    "Place",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "MatchmakingNumericCustomSignalsDifferenceAvg",
+   "name": "Scarto segnali numerici personalizzati",
+   "en": "Numerical custom signal difference",
+   "category": "Matchmaking",
+   "category_it": "Matchmaking",
+   "format": "dec",
+   "desc": "Differenza media sui segnali numerici di matchmaking che definisci tu, per esempio il livello o il rank.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneHour",
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 90,
+   "dimensions": [
+    "AgeGroup",
+    "Locale",
+    "MatchmakingNumericCustomSignal",
+    "Place",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "MatchmakingCategoricalCustomSignalsSimilarityRatioAvg",
+   "name": "Similarità segnali categorici personalizzati",
+   "en": "Categorical custom signal similarity ratio",
+   "category": "Matchmaking",
+   "category_it": "Matchmaking",
+   "format": "pct",
+   "desc": "Quanto coincidono i segnali categorici che definisci tu, per esempio la modalità o la mappa scelta.",
+   "granularity": "OneDay",
+   "days": 30,
+   "granularities": [
+    "OneHour",
+    "OneDay",
+    "None"
+   ],
+   "retention_days": 90,
+   "dimensions": [
+    "AgeGroup",
+    "Locale",
+    "MatchmakingCategoricalCustomSignal",
+    "Place",
+    "Platform"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreConsumedReadRequests",
+   "name": "Quota lettura consumata",
+   "en": "Read request quota consumption",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Unità di quota di lettura effettivamente bruciate: le letture grandi costano più di una unità, quindi questo è il numero che conta.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreRequestSource",
+    "DataStoreTypeV2"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreConsumedListRequests",
+   "name": "Quota list consumata",
+   "en": "List request quota consumption",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Unità di quota consumate dalle elencazioni, che sono le operazioni più costose.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreRequestSource",
+    "DataStoreTypeV2"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreConsumedRemoveRequests",
+   "name": "Quota remove consumata",
+   "en": "Remove request quota consumption",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Unità di quota consumate dalle cancellazioni.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreRequestSource",
+    "DataStoreTypeV2"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreConsumedWriteRequests",
+   "name": "Quota scrittura consumata",
+   "en": "Write request quota consumption",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Unità di quota di scrittura bruciate: da confrontare con il limite del tuo universo per evitare il throttling.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreRequestSource",
+    "DataStoreTypeV2"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreRequestsByEndpoint",
+   "name": "Richieste Data Store per API",
+   "en": "Request count by API",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Chiamate ai Data Store raggruppate per endpoint: mostra quale operazione domina il traffico.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreOperation",
+    "DataStoreTypeV2"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "DataStoreOperation"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "DataStoreRequests",
+   "name": "Richieste Data Store per API e stato",
+   "en": "Request count by API and status",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Tutte le chiamate ai Data Store divise per tipo di API e stato di risposta: la vista d'insieme per diagnosticare problemi di salvataggio.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreOperation",
+    "DataStoreStatus",
+    "DataStoreTypeV2"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "DataStoreStatus"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "DataStoreRequestsByStatus",
+   "name": "Richieste Data Store per stato",
+   "en": "Request count by status",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Chiamate ai Data Store per esito: la crescita degli errori anticipa la perdita di progressi dei giocatori.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreStatus",
+    "DataStoreTypeV2"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "DataStoreStatus"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "DataStoreStorageUsageBytes",
+   "name": "Spazio Data Store occupato",
+   "en": "Storage usage",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "bytes",
+   "desc": "Byte totali salvati nei Data Store: crescita anomala significa che stai scrivendo dati inutili nei profili dei giocatori.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreReadRequests",
+   "name": "Uso quota lettura",
+   "en": "Read quota usage",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Consumo della quota di lettura rispetto al limite: avvicinandosi al tetto le letture iniziano a fallire.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreTypeV2"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreReadRequestsByEndpoint",
+   "name": "Uso quota lettura per endpoint",
+   "en": "Read quota usage",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Quota di lettura consumata, dettagliata per endpoint: individua quale chiamata specifica sta consumando il budget.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreOperation",
+    "DataStoreTypeV2"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreListRequests",
+   "name": "Uso quota list",
+   "en": "List quota usage",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Consumo della quota per le operazioni di elencazione delle chiavi, tipicamente usate da classifiche e strumenti admin.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreTypeV2"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreListRequestsByEndpoint",
+   "name": "Uso quota list per endpoint",
+   "en": "List quota usage",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Quota di elencazione per endpoint: utile quando le classifiche rallentano.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreOperation",
+    "DataStoreTypeV2"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreRemoveRequests",
+   "name": "Uso quota remove",
+   "en": "Remove quota usage",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Consumo della quota per le cancellazioni: normalmente basso, se sale c'è qualcosa che cancella troppo.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreTypeV2"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreRemoveRequestsByEndpoint",
+   "name": "Uso quota remove per endpoint",
+   "en": "Remove quota usage",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Quota di cancellazione per endpoint: isola la chiamata responsabile delle rimozioni.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreOperation",
+    "DataStoreTypeV2"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreWriteRequests",
+   "name": "Uso quota scrittura",
+   "en": "Write quota usage",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Consumo della quota di scrittura: è il limite che si tocca più spesso e causa perdita di salvataggi.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreTypeV2"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "DataStoreWriteRequestsByEndpoint",
+   "name": "Uso quota scrittura per endpoint",
+   "en": "Write quota usage",
+   "category": "Data Store",
+   "category_it": "Data Store",
+   "format": "int",
+   "desc": "Quota di scrittura per endpoint: serve a trovare il punto di codice che salva troppo spesso.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "DataStoreOperation",
+    "DataStoreTypeV2"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "MemoryStoreMemoryUsageBytes",
+   "name": "Memoria Memory Store",
+   "en": "Memory usage",
+   "category": "Memory Stores",
+   "category_it": "Memory Store",
+   "format": "bytes",
+   "desc": "Byte occupati nei Memory Store, la memoria condivisa e volatile fra server: al limite le scritture vengono rifiutate.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [],
+   "chart": "line"
+  },
+  {
+   "id": "MemoryStoreRequestsByEndpoint",
+   "name": "Richieste Memory Store per API",
+   "en": "Request count by API",
+   "category": "Memory Stores",
+   "category_it": "Memory Store",
+   "format": "int",
+   "desc": "Chiamate ai Memory Store raggruppate per endpoint: mostra quale struttura dati usi di più.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryStoreOperation"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "MemoryStoreOperation"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "MemoryStoreRequests",
+   "name": "Richieste Memory Store per API e stato",
+   "en": "Request count by API and status",
+   "category": "Memory Stores",
+   "category_it": "Memory Store",
+   "format": "int",
+   "desc": "Chiamate ai Memory Store per tipo e esito: la vista principale per diagnosticare code e matchmaking custom.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryStoreOperation",
+    "MemoryStoreStatus"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "MemoryStoreStatus"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "MemoryStoreRequestsByStatus",
+   "name": "Richieste Memory Store per stato",
+   "en": "Request count by status",
+   "category": "Memory Stores",
+   "category_it": "Memory Store",
+   "format": "int",
+   "desc": "Chiamate ai Memory Store per esito: gli errori qui rompono tipicamente code e sistemi in tempo reale.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryStoreStatus"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "MemoryStoreStatus"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "MemoryStoreRequestUnitsByEndpoint",
+   "name": "Unità di richiesta Memory Store",
+   "en": "API request units",
+   "category": "Memory Stores",
+   "category_it": "Memory Store",
+   "format": "int",
+   "desc": "Unità di quota consumate per endpoint: è la misura reale del costo, perché ogni operazione pesa diversamente.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "MemoryStoreOperation"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "MemoryStoreOperation"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "SpeechToTextTranscriptionStatuses",
+   "name": "Esiti API trascrizione audio",
+   "en": "Audio transcription API responses by status",
+   "category": "Speech-to-Text",
+   "category_it": "Speech-to-Text",
+   "format": "int",
+   "desc": "Chiamate di trascrizione suddivise per stato di risposta: una quota di errori in crescita segnala un problema di integrazione.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "SpeechToTextTranscriptionStatus"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "SpeechToTextTranscriptionStatus"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "SpeechToTextTranscriptionUsage",
+   "name": "Uso API trascrizione audio",
+   "en": "Audio transcription API usage",
+   "category": "Speech-to-Text",
+   "category_it": "Speech-to-Text",
+   "format": "int",
+   "desc": "Volume di chiamate all'API di trascrizione vocale: serve a monitorare consumo e costi della funzione.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "SpeechToTextTranscriptionStatus"
+   ],
+   "chart": "line"
+  },
+  {
+   "id": "TextToSpeechAssetSuccesses",
+   "name": "Asset audio generati con successo",
+   "en": "Audio generation API asset generation successes",
+   "category": "Text-to-Speech",
+   "category_it": "Text-to-Speech",
+   "format": "int",
+   "desc": "Quanti asset audio sono stati effettivamente creati: conferma che le richieste riuscite producono file utilizzabili.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [],
+   "chart": "line"
+  },
+  {
+   "id": "TextToSpeechRawAudioErrors",
+   "name": "Esiti API generazione audio",
+   "en": "Audio generation API responses by status",
+   "category": "Text-to-Speech",
+   "category_it": "Text-to-Speech",
+   "format": "int",
+   "desc": "Chiamate di sintesi vocale per stato di risposta: isola errori e limiti di quota.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "TextToSpeechRawAudioStatus"
+   ],
+   "chart": "line",
+   "breakdown": [
+    "TextToSpeechRawAudioStatus"
+   ],
+   "barSort": "value"
+  },
+  {
+   "id": "TextToSpeechRawAudioSuccesses",
+   "name": "Uso API generazione audio",
+   "en": "Audio generation API usage",
+   "category": "Text-to-Speech",
+   "category_it": "Text-to-Speech",
+   "format": "int",
+   "desc": "Volume di chiamate riuscite all'API di sintesi vocale: misura quanto usi la funzione.",
+   "granularity": "OneDay",
+   "days": 26,
+   "granularities": [
+    "OneMinute",
+    "HalfHour",
+    "OneHour",
+    "OneDay"
+   ],
+   "retention_days": 28,
+   "dimensions": [
+    "TextToSpeechRawAudioStatus"
+   ],
+   "chart": "line"
+  }
+ ]
+}

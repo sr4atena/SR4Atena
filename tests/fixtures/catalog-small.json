@@ -1,0 +1,113 @@
+{
+ "universeId": 1,
+ "game": "Fixture Manor",
+ "metrics": [
+  {
+   "id": "ItemMonetizationRevenue",
+   "name": "Ricavi da vendite",
+   "en": "Item revenue",
+   "category": "Monetization",
+   "format": "robux",
+   "desc": "",
+   "breakdown": null
+  },
+  {
+   "id": "DailyActiveUsers",
+   "name": "Utenti attivi giornalieri",
+   "en": "DAU",
+   "category": "Engagement",
+   "format": "int",
+   "desc": "",
+   "breakdown": [
+    "Platform"
+   ]
+  },
+  {
+   "id": "DailyRevenue",
+   "name": "Ricavi giornalieri",
+   "en": "Daily revenue",
+   "category": "Monetization",
+   "format": "robux",
+   "desc": "",
+   "breakdown": [
+    "Platform"
+   ]
+  },
+  {
+   "id": "MonthlyActiveUsers",
+   "name": "Utenti attivi mensili",
+   "en": "MAU",
+   "category": "Engagement",
+   "format": "int",
+   "desc": "",
+   "breakdown": null
+  },
+  {
+   "id": "PayingUsers",
+   "name": "Utenti paganti",
+   "en": "Paying users",
+   "category": "Monetization",
+   "format": "int",
+   "desc": "",
+   "breakdown": null
+  },
+  {
+   "id": "PayingUsersCVR",
+   "name": "Conversione a pagante",
+   "en": "Paying CVR",
+   "category": "Monetization",
+   "format": "pct",
+   "desc": "",
+   "breakdown": null
+  },
+  {
+   "id": "ForwardD1Retention",
+   "name": "Retention D1",
+   "en": "D1 retention",
+   "category": "Retention",
+   "format": "pct",
+   "desc": "",
+   "breakdown": [
+    "Platform"
+   ]
+  },
+  {
+   "id": "ForwardD7Retention",
+   "name": "Retention D7",
+   "en": "D7 retention",
+   "category": "Retention",
+   "format": "pct",
+   "desc": "",
+   "breakdown": null
+  },
+  {
+   "id": "ClientCrashRate15m",
+   "name": "Crash rate client",
+   "en": "Crash rate",
+   "category": "Performance & Stability",
+   "format": "pct",
+   "desc": "",
+   "breakdown": null
+  },
+  {
+   "id": "DailyCohortRetention",
+   "name": "Retention per coorte",
+   "en": "Cohort retention",
+   "category": "Retention",
+   "format": "pct",
+   "desc": "",
+   "breakdown": [
+    "CohortDay"
+   ]
+  },
+  {
+   "id": "HourlyThing",
+   "name": "Oraria",
+   "en": "Hourly",
+   "category": "Other",
+   "format": "int",
+   "desc": "",
+   "breakdown": null
+  }
+ ]
+}

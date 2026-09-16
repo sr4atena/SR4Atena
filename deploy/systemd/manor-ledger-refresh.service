@@ -1,0 +1,36 @@
+[Unit]
+Description=Manor Ledger: fetch Roblox metrics, merge history, build dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=manor
+Group=manor
+WorkingDirectory=/opt/manor-ledger
+Environment=MANOR_DATA_DIR=/var/lib/manor-ledger
+Environment=MANOR_API_KEY_FILE=/etc/manor-ledger/api-key
+Environment=MANOR_HOST=manor.handgivers.it
+# --if-older-than lets the same unit serve as a retry: a second timer fires at
+# noon and is a no-op when the morning run succeeded.
+ExecStart=/usr/bin/php /opt/manor-ledger/bin/refresh --if-older-than=8
+ExecStart=/usr/bin/php /opt/manor-ledger/bin/build
+TimeoutStartSec=20min
+Nice=10
+
+# Sandbox: this job needs the network, its data dir and the key file, nothing else.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/manor-ledger
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictRealtime=yes
+SystemCallArchitectures=native
+CapabilityBoundingSet=

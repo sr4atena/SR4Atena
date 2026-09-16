@@ -1,0 +1,13 @@
+[Unit]
+Description=Manor Ledger: daily refresh at 07:00 Rome time (+ noon retry)
+
+[Timer]
+# systemd evaluates the timezone in the calendar spec itself, so the job
+# follows Italian DST without touching the host clock (which stays UTC).
+OnCalendar=*-*-* 07:00:00 Europe/Rome
+OnCalendar=*-*-* 12:00:00 Europe/Rome
+Persistent=true
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target

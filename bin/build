@@ -1,0 +1,59 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Builds data/dashboard.json from data/history.json.
+ *
+ *   bin/build            write the file, print a one-line summary
+ *   bin/build --print    also dump the JSON to stdout
+ *
+ * Exit 2 when the history is missing: there is nothing to build yet.
+ */
+declare(strict_types=1);
+
+require dirname(__DIR__) . '/src/autoload.php';
+
+use ManorLedger\Analytics\DashboardBuilder;
+use ManorLedger\Storage\History;
+use ManorLedger\Storage\JsonStore;
+
+$config  = require dirname(__DIR__) . '/config/app.php';
+$print   = in_array('--print', array_slice($argv, 1), true);
+$paths   = $config['paths'];
+
+$catalogById = [];
+$catalogDoc  = json_decode((string)file_get_contents($paths['metrics']), true);
+foreach ($catalogDoc['metrics'] ?? [] as $entry) {
+    if (isset($entry['id'])) {
+        $catalogById[$entry['id']] = $entry;
+    }
+}
+$glossary = json_decode((string)file_get_contents($paths['glossary']), true) ?: [];
+
+$history = new History($paths['history'], static fn (string $id): string => $catalogById[$id]['format'] ?? 'dec');
+if (!$history->exists()) {
+    fwrite(STDERR, "history missing: {$paths['history']} (run bin/refresh or bin/import-legacy first)\n");
+    exit(2);
+}
+
+// The fetch time decides which revenue day is still provisional. Prefer the
+// time recorded in the history, then the raw cache, then the history file itself.
+$cache     = new JsonStore($paths['cache'] . '/metrics.json');
+$fetchedAt = $history->fetchedAt() ?? ($cache->read()['fetchedAt'] ?? null) ?? (new JsonStore($paths['history']))->mtime() ?? time();
+
+$dashboard = (new DashboardBuilder($config, $catalogById, $glossary))->build($history, (int)$fetchedAt);
+$store = new JsonStore($paths['dashboard']);
+$store->write($dashboard);
+
+if ($print) {
+    echo json_encode($dashboard, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT), "\n";
+}
+printf(
+    "%s: %d KB, dataThrough %s, provisional %s, %d metrics, %d dimension pairs, %d anomalies\n",
+    $paths['dashboard'],
+    (int)round(filesize($paths['dashboard']) / 1024),
+    $dashboard['dataThrough'] ?? 'n/a',
+    $dashboard['provisionalDate'] ?? 'none',
+    count($dashboard['metrics']),
+    count($dashboard['dimensions']),
+    count($dashboard['anomalies']),
+);

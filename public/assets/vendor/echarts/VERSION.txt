@@ -1,0 +1,5 @@
+Apache ECharts 5.6.0 (dist/echarts.min.js, UMD build; bundles ZRender 5.6.1)
+Source: https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js
+Licence: Apache-2.0 (see LICENSE)
+sha256 (echarts.min.js): bf4a223524e40b77c304bec67e1222cf551f14880cf42c69dc046558e11c07b1
+Downloaded: 2026-09-16

@@ -1,0 +1,12 @@
+# Ingress rule to add to /etc/cloudflared/config.yml on the VPS, BEFORE the
+# final `- service: http_status:404` catch-all. cloudflared routes by hostname,
+# so any rule already in the file is untouched.
+#
+# Then publish the DNS record once (needs ~/.cloudflared/cert.pem):
+#   cloudflared tunnel route dns <tunnel-id> manor.handgivers.it
+  - hostname: manor.handgivers.it
+    service: http://127.0.0.1:8090
+    originRequest:
+      httpHostHeader: manor.handgivers.it
+      connectTimeout: 10s
+      noTLSVerify: false

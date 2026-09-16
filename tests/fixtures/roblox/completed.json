@@ -1,0 +1,29 @@
+{
+  "done": true,
+  "path": "v1/universes/10674300622/operations/9f2b1c4e-completed",
+  "response": {
+    "values": [
+      {
+        "breakdowns": [{"dimension": "Platform", "value": "Computer"}],
+        "dataPoints": [
+          {"time": "2026-09-13T00:00:00+00:00", "value": 37},
+          {"time": "2026-09-14T00:00:00+00:00", "value": 41},
+          {"time": "2026-09-15T00:00:00+00:00", "value": null}
+        ]
+      },
+      {
+        "breakdowns": [{"dimension": "Platform", "value": "Phone"}],
+        "dataPoints": [
+          {"time": "2026-09-13T00:00:00+00:00", "value": 198},
+          {"time": "2026-09-14T00:00:00+00:00", "value": 210}
+        ]
+      },
+      {
+        "breakdowns": [{"dimension": "Platform", "value": "Console"}],
+        "dataPoints": [
+          {"time": "2026-09-13T00:00:00+00:00", "value": null}
+        ]
+      }
+    ]
+  }
+}

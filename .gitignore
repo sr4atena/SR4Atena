@@ -1,0 +1,11 @@
+# Runtime state: never commit data, keys or sessions
+/data/
+!/data/.gitkeep
+/vendor/
+composer.lock
+*.log
+.phpunit.result.cache
+.phpunit.cache/
+.DS_Store
+# Local deployment overrides
+/deploy/*.local.*

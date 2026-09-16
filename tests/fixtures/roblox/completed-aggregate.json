@@ -1,0 +1,14 @@
+{
+  "done": true,
+  "response": {
+    "values": [
+      {
+        "breakdowns": [],
+        "dataPoints": [
+          {"time": "2026-09-13T00:00:00+00:00", "value": 120411},
+          {"time": "2026-09-14T00:00:00+00:00", "value": 118002}
+        ]
+      }
+    ]
+  }
+}
