@@ -7,10 +7,11 @@
  * spec = {
  *   dates: [iso] | categories: [string],
  *   unit, series: [{ name, values, unit, kind: 'line'|'area'|'bar'|'band',
- *                    color, stack, hidden, endLabel, thin, extra(v) }],
+ *                    color, stack, hidden, endLabel, thin, dashed, extra(v, i) }],
  *   secondary: { unit, factor },    // right axis = left axis × factor
  *   percentStack, horizontal, provisionalDate, yScale, yMax,
  *   markLines: [{ value, label }], bands: [{ from, to, label }] (category names or indices),
+ *   categoryTicks: [string],        // the only x labels to draw (others stay on the axis, unlabelled)
  *   footnote: string (rendered by charts.js under the card)
  * }
  * Tooltips are built as DOM nodes (never HTML strings) so they stay CSP-safe.
@@ -130,7 +131,8 @@ export function toOption(spec) {
   const categoryAxis = {
     type: 'category', data: xs, boundaryGap: hasBars,
     axisLine: { lineStyle: { color: t.axis } }, axisTick: { show: false },
-    axisLabel: { color: t.muted, fontSize: 11, hideOverlap: true, formatter: (v) => (isTime ? fmtDate(v, 'axis') : v) },
+    axisLabel: { color: t.muted, fontSize: 11, hideOverlap: true, formatter: (v) => (isTime ? fmtDate(v, 'axis') : v),
+      interval: spec.categoryTicks ? (_i, v) => spec.categoryTicks.includes(v) : 'auto' },
     axisPointer: { label: { show: true, formatter: (p) => (isTime ? fmtDate(p.value) : p.value) } },
   };
   const yAxes = [valueAxis(spec.unit, primaryMax, 'left')];
@@ -181,10 +183,13 @@ function tooltipNode(params, spec, xs, isTime) {
     name.textContent = s.name;
     row.append(key, val, name);
     if (s.extra && typeof v === 'number') {
-      const ex = document.createElement('span');
-      ex.className = 'tt-extra';
-      ex.textContent = s.extra(v);
-      row.appendChild(ex);
+      const text = s.extra(v, p.dataIndex);
+      if (text) {
+        const ex = document.createElement('span');
+        ex.className = 'tt-extra';
+        ex.textContent = text;
+        row.appendChild(ex);
+      }
     }
     root.appendChild(row);
   });

@@ -161,6 +161,9 @@ a { color: inherit; }
 
 /* 7 ---- KPI tiles --------------------------------------------------- */
 .kpi-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--sp-3); margin-top: var(--sp-2); }
+/* Tiles are a summary, not part of the first card row: give them room to breathe.
+   Views that slip a note between the two (Valore) keep the note's own spacing. */
+.kpi-row + .grid { margin-top: var(--sp-5); }
 .kpi {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: var(--sp-3) var(--sp-4); display: flex; flex-direction: column; gap: 4px; min-width: 0;

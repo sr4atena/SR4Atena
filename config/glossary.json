@@ -32,5 +32,8 @@
   {"term": "Baseline", "meaning": "Valore atteso di un giorno, calcolato dalla media dello stesso giorno della settimana nelle 4 settimane precedenti."},
   {"term": "Indice stagionale", "meaning": "Rapporto fra la media di un giorno della settimana e la media generale: 1,0 è neutro, 1,4 di sabato vuol dire +40%."},
   {"term": "DataStore", "meaning": "Servizio di salvataggio persistente di Roblox; le richieste non Ok (throttling, errori) segnalano problemi lato server."},
-  {"term": "Rate limit", "meaning": "Tetto di 30 richieste al minuto imposto da Roblox alle API analytics, condiviso da tutte le chiavi dello stesso proprietario."}
+  {"term": "Rate limit", "meaning": "Tetto di 30 richieste al minuto imposto da Roblox alle API analytics, condiviso da tutte le chiavi dello stesso proprietario."},
+  {"term": "Curva di permanenza", "meaning": "Quota di sessioni ancora in corso dopo N secondi di gioco: si ricava dalla metrica TotalSessionsEndedInBucket dividendo il valore di ogni fascia per quello della fascia 0."},
+  {"term": "Mediana di sessione", "meaning": "Durata alla quale la curva di permanenza scende al 50%: metà delle sessioni dura di più, metà di meno. È interpolata fra le due fasce che la incrociano."},
+  {"term": "Sessione", "meaning": "Una singola partita, dall'ingresso nell'esperienza all'uscita; un giocatore ne apre più di una al giorno."}
 ]

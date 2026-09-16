@@ -205,7 +205,7 @@
    "category_it": "Engagement",
    "format": "int",
    "desc": "Distribuzione delle sessioni terminate per durata (dimensione SessionTimeBucket): rivela se gli abbandoni sono concentrati nei primissimi minuti.",
-   "granularity": "None",
+   "granularity": "OneDay",
    "days": 30,
    "granularities": [
     "OneDay",

@@ -43,6 +43,31 @@ flagged `aggregatedFromBreakdown` until fresh fetches replace those days.
 
 KPI deltas compare the last complete 7-day window with the 7 days before it.
 
+## In-session survival
+
+`TotalSessionsEndedInBucket` is fetched with its `SessionTimeBucket`
+breakdown, whose labels are seconds ("0", "30", ... "1800"). The value at
+bucket *B* counts the sessions still alive at *B* seconds, so the series is
+already monotonically decreasing and
+
+    survival(B) = value(B) ÷ value(0)
+
+is the share of a day's sessions still in play after *B* seconds. The
+dashboard publishes it as `sessionSurvival`: the curve of the last seven
+complete days, the curve of the seven before, four thresholds (1, 5, 10 and
+30 minutes) followed day by day, and the interpolated bucket where the
+current curve crosses one half — the median session length.
+
+A window pools the days it covers (the sum of bucket *B* over the window
+divided by the sum of its 0-second bucket) instead of averaging the daily
+ratios, so a quiet Tuesday does not weigh as much as a busy Sunday. Days
+without a usable 0-second bucket are dropped, and a window with fewer than
+three usable days is published as `null` rather than as a curve drawn on
+one day.
+
+The first two minutes are the interesting part: that is where a bad first
+impression shows up, long before it reaches D1 retention.
+
 ## Seasonality and comparisons
 
 This audience roughly doubles at weekends. Three consequences:

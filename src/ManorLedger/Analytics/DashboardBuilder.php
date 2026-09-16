@@ -23,10 +23,13 @@ final class DashboardBuilder
     private const UNKNOWN_PREFIX = 'RAQI_RESERVED';
     /** The only breakdown whose labels can be averaged into a rate, weighted by DAU per label. */
     private const WEIGHT_DIMENSION = 'Platform';
+    /** Source of the in-session survival curve: its labels are seconds, not a real breakdown. */
+    private const SESSION_BUCKET_METRIC = 'TotalSessionsEndedInBucket';
 
     private readonly Economics $economics;
     private readonly Seasonality $seasonality;
     private readonly Anomalies $anomalies;
+    private readonly SessionSurvival $sessionSurvival;
 
     /**
      * @param array $config        Decoded config/app.php.
@@ -47,6 +50,7 @@ final class DashboardBuilder
         );
         $this->seasonality = new Seasonality();
         $this->anomalies   = new Anomalies();
+        $this->sessionSurvival = new SessionSurvival();
     }
 
     /** @param int $fetchedAt Unix time of the fetch the history was last fed with (decides the provisional day). */
@@ -104,6 +108,7 @@ final class DashboardBuilder
             'derived'          => $this->derived($revenueAll, $revenue, $dau, $inputs, $dimensions),
             'weekOverWeek'     => $this->weekOverWeek($revenueAll, $dau, $provisionalDate),
             'seasonality'      => $dataThrough === null ? null : $this->seasonality->build($revenue, $dau, $dataThrough),
+            'sessionSurvival'  => $this->sessionSurvival->build($history->metric(self::SESSION_BUCKET_METRIC), $dataThrough),
             'anomalies'        => $this->anomalies->detect($this->candidateMetrics($history), $provisionalDate),
             'platformValuation'=> ($peakDau === null || $arpdau7 === null) ? [] : $this->economics->plateauScale((float)$peakDau, (float)$arpdau7),
             'glossary'         => $this->glossary,

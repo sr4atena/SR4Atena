@@ -164,6 +164,17 @@ Dimension pairs are merged into the same file under the key
     "weekdays": ["lun","mar","mer","gio","ven","sab","dom"],
     "revenueIndex": [1.25,0.64,0.71,0.68,0.71,1.31,1.69], "dauIndex": [],
     "weeks": 4, "through": "2026-09-14" },
+  "sessionSurvival": {                       // in-session survival curve; null when the metric is absent
+    "bucketsSeconds": [0, 30, 60, "…", 1800],           // SessionTimeBucket labels, in seconds, ascending
+    "current":  { "from": "2026-09-08", "to": "2026-09-14", "days": 7,
+                  "values": [1.0, 0.8845, 0.8065, "…"] },  // survival at each bucket, days pooled
+    "previous": { "from": "2026-09-01", "to": "2026-09-07", "days": 7, "values": [] },
+    "sessionsPerDay": 367171.14,             // mean 0-second bucket over the current window
+    "milestones": [                          // one entry per threshold, each with its own daily series
+      { "seconds": 60, "label": "1 minuto", "current": 0.8065, "previous": 0.7778, "delta": 0.0287,
+        "dates": ["2026-08-17"], "values": [0.7069] } ],
+    "medianSeconds": 265.5                   // interpolated bucket where the current curve crosses 0.5
+  },
   "anomalies": [                             // robust z-score vs same-weekday baseline
     { "metric": "ClientCrashRate15m", "name": "Crash rate client", "label": "",
       "date": "2026-09-14", "value": 0.031, "expected": 0.019, "zScore": 3.38,
@@ -193,6 +204,12 @@ Three rules the frontend must honour:
 3. **`bad` is not `direction`.** A fall in crash rate is reported with
    `direction: "down"` and `bad: false`. Colour by `bad`, so a good surprise
    does not look like an incident.
+
+`sessionSurvival` windows only count days whose 0-second bucket is present
+and non-zero, and need three of them: `current`, `previous` and
+`medianSeconds` are `null` below that, and the whole key is `null` when
+`TotalSessionsEndedInBucket` was never collected. Days after `dataThrough`
+are ignored.
 
 Any value can be `null`, including a whole KPI. `ItemMonetizationRevenue|Platform`
 is not collected, and the country breakdown is already reduced to the top eight

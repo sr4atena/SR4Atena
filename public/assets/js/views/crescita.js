@@ -1,6 +1,7 @@
 /**
  * View "Crescita": audience size and quality. DAU with 7-day mean,
- * stickiness, MAU, retention, weekday seasonality, platform mix, new vs
+ * stickiness, MAU, retention, the in-session survival curve and its
+ * milestones over time, weekday seasonality, platform mix, new vs
  * returning, visits, session length and peak concurrency.
  */
 import { card, grid } from '../cards.js';
@@ -8,11 +9,22 @@ import { chart } from '../charts.js';
 import { theme, entityColor } from '../chart-option.js';
 import { forPeriod, firstValues, rolling, sortByTotal, alignValues, aggregationNote } from '../series.js';
 import { kpiRow } from '../kpi.js';
-import { fmtDate } from '../format.js';
+import { fmtDate, fmtDelta } from '../format.js';
 import { metricCard } from './common.js';
 
 export const title = 'Crescita';
 const IT_LABEL = { New: 'Nuovi', Returning: 'Di ritorno' };
+/** The only x labels drawn on the survival curve: the rest of the buckets stay unlabelled. */
+const SURVIVAL_TICKS = ['0', '1m', '5m', '10m', '20m', '30m'];
+
+/** Seconds as a compact duration: 0 / 45s / 1m / 4m 26s / 30m. */
+function fmtSeconds(seconds) {
+  const total = Math.round(seconds);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  if (!m) return s ? `${s}s` : '0';
+  return s ? `${m}m ${String(s).padStart(2, '0')}s` : `${m}m`;
+}
 
 export function render(main, state) {
   const t = theme();
@@ -59,6 +71,33 @@ export function render(main, state) {
     if (d7) series.push({ name: 'D7', values: alignValues(base.dates, d7), kind: 'line', color: t.palette[2], endLabel: true });
     return { dates: base.dates, unit: 'pct', series, provisionalDate: ctx.data.provisionalDate, footnote: aggregationNote(d1) ?? aggregationNote(d7) };
   }, { title: 'Retention a 1 e 7 giorni' });
+
+  const cCurve = card({ title: 'Curva di permanenza in partita', span: 8, terms: ['Curva di permanenza', 'Mediana di sessione', 'Sessione'],
+    says: 'Si legge come «quanti giocatori sono ancora in partita dopo N minuti»: la parte che conta sono i primi due minuti, '
+      + 'dove si vede subito una brutta prima impressione. La linea tratteggiata è la settimana precedente.' });
+  g.appendChild(cCurve.root);
+  chart(cCurve, (ctx) => {
+    const s = ctx.data.sessionSurvival;
+    if (!s?.current) return null;
+    const prev = s.previous?.values ?? [];
+    const series = [{ name: `Ultimi ${s.current.days} giorni`, values: s.current.values, kind: 'line', color: t.accent,
+      extra: (v, i) => (typeof prev[i] === 'number' ? fmtDelta(v - prev[i], true) : '') }];
+    if (s.previous) series.push({ name: `${s.previous.days} giorni prima`, values: prev, kind: 'line', color: t.dim, thin: true, dashed: true });
+    return { categories: s.bucketsSeconds.map(fmtSeconds), categoryTicks: SURVIVAL_TICKS, unit: 'pct', yMax: 1, series,
+      markLines: s.medianSeconds === null ? null : [{ value: 0.5, label: `metà delle sessioni supera ${fmtSeconds(s.medianSeconds)}` }],
+      footnote: `finestra dal ${fmtDate(s.current.from)} al ${fmtDate(s.current.to)}` };
+  }, { title: 'Quota di sessioni ancora in corso dopo N minuti' });
+
+  const cMiles = card({ title: 'Permanenza nel tempo', span: 4, terms: ['Curva di permanenza', 'Sessione'],
+    says: 'Le stesse soglie giorno per giorno: una linea che sale vuol dire che il gioco trattiene i giocatori meglio di prima.' });
+  g.appendChild(cMiles.root);
+  chart(cMiles, (ctx) => {
+    const miles = ctx.data.sessionSurvival?.milestones ?? [];
+    if (!miles.length) return null;
+    const block = forPeriod({ dates: miles[0].dates, series: miles.map((m) => ({ label: `oltre ${fmtSeconds(m.seconds)}`, values: m.values })) }, ctx.period);
+    return { dates: block.dates, unit: 'pct',
+      series: block.series.map((b, i) => ({ name: b.label, values: b.values, kind: 'line', color: t.palette[i] })) };
+  }, { title: 'Quota di sessioni oltre 1, 5, 10 e 30 minuti nel tempo' });
 
   const seas = state.data.seasonality ?? {};
   const cSeas = card({ title: 'Stagionalità per giorno della settimana', span: 6, terms: ['Indice stagionale', 'DAU', 'R$'],

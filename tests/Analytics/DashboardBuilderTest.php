@@ -44,7 +44,7 @@ final class DashboardBuilderTest extends TestCase
     public function testTopLevelContract(): void
     {
         $d = $this->build();
-        foreach (['generatedAt', 'dataThrough', 'provisionalDate', 'game', 'assumptions', 'kpis', 'metrics', 'dimensions', 'derived', 'weekOverWeek', 'seasonality', 'anomalies', 'platformValuation', 'glossary'] as $key) {
+        foreach (['generatedAt', 'dataThrough', 'provisionalDate', 'game', 'assumptions', 'kpis', 'metrics', 'dimensions', 'derived', 'weekOverWeek', 'seasonality', 'sessionSurvival', 'anomalies', 'platformValuation', 'glossary'] as $key) {
             self::assertArrayHasKey($key, $d);
         }
         self::assertSame('2026-09-02T08:00:00Z', $d['generatedAt']);
@@ -53,6 +53,7 @@ final class DashboardBuilderTest extends TestCase
         self::assertSame(['conservative' => 18, 'base' => 30], $d['assumptions']['multiples']);
         self::assertSame('DAU', $d['glossary'][0]['term']);
         self::assertSame(['from' => '2026-08-03', 'to' => '2026-09-01', 'days' => 30, 'fetchedAt' => '2026-09-02T07:00:00Z'], $d['coverage']);
+        self::assertNull($d['sessionSurvival'], 'the fixture carries no session bucket metric');
     }
 
     public function testFreshestRevenueDayIsProvisionalWhenFetchedWithinADay(): void

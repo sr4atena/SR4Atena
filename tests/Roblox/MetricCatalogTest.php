@@ -28,7 +28,7 @@ final class MetricCatalogTest extends TestCase
     {
         $daily = self::realCatalog()->dailyMetrics();
         $ids   = array_column($daily, 'id');
-        self::assertCount(101, $daily);
+        self::assertCount(102, $daily);
         self::assertContains('DailyActiveUsers', $ids);
         self::assertNotContains('WeeklyCohortRetention', $ids, 'OneWeek granularity');
         self::assertNotContains('FunnelStepChurnRate', $ids, 'granularity None');
