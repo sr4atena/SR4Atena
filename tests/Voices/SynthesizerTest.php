@@ -100,6 +100,53 @@ final class SynthesizerTest extends TestCase
         self::assertSame('old', $synthesis['improvements'][0]['recency']);
     }
 
+    public function testTheLabelCountsDaysNotVideos(): void
+    {
+        // Four videos inside nine days, which is what the real set looks like:
+        // a rank-based cutoff would call everything before the third-newest
+        // `old`, i.e. "risolto?", for complaints raised a few days earlier.
+        $videos = [
+            self::video('AAAAAAAAAAA', '2026-09-06'),
+            self::video('BBBBBBBBBBB', '2026-09-08'),
+            self::video('CCCCCCCCCCC', '2026-09-12'),
+            self::video('DDDDDDDDDDD', '2026-09-15'),
+        ];
+        $synthesis = $this->synthesizer([
+            'likes' => [],
+            'improvements' => [
+                // 2026-09-06 is 9 days before the newest video: still recent.
+                ['point' => 'Lag nella lobby iniziale', 'videos' => ['AAAAAAAAAAA']],
+                ['point' => 'Barra della stamina troppo breve', 'videos' => ['AAAAAAAAAAA', 'DDDDDDDDDDD']],
+                ['point' => 'Collisioni negli armadi', 'videos' => ['DDDDDDDDDDD']],
+            ],
+            'verdict' => 'Il lag della lobby non compare più nei video recenti mentre la stamina resta un tema aperto.',
+        ])->synthesize($videos, self::NOW);
+
+        self::assertSame(['recent', 'recent', 'recent'], array_column($synthesis['improvements'], 'recency'));
+    }
+
+    public function testAPointGoesPersistentBeforeItGoesOld(): void
+    {
+        $videos = [
+            self::video('AAAAAAAAAAA', '2026-08-20'),
+            self::video('BBBBBBBBBBB', '2026-09-03'),
+            self::video('CCCCCCCCCCC', '2026-09-14'),
+        ];
+        $synthesis = $this->synthesizer([
+            'likes' => [],
+            'improvements' => [
+                // Last raised 11 days before the newest video: quiet, but not
+                // quiet for the fortnight that "risolto?" claims.
+                ['point' => 'Lag nella lobby iniziale', 'videos' => ['BBBBBBBBBBB']],
+                // Nothing since 2026-08-20, 25 days back.
+                ['point' => 'Barra della stamina troppo breve', 'videos' => ['AAAAAAAAAAA']],
+            ],
+            'verdict' => 'Il lag della lobby non compare più nei video recenti mentre la stamina resta un tema aperto.',
+        ])->synthesize($videos, self::NOW);
+
+        self::assertSame(['persistent', 'old'], array_column($synthesis['improvements'], 'recency'));
+    }
+
     public function testValidatorDemandsItalianAndAVerdict(): void
     {
         self::assertNull(Synthesizer::validator(['likes' => [], 'improvements' => [],

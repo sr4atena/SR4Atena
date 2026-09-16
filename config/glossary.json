@@ -40,8 +40,8 @@
   {"term": "Trascrizione", "meaning": "Il testo dei sottotitoli di un video: è la fonte principale della vista Voci, perché il creatore commenta il gioco mentre gioca. Metà dei video non li rende disponibili."},
   {"term": "Tono", "meaning": "Il giudizio complessivo che un video esprime sul gioco: positivo, misto o negativo. Non è una media dei commenti ma una lettura del video nel suo insieme."},
   {"term": "Sintesi", "meaning": "Il verdetto quotidiano: un modello linguistico legge i riepiloghi dei video con le loro date e scrive che cosa è cambiato nel mese, non la media delle opinioni."},
-  {"term": "Persistente", "meaning": "Richiesta di miglioramento presente sia nei video più vecchi sia nei più recenti: non risulta risolta ed è quella che costa di più lasciare aperta."},
-  {"term": "Recente", "meaning": "Richiesta di miglioramento che compare solo negli ultimi video: spesso è l'effetto di un aggiornamento appena pubblicato."},
-  {"term": "Risolto?", "meaning": "Richiesta di miglioramento che compare solo nei video più vecchi e non in quelli recenti: probabilmente è già stata risolta, ma resta un'ipotesi, non una conferma."},
+  {"term": "Persistente", "meaning": "Richiesta di miglioramento sollevata più di 10 giorni prima del video più recente e ripresa negli ultimi 14: non risulta risolta ed è quella che costa di più lasciare aperta."},
+  {"term": "Recente", "meaning": "Richiesta di miglioramento comparsa per la prima volta nei 10 giorni che precedono il video più recente: spesso è l'effetto di un aggiornamento appena pubblicato."},
+  {"term": "Risolto?", "meaning": "Richiesta di miglioramento di cui non si parla da almeno 14 giorni, contati dal video più recente: probabilmente è già stata risolta, ma resta un'ipotesi, non una conferma."},
   {"term": "Citazione verbatim", "meaning": "Una frase di un giocatore riportata parola per parola dai commenti, mai tradotta né parafrasata: serve a distinguere quello che è stato detto da quello che il modello ha riassunto."}
 ]

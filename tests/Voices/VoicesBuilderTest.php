@@ -141,9 +141,11 @@ final class VoicesBuilderTest extends TestCase
 
         $synthesis = $document['synthesis'];
         self::assertSame('ok', $synthesis['status']);
-        // Two videos only: both points sit at or after the cutoff, so both are
-        // current. The label always comes from the dates, never from the model.
-        self::assertSame(['recent', 'recent'], array_column($synthesis['improvements'], 'recency'));
+        // Two videos, 2026-09-02 and 2026-09-14: counted from the newest, the
+        // first point is 12 days old (raised, then not raised again) and the
+        // second is of the day. The label always comes from the dates, never
+        // from the model.
+        self::assertSame(['persistent', 'recent'], array_column($synthesis['improvements'], 'recency'));
         self::assertCount(2, $synthesis['timeline']);
         self::assertSame(3, $this->llmCalls, 'two summaries and one synthesis');
         self::assertSame(0640, fileperms($this->dir . '/voices.json') & 0777, 'the web process reads it, nothing more');

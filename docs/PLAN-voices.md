@@ -283,6 +283,18 @@ rails as `deploy/install.sh`. Supports `--dry-run`.
 }
 ```
 
+`recency` is computed in `Synthesizer`, never asked of the model, and it counts
+days rather than videos. Let *N* be the publication date of the newest video
+among `videosConsidered`: a point is `recent` when its `firstSeen` is on or
+after *N* − 10 days, `old` when its `lastSeen` is on or before *N* − 14 days,
+and `persistent` otherwise. The first rule used a rank (the date of the
+third-newest video) and broke on the real distribution: the fifteen videos of
+2026-09-16 span three weeks, the third-newest was four days old, and 7 of the 8
+improvements came back `old` — which the view renders as "risolto?" — for
+complaints raised the week before. The two windows overlap on purpose, so a
+point stops being news four days before it starts being treated as possibly
+fixed.
+
 Every string shown to a user is model output or third-party text and is
 therefore **untrusted**: the frontend inserts it with `textContent`, never
 `innerHTML`, and caps each item (points ≤ 140 chars, quotes ≤ 280, verdict

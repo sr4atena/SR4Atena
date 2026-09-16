@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace ManorLedger\Voices;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use RuntimeException;
 
 final class Synthesizer
@@ -23,8 +25,10 @@ final class Synthesizer
     private const MAX_POINTS = 8;
     private const MAX_POINT_CHARS = 140;
     private const MAX_VERDICT = 1200;
-    /** A point last seen before the third-newest video is treated as possibly fixed. */
-    private const RECENT_WINDOW = 3;
+    /** Days before the newest video within which a point is still being raised. */
+    private const RECENT_DAYS = 10;
+    /** Days of silence, counted from the newest video, after which a point may be fixed. */
+    private const OLD_DAYS = 14;
 
     public function __construct(
         private readonly LlmClient $llm,
@@ -101,7 +105,7 @@ final class Synthesizer
      */
     private function points(array $items, array $dates, bool $withRecency): array
     {
-        $cutoff = self::recentCutoff($dates);
+        $cutoffs = self::cutoffs($dates);
         $points = [];
         foreach ($items as $item) {
             if (!is_array($item)) {
@@ -121,7 +125,7 @@ final class Synthesizer
             if ($withRecency) {
                 // Never the model's word: the label follows from the dates of the
                 // videos it cited, which is the one thing we know for certain.
-                $point['recency'] = self::recencyOf($point['firstSeen'], $point['lastSeen'], $cutoff);
+                $point['recency'] = self::recencyOf($point['firstSeen'], $point['lastSeen'], $cutoffs);
             }
             $points[] = $point;
         }
@@ -129,23 +133,50 @@ final class Synthesizer
         return array_slice($points, 0, self::MAX_POINTS);
     }
 
-    /** Date of the third-newest video: the boundary between "still being said" and "was said". */
-    private static function recentCutoff(array $dates): string
+    /**
+     * The two calendar boundaries, measured back from the newest video considered.
+     *
+     * The first rule counted videos instead of days: a point last seen before
+     * the third-newest video was `old`. That holds only if publications are
+     * spread out. On the real set of 2026-09-16 the fifteen videos span three
+     * weeks, so the third-newest was four days old and 7 of the 8 improvements
+     * came back `old` — which the view renders as "risolto?" for complaints
+     * raised the week before. The label is a statement about time, so it is
+     * computed from dates.
+     *
+     * @param  array<string, string> $dates id => publication date
+     * @return array{recent: string, old: string}
+     */
+    private static function cutoffs(array $dates): array
     {
         $sorted = array_values($dates);
         sort($sorted);
-        $index = max(0, count($sorted) - self::RECENT_WINDOW);
+        $newest = (string)end($sorted);
 
-        return $sorted[$index];
+        return ['recent' => self::minusDays($newest, self::RECENT_DAYS),
+                'old'    => self::minusDays($newest, self::OLD_DAYS)];
     }
 
-    private static function recencyOf(string $firstSeen, string $lastSeen, string $cutoff): string
+    /** @param array{recent: string, old: string} $cutoffs */
+    private static function recencyOf(string $firstSeen, string $lastSeen, array $cutoffs): string
     {
-        if ($lastSeen < $cutoff) {
-            return 'old';
+        if ($firstSeen >= $cutoffs['recent']) {
+            return 'recent';
         }
 
-        return $firstSeen < $cutoff ? 'persistent' : 'recent';
+        return $lastSeen <= $cutoffs['old'] ? 'old' : 'persistent';
+    }
+
+    /** UTC, so the subtraction never lands on the previous day across a DST change. */
+    private static function minusDays(string $date, int $days): string
+    {
+        $day = substr($date, 0, 10);
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $day) !== 1) {
+            return $day;
+        }
+
+        return (new DateTimeImmutable($day . ' 00:00:00', new DateTimeZone('UTC')))
+            ->modify('-' . $days . ' days')->format('Y-m-d');
     }
 
     /**
