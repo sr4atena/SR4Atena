@@ -13,8 +13,9 @@ import * as valore from './views/valore.js';
 import * as crescita from './views/crescita.js';
 import * as monetizzazione from './views/monetizzazione.js';
 import * as salute from './views/salute.js';
+import * as voci from './views/voci.js';
 
-const views = { valore, crescita, monetizzazione, salute };
+const views = { valore, crescita, monetizzazione, salute, voci };
 const main = document.getElementById('main');
 
 function showStatus(title, text, { retry = false } = {}) {
@@ -100,6 +101,7 @@ function renderView(name, view) {
   disposeCharts();
   main.replaceChildren();
   main.className = `main view-${name}`;
+  document.body.dataset.view = name;
   view.render(main, getState());
   connectView(name);
 }

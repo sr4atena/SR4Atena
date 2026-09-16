@@ -36,6 +36,15 @@ return [
         'sessions'   => $stateDir . '/sessions',
         'authLog'    => $stateDir . '/auth.log',
         'apiKey'     => (string)$env('MANOR_API_KEY_FILE', $dataDir . '/api-key'),
+        // Voci (YouTube): computed on the workstation, published to the VPS.
+        'voices'          => $dataDir . '/voices.json',
+        'voicesCache'     => $dataDir . '/voices-cache',
+        'voicesMedia'     => $dataDir . '/media/yt',
+        'transcripts'     => $dataDir . '/voices-transcripts',
+        'youtubeKey'      => (string)$env('MANOR_YOUTUBE_KEY_FILE', $dataDir . '/youtube-api-key'),
+        'prompts'         => $root . '/config/prompts',
+        'python'          => (string)$env('MANOR_PYTHON', $dataDir . '/venv/bin/python'),
+        'transcriptScript'=> $root . '/tools/transcript.py',
         'metrics'    => $root . '/config/metrics.json',
         'dimensions' => $root . '/config/dimensions.json',
         'glossary'   => $root . '/config/glossary.json',
@@ -57,6 +66,60 @@ return [
         'royaltyShare'     => 0.17,    // publisher share paid out before the developer
         'multiples'        => ['conservative' => 18, 'base' => 30],
         'plateauShares'    => [0.06, 0.10, 0.15],
+    ],
+    // Voci: the ten most watched YouTube videos about the game. The job runs on
+    // the workstation (datacenter IPs cannot read captions) and the VPS only serves.
+    'voices' => [
+        'queries' => ["The Locust's Manor", "The Locust's Manor Roblox"],
+        // Measured cut: #15 still has 4 288 views, #16 has 4 182 and no comments.
+        // The tail is mostly shorts and memes, thin to summarise, and must not
+        // outvote the substantial videos (see config/prompts/voices-synthesis.md).
+        'topN'    => 15,
+        'host'    => (string)$env('MANOR_VOICES_HOST', 'workstation'),
+        // YouTube throttles a burst of caption requests from one IP.
+        'transcriptInterval' => 5.0,
+    ],
+    // One adapter, one profile per task, the model chosen by configuration:
+    // ids drift (gemini-2.5-flash already 404s) and the free tier answers 503
+    // under load, so both the model and its fallback must be editable here.
+    'llm' => [
+        'temperature' => 0.2,
+        'maxRetries'  => 3,
+        // Nominal spacing only: the paid tier takes a burst of calls without
+        // complaint. Raise it if the key ever goes back to a throttled tier —
+        // the retry-with-backoff path below covers the hiccups either way.
+        'minInterval' => 1.0,
+        'profiles' => [
+            'summary' => [
+                'driver'   => 'gemini',
+                'baseUrl'  => 'https://generativelanguage.googleapis.com/v1beta/',
+                'model'    => (string)$env('MANOR_LLM_MODEL', 'gemini-3.6-flash'),
+                'keyFile'  => (string)$env('MANOR_GEMINI_KEY_FILE', $dataDir . '/gemini-api-key'),
+                'timeout'  => 120,
+                // gemini-3.6-flash thinks before it answers and the thoughts are
+                // billed against this budget: too low and the answer comes back empty.
+                'maxOutputTokens' => 8192,
+                'fallback' => 'local',
+            ],
+            'synthesis' => [
+                'driver'   => 'gemini',
+                'baseUrl'  => 'https://generativelanguage.googleapis.com/v1beta/',
+                'model'    => (string)$env('MANOR_LLM_MODEL', 'gemini-3.6-flash'),
+                'keyFile'  => (string)$env('MANOR_GEMINI_KEY_FILE', $dataDir . '/gemini-api-key'),
+                'timeout'  => 180,
+                'maxOutputTokens' => 8192,
+                'fallback' => 'local',
+            ],
+            // No key, no network: keeps the feature working when the remote is down.
+            'local' => [
+                'driver'   => 'ollama',
+                'baseUrl'  => (string)$env('MANOR_OLLAMA_URL', 'http://localhost:11434/'),
+                'model'    => (string)$env('MANOR_OLLAMA_MODEL', 'qwen2.5:14b-instruct'),
+                'keyFile'  => null,
+                'timeout'  => 300,
+                'fallback' => null,
+            ],
+        ],
     ],
     'auth' => [
         'idleTimeout'     => 1800,

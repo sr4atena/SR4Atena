@@ -1,0 +1,686 @@
+{
+  "generatedAt": "2026-09-17T06:03:11Z",
+  "host": "workstation",
+  "queries": [
+    "The Locust's Manor",
+    "The Locust's Manor Roblox"
+  ],
+  "models": {
+    "summary": "gemini-3.6-flash",
+    "synthesis": "gemini-3.6-flash",
+    "fellBackTo": null
+  },
+  "stats": {
+    "candidates": 83,
+    "excludedNonRoblox": 1,
+    "withTranscript": 5
+  },
+  "videos": [
+    {
+      "id": "O8eWFVZxgcI",
+      "title": "JUGUÉ THE LOCUST'S MANOR Y ME ARREPENTÍ",
+      "channel": "Sombra Nocturna",
+      "channelId": "UC0sombranoctu00",
+      "publishedAt": "2026-09-02",
+      "views": 106843,
+      "likes": 4820,
+      "commentCount": 135,
+      "url": "https://www.youtube.com/watch?v=O8eWFVZxgcI",
+      "thumbnail": "/media/yt/O8eWFVZxgcI.jpg",
+      "transcript": {
+        "status": "missing",
+        "language": null,
+        "generated": false,
+        "chars": 0
+      },
+      "comments": {
+        "fetched": 60,
+        "kept": 18
+      },
+      "summary": {
+        "status": "ok",
+        "generatedAt": "2026-09-17T06:01:44Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [
+          "comments"
+        ],
+        "tone": "mixed",
+        "likes": [
+          "Atmosfera della villa",
+          "Colonna sonora che anticipa il mostro",
+          "Finali multipli"
+        ],
+        "improvements": [
+          "Mostri che stazionano davanti ai nascondigli",
+          "Assenza di un tutorial nelle prime partite"
+        ],
+        "oneLine": "Un canale molto seguito resta colpito dall'atmosfera ma si arrabbia con il mostro che presidia i nascondigli.",
+        "quotes": [
+          {
+            "text": "El juego da miedo de verdad, pero el monstruo se queda parado delante del armario y no puedes hacer nada.",
+            "likes": 214,
+            "topic": "mostri davanti ai nascondigli"
+          },
+          {
+            "text": "La primera partida no entendí nada, nadie te explica para qué sirven las llaves.",
+            "likes": 96,
+            "topic": "assenza di tutorial"
+          }
+        ]
+      }
+    },
+    {
+      "id": "9s7sZkuW_Jg",
+      "title": "The Locust's Manor is the scariest Roblox horror of 2026",
+      "channel": "Nightlight Plays",
+      "channelId": "UC1nightlightpl",
+      "publishedAt": "2026-08-21",
+      "views": 90216,
+      "likes": 3990,
+      "commentCount": 483,
+      "url": "https://www.youtube.com/watch?v=9s7sZkuW_Jg",
+      "thumbnail": "/media/yt/9s7sZkuW_Jg.jpg",
+      "transcript": {
+        "status": "ok",
+        "language": "en",
+        "generated": true,
+        "chars": 23952
+      },
+      "comments": {
+        "fetched": 60,
+        "kept": 27
+      },
+      "summary": {
+        "status": "ok",
+        "generatedAt": "2026-09-17T06:01:52Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [
+          "transcript",
+          "comments"
+        ],
+        "tone": "positive",
+        "likes": [
+          "Atmosfera della villa",
+          "Meccanica di chiavi colorate",
+          "Illuminazione a candela negli scantinati",
+          "Cooperativa fino a quattro giocatori"
+        ],
+        "improvements": [
+          "Glitch di collisione negli armadi",
+          "Ritmo lento delle interazioni con porte e cassetti"
+        ],
+        "oneLine": "Una recensione entusiasta: la villa e le chiavi colorate reggono due ore di gioco, gli armadi glitchano.",
+        "quotes": [
+          {
+            "text": "I got stuck inside a wardrobe and the game pushed me through the ceiling. Twice. In the same run.",
+            "likes": 341,
+            "topic": "glitch di collisione negli armadi"
+          },
+          {
+            "text": "Honestly the manor itself is the best horror map I have seen on Roblox this year.",
+            "likes": 188,
+            "topic": "atmosfera della villa"
+          }
+        ]
+      }
+    },
+    {
+      "id": "lHul7HACuLo",
+      "title": "EU JOGUEI THE LOCUST'S MANOR E NÃO DURMO MAIS",
+      "channel": "Canal do Vitor",
+      "channelId": "UC2canaldovitor",
+      "publishedAt": "2026-08-14",
+      "views": 74310,
+      "likes": 2871,
+      "commentCount": 212,
+      "url": "https://www.youtube.com/watch?v=lHul7HACuLo",
+      "thumbnail": "/media/yt/lHul7HACuLo.jpg",
+      "transcript": {
+        "status": "ok",
+        "language": "pt",
+        "generated": false,
+        "chars": 19930
+      },
+      "comments": {
+        "fetched": 60,
+        "kept": 21
+      },
+      "summary": {
+        "status": "ok",
+        "generatedAt": "2026-09-17T06:02:01Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [
+          "transcript",
+          "comments"
+        ],
+        "tone": "mixed",
+        "likes": [
+          "Atmosfera della villa",
+          "Reazione dei mostri al rumore dei passi"
+        ],
+        "improvements": [
+          "Glitch di collisione negli armadi",
+          "Lag nella lobby con più di dieci giocatori",
+          "Voice chat che si disattiva dopo il primo spavento"
+        ],
+        "oneLine": "Il gioco spaventa come promesso, ma la lobby resta bloccata per minuti e la voice chat cade dopo il primo spavento.",
+        "quotes": [
+          {
+            "text": "A lobby travou por uns três minutos com a sala cheia, achei que o jogo tinha caído.",
+            "likes": 143,
+            "topic": "lag nella lobby"
+          }
+        ]
+      }
+    },
+    {
+      "id": "eGxhf71MXyE",
+      "title": "The Locust's Manor — All Endings Guide (spoiler free intro)",
+      "channel": "PixelDread",
+      "channelId": "UC3pixeldreadxx",
+      "publishedAt": "2026-09-09",
+      "views": 61204,
+      "likes": 2410,
+      "commentCount": 176,
+      "url": "https://www.youtube.com/watch?v=eGxhf71MXyE",
+      "thumbnail": "/media/yt/eGxhf71MXyE.jpg",
+      "transcript": {
+        "status": "ok",
+        "language": "en",
+        "generated": true,
+        "chars": 21488
+      },
+      "comments": {
+        "fetched": 60,
+        "kept": 24
+      },
+      "summary": {
+        "status": "ok",
+        "generatedAt": "2026-09-17T06:02:09Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [
+          "transcript",
+          "comments"
+        ],
+        "tone": "positive",
+        "likes": [
+          "Finali multipli che ripagano l'esplorazione",
+          "Meccanica di chiavi colorate",
+          "Indizi scritti nei diari della villa"
+        ],
+        "improvements": [
+          "Scarsa accessibilità per giocatori daltonici a causa dei codici colore",
+          "Assenza di un tutorial nelle prime partite"
+        ],
+        "oneLine": "Una guida ai quattro finali che loda il design degli indizi e segnala il problema dei codici colore.",
+        "quotes": [
+          {
+            "text": "I am red-green colourblind and I genuinely cannot tell the green key from the red one. Please add a symbol.",
+            "likes": 402,
+            "topic": "accessibilità per daltonici"
+          },
+          {
+            "text": "Finding the fourth ending took me eleven runs and I was never annoyed once. That is good design.",
+            "likes": 157,
+            "topic": "finali multipli"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Qv2pK7bTn4A",
+      "title": "THE LOCUST'S MANOR ma con 4 amici (ci siamo persi subito)",
+      "channel": "GameSoup ITA",
+      "channelId": "UC4gamesoupita0",
+      "publishedAt": "2026-09-12",
+      "views": 48930,
+      "likes": 1899,
+      "commentCount": 141,
+      "url": "https://www.youtube.com/watch?v=Qv2pK7bTn4A",
+      "thumbnail": "/media/yt/Qv2pK7bTn4A.jpg",
+      "transcript": {
+        "status": "missing",
+        "language": null,
+        "generated": false,
+        "chars": 0
+      },
+      "comments": {
+        "fetched": 60,
+        "kept": 19
+      },
+      "summary": {
+        "status": "ok",
+        "generatedAt": "2026-09-17T06:02:16Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [
+          "comments"
+        ],
+        "tone": "mixed",
+        "likes": [
+          "Cooperativa fino a quattro giocatori",
+          "Atmosfera della villa"
+        ],
+        "improvements": [
+          "Scarsa accessibilità per giocatori daltonici a causa dei codici colore",
+          "Ritmo lento delle interazioni con porte e cassetti"
+        ],
+        "oneLine": "In quattro il gioco diverte molto; le porte da aprire una alla volta spezzano il ritmo della fuga.",
+        "quotes": [
+          {
+            "text": "Aprire un cassetto richiede tre secondi in cui non puoi muoverti: con il mostro dietro è una condanna.",
+            "likes": 231,
+            "topic": "ritmo lento delle interazioni"
+          }
+        ]
+      }
+    },
+    {
+      "id": "7wMrY0fJc_s",
+      "title": "This Roblox horror game BROKE me (and my keyboard)",
+      "channel": "HollowHour",
+      "channelId": "UC5hollowhour00",
+      "publishedAt": "2026-08-18",
+      "views": 39877,
+      "likes": 1502,
+      "commentCount": 98,
+      "url": "https://www.youtube.com/watch?v=7wMrY0fJc_s",
+      "thumbnail": "/media/yt/7wMrY0fJc_s.jpg",
+      "transcript": {
+        "status": "ok",
+        "language": "en",
+        "generated": true,
+        "chars": 7455
+      },
+      "comments": {
+        "fetched": 60,
+        "kept": 12
+      },
+      "summary": {
+        "status": "ok",
+        "generatedAt": "2026-09-17T06:02:23Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [
+          "transcript",
+          "comments"
+        ],
+        "tone": "negative",
+        "likes": [
+          "Atmosfera della villa"
+        ],
+        "improvements": [
+          "Glitch di collisione negli armadi",
+          "Lag nella lobby con più di dieci giocatori",
+          "Mostri che stazionano davanti ai nascondigli",
+          "Voice chat che si disattiva dopo il primo spavento"
+        ],
+        "oneLine": "Una partita rovinata dai bug: armadi che espellono, lobby bloccata e voice chat muta a metà run.",
+        "quotes": [
+          {
+            "text": "Three of us lost voice chat after the first jumpscare and we had to restart the whole run.",
+            "likes": 87,
+            "topic": "voice chat che si disattiva"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Zk3nQaLp81U",
+      "title": "THE LOCUST'S MANOR — guía de las llaves de colores",
+      "channel": "Marta Juega",
+      "channelId": "UC6martajuega00",
+      "publishedAt": "2026-09-05",
+      "views": 31450,
+      "likes": 1188,
+      "commentCount": 0,
+      "url": "https://www.youtube.com/watch?v=Zk3nQaLp81U",
+      "thumbnail": "/media/yt/Zk3nQaLp81U.jpg",
+      "transcript": {
+        "status": "missing",
+        "language": null,
+        "generated": false,
+        "chars": 0
+      },
+      "comments": {
+        "fetched": 0,
+        "kept": 0
+      },
+      "summary": {
+        "status": "failed",
+        "generatedAt": "2026-09-17T06:02:28Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [],
+        "tone": null,
+        "likes": [],
+        "improvements": [],
+        "oneLine": null,
+        "quotes": []
+      }
+    },
+    {
+      "id": "b4TcW9uYdR0",
+      "title": "Locust's Manor: 20 segreti che non avevi notato",
+      "channel": "Tana del Coniglio",
+      "channelId": "UC7tanaconiglio",
+      "publishedAt": "2026-08-27",
+      "views": 26188,
+      "likes": 1043,
+      "commentCount": 204,
+      "url": "https://www.youtube.com/watch?v=b4TcW9uYdR0",
+      "thumbnail": "/media/yt/b4TcW9uYdR0.jpg",
+      "transcript": {
+        "status": "ok",
+        "language": "it",
+        "generated": false,
+        "chars": 16204
+      },
+      "comments": {
+        "fetched": 60,
+        "kept": 26
+      },
+      "summary": {
+        "status": "ok",
+        "generatedAt": "2026-09-17T06:02:35Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [
+          "transcript",
+          "comments"
+        ],
+        "tone": "positive",
+        "likes": [
+          "Indizi scritti nei diari della villa",
+          "Atmosfera della villa",
+          "Finali multipli che ripagano l'esplorazione",
+          "Meccanica di chiavi colorate"
+        ],
+        "improvements": [
+          "Assenza di un tutorial nelle prime partite"
+        ],
+        "oneLine": "Un video di lore che mostra quanta cura c'è nella villa e quanto poco il gioco la spieghi al primo ingresso.",
+        "quotes": [
+          {
+            "text": "Ho scoperto solo al quinto tentativo che i diari nel sottotetto dicono l'ordine giusto delle chiavi.",
+            "likes": 122,
+            "topic": "indizi nei diari"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Hn6vLqz_D2M",
+      "title": "I survived The Locust's Manor solo on the hardest mode",
+      "channel": "AshenVR",
+      "channelId": "UC8ashenvr0000",
+      "publishedAt": "2026-09-14",
+      "views": 19702,
+      "likes": 764,
+      "commentCount": 63,
+      "url": "https://www.youtube.com/watch?v=Hn6vLqz_D2M",
+      "thumbnail": "/media/yt/Hn6vLqz_D2M.jpg",
+      "transcript": {
+        "status": "missing",
+        "language": null,
+        "generated": false,
+        "chars": 0
+      },
+      "comments": {
+        "fetched": 60,
+        "kept": 14
+      },
+      "summary": {
+        "status": "ok",
+        "generatedAt": "2026-09-17T06:02:41Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [
+          "comments"
+        ],
+        "tone": "mixed",
+        "likes": [
+          "Reazione dei mostri al rumore dei passi",
+          "Atmosfera della villa"
+        ],
+        "improvements": [
+          "Scarsa accessibilità per giocatori daltonici a causa dei codici colore",
+          "Mostri che stazionano davanti ai nascondigli"
+        ],
+        "oneLine": "In solitaria la tensione funziona, ma i mostri che restano incollati ai nascondigli rendono la modalità difficile ingiusta.",
+        "quotes": [
+          {
+            "text": "Solo mode is fair until the monster decides to camp your locker for two full minutes.",
+            "likes": 58,
+            "topic": "mostri davanti ai nascondigli"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Ds1kXo4mTfQ",
+      "title": "THE LOCUST'S MANOR — primeira gameplay do canal",
+      "channel": "Sala 13",
+      "channelId": "UC9sala13000000",
+      "publishedAt": "2026-08-12",
+      "views": 15308,
+      "likes": 611,
+      "commentCount": 47,
+      "url": "https://www.youtube.com/watch?v=Ds1kXo4mTfQ",
+      "thumbnail": "/media/yt/Ds1kXo4mTfQ.jpg",
+      "transcript": {
+        "status": "missing",
+        "language": null,
+        "generated": false,
+        "chars": 0
+      },
+      "comments": {
+        "fetched": 47,
+        "kept": 3
+      },
+      "summary": {
+        "status": "failed",
+        "generatedAt": "2026-09-17T06:02:46Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [],
+        "tone": null,
+        "likes": [],
+        "improvements": [],
+        "oneLine": null,
+        "quotes": []
+      }
+    }
+  ],
+  "synthesis": {
+    "status": "ok",
+    "generatedAt": "2026-09-17T06:03:11Z",
+    "model": "gemini-3.6-flash",
+    "videosConsidered": [
+      "lHul7HACuLo",
+      "7wMrY0fJc_s",
+      "9s7sZkuW_Jg",
+      "b4TcW9uYdR0",
+      "O8eWFVZxgcI",
+      "eGxhf71MXyE",
+      "Qv2pK7bTn4A",
+      "Hn6vLqz_D2M"
+    ],
+    "likes": [
+      {
+        "point": "Atmosfera della villa",
+        "videos": [
+          "9s7sZkuW_Jg",
+          "lHul7HACuLo",
+          "O8eWFVZxgcI",
+          "7wMrY0fJc_s",
+          "b4TcW9uYdR0",
+          "Qv2pK7bTn4A",
+          "Hn6vLqz_D2M"
+        ],
+        "firstSeen": "2026-08-14",
+        "lastSeen": "2026-09-14"
+      },
+      {
+        "point": "Meccanica di chiavi colorate",
+        "videos": [
+          "9s7sZkuW_Jg",
+          "eGxhf71MXyE",
+          "b4TcW9uYdR0"
+        ],
+        "firstSeen": "2026-08-21",
+        "lastSeen": "2026-09-09"
+      },
+      {
+        "point": "Finali multipli che ripagano l'esplorazione",
+        "videos": [
+          "eGxhf71MXyE",
+          "b4TcW9uYdR0",
+          "O8eWFVZxgcI"
+        ],
+        "firstSeen": "2026-08-27",
+        "lastSeen": "2026-09-09"
+      },
+      {
+        "point": "Indizi scritti nei diari della villa",
+        "videos": [
+          "eGxhf71MXyE",
+          "b4TcW9uYdR0"
+        ],
+        "firstSeen": "2026-08-27",
+        "lastSeen": "2026-09-09"
+      },
+      {
+        "point": "Cooperativa fino a quattro giocatori",
+        "videos": [
+          "9s7sZkuW_Jg",
+          "Qv2pK7bTn4A"
+        ],
+        "firstSeen": "2026-08-21",
+        "lastSeen": "2026-09-12"
+      },
+      {
+        "point": "Reazione dei mostri al rumore dei passi",
+        "videos": [
+          "lHul7HACuLo",
+          "Hn6vLqz_D2M"
+        ],
+        "firstSeen": "2026-08-14",
+        "lastSeen": "2026-09-14"
+      }
+    ],
+    "improvements": [
+      {
+        "point": "Mostri che stazionano davanti ai nascondigli",
+        "videos": [
+          "7wMrY0fJc_s",
+          "O8eWFVZxgcI",
+          "Hn6vLqz_D2M"
+        ],
+        "firstSeen": "2026-08-18",
+        "lastSeen": "2026-09-14",
+        "recency": "persistent"
+      },
+      {
+        "point": "Assenza di un tutorial nelle prime partite",
+        "videos": [
+          "b4TcW9uYdR0",
+          "O8eWFVZxgcI",
+          "eGxhf71MXyE"
+        ],
+        "firstSeen": "2026-08-27",
+        "lastSeen": "2026-09-09",
+        "recency": "persistent"
+      },
+      {
+        "point": "Glitch di collisione negli armadi",
+        "videos": [
+          "lHul7HACuLo",
+          "7wMrY0fJc_s",
+          "9s7sZkuW_Jg"
+        ],
+        "firstSeen": "2026-08-14",
+        "lastSeen": "2026-08-21",
+        "recency": "persistent"
+      },
+      {
+        "point": "Scarsa accessibilità per giocatori daltonici a causa dei codici colore",
+        "videos": [
+          "eGxhf71MXyE",
+          "Qv2pK7bTn4A",
+          "Hn6vLqz_D2M"
+        ],
+        "firstSeen": "2026-09-09",
+        "lastSeen": "2026-09-14",
+        "recency": "recent"
+      },
+      {
+        "point": "Ritmo lento delle interazioni con porte e cassetti",
+        "videos": [
+          "9s7sZkuW_Jg",
+          "Qv2pK7bTn4A"
+        ],
+        "firstSeen": "2026-08-21",
+        "lastSeen": "2026-09-12",
+        "recency": "recent"
+      },
+      {
+        "point": "Lag nella lobby con più di dieci giocatori",
+        "videos": [
+          "lHul7HACuLo",
+          "7wMrY0fJc_s"
+        ],
+        "firstSeen": "2026-08-14",
+        "lastSeen": "2026-08-18",
+        "recency": "old"
+      },
+      {
+        "point": "Voice chat che si disattiva dopo il primo spavento",
+        "videos": [
+          "lHul7HACuLo",
+          "7wMrY0fJc_s"
+        ],
+        "firstSeen": "2026-08-14",
+        "lastSeen": "2026-08-18",
+        "recency": "old"
+      }
+    ],
+    "verdict": "Nel mese osservato la villa non è mai in discussione: atmosfera, colonna sonora e indizi nascosti nei diari sono citati da sette video su dieci e sono la ragione per cui i creatori restano in partita per ore. Ciò che cambia è il tipo di lamentela. Fino alla fine di agosto i video parlavano di infrastruttura — lobby bloccata con la sala piena, voice chat che cadeva dopo il primo spavento — e da tre settimane nessuno li nomina più: sembrano risolti. Al loro posto sono arrivate due critiche di design, non di stabilità: i codici colore delle chiavi escludono i giocatori daltonici, segnalato per la prima volta il 9 settembre e ripetuto due volte in cinque giorni, e il ritmo delle interazioni con porte e cassetti che spezza la fuga. Restano aperti, e questo è il punto più costoso, i mostri che presidiano i nascondigli e l'assenza di un tutorial: sono gli unici due temi presenti sia nel video più vecchio sia in quello più recente.",
+    "timeline": [
+      {
+        "date": "2026-08-14",
+        "id": "lHul7HACuLo",
+        "tone": "mixed"
+      },
+      {
+        "date": "2026-08-18",
+        "id": "7wMrY0fJc_s",
+        "tone": "negative"
+      },
+      {
+        "date": "2026-08-21",
+        "id": "9s7sZkuW_Jg",
+        "tone": "positive"
+      },
+      {
+        "date": "2026-08-27",
+        "id": "b4TcW9uYdR0",
+        "tone": "positive"
+      },
+      {
+        "date": "2026-09-02",
+        "id": "O8eWFVZxgcI",
+        "tone": "mixed"
+      },
+      {
+        "date": "2026-09-09",
+        "id": "eGxhf71MXyE",
+        "tone": "positive"
+      },
+      {
+        "date": "2026-09-12",
+        "id": "Qv2pK7bTn4A",
+        "tone": "mixed"
+      },
+      {
+        "date": "2026-09-14",
+        "id": "Hn6vLqz_D2M",
+        "tone": "mixed"
+      }
+    ]
+  }
+}

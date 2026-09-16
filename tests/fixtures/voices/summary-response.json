@@ -1,0 +1,7 @@
+{
+  "tone": "mixed",
+  "likes": ["Atmosfera della villa notturna", "Meccanica delle chiavi per aprire le porte"],
+  "improvements": ["Barra della stamina troppo breve", "Lag nella lobby iniziale"],
+  "oneLine": "Una partita che convince per l'atmosfera ma che frustra per il ritmo delle interazioni.",
+  "quotes": [ { "text": "the stamina bar runs out way too fast", "likes": 20, "topic": "stamina" } ]
+}

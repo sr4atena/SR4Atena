@@ -3,7 +3,7 @@
 PHP_IMG ?= php:8.3-cli
 DOCKER  = docker run --rm -u "$$(id -u):$$(id -g)" -v "$(CURDIR)":/app -w /app
 
-.PHONY: help deps test lint check build refresh serve import-legacy deploy
+.PHONY: help deps test lint check build refresh serve import-legacy deploy voices voices-venv publish-voices
 
 help:            ## Show this help
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*##' '{printf "  %-14s %s\n", $$1, $$2}'
@@ -33,3 +33,14 @@ serve:           ## Dev server on http://127.0.0.1:8099 (host PHP)
 
 deploy:          ## Install/update on the VPS (see deploy/install.sh)
 	deploy/install.sh
+
+voices-venv:     ## Create data/venv with youtube-transcript-api (host Python, not Docker)
+	python3 -m venv data/venv
+	data/venv/bin/pip install --quiet --upgrade pip
+	data/venv/bin/pip install --quiet -r tools/requirements.txt
+
+voices:          ## Build data/voices.json from YouTube (runs here, never on the VPS)
+	$(DOCKER) --network host $(PHP_IMG) php bin/voices $(ARGS)
+
+publish-voices:  ## Copy voices.json and the thumbnails to the VPS
+	bin/voices-publish $(ARGS)

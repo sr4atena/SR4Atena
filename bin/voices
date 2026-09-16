@@ -1,0 +1,167 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Build data/voices.json: what YouTube says about the game.
+ *
+ *   bin/voices                        full run (search, transcripts, summaries, synthesis)
+ *   bin/voices --if-older-than=20     only when the last run is older than 20 h (timer)
+ *   bin/voices --only=O8eWFVZxgcI     re-summarise these videos, ignoring their cache
+ *   bin/voices --remodel              redo the summaries the fallback model wrote, keep the others
+ *   bin/voices --resynthesize         reuse every cached summary, redo the synthesis only
+ *   bin/voices --refresh-transcripts  ask tools/transcript.py again instead of reusing its cache
+ *   bin/voices --top=10               analyse fewer videos than config says
+ *   bin/voices --dry-run              print the planned calls, send nothing
+ *
+ * This job runs on the workstation, never on the VPS: YouTube blocks caption
+ * requests from datacenter IPs (docs/PLAN-voices.md §2). `bin/voices-publish`
+ * moves the result to the server.
+ *
+ * Exit codes: 0 ok, 1 failure, 2 bad usage.
+ */
+declare(strict_types=1);
+
+use ManorLedger\Storage\JsonStore;
+use ManorLedger\Voices\CommentFilter;
+use ManorLedger\Voices\LlmClient;
+use ManorLedger\Voices\Synthesizer;
+use ManorLedger\Voices\ThumbnailStore;
+use ManorLedger\Voices\TranscriptFetcher;
+use ManorLedger\Voices\VideoSummarizer;
+use ManorLedger\Voices\VoicesBuilder;
+use ManorLedger\Voices\YouTubeClient;
+
+if (PHP_SAPI !== 'cli') {
+    fwrite(STDERR, "Command line only.\n");
+    exit(2);
+}
+
+require dirname(__DIR__) . '/src/autoload.php';
+$config = require dirname(__DIR__) . '/config/app.php';
+
+$usage = <<<TXT
+Usage: bin/voices [--top=N] [--if-older-than=HOURS] [--only=ID,ID] [--remodel] [--resynthesize] [--refresh-transcripts] [--dry-run] [--help]
+
+TXT;
+
+$options = ['only' => [], 'remodel' => false, 'resynthesize' => false, 'dryRun' => false, 'refreshTranscripts' => false];
+$ifOlderThan = null;
+foreach (array_slice($argv, 1) as $arg) {
+    if ($arg === '--help' || $arg === '-h') {
+        fwrite(STDOUT, $usage);
+        exit(0);
+    }
+    if ($arg === '--dry-run') {
+        $options['dryRun'] = true;
+    } elseif ($arg === '--remodel') {
+        $options['remodel'] = true;
+    } elseif ($arg === '--resynthesize') {
+        $options['resynthesize'] = true;
+    } elseif ($arg === '--refresh-transcripts') {
+        $options['refreshTranscripts'] = true;
+    } elseif (preg_match('/^--top=(\d+)$/', $arg, $m) === 1) {
+        $options['topN'] = (int)$m[1];
+    } elseif (preg_match('/^--if-older-than=(\d+(?:\.\d+)?)$/', $arg, $m) === 1) {
+        $ifOlderThan = (float)$m[1];
+    } elseif (preg_match('/^--only=(.+)$/', $arg, $m) === 1) {
+        $options['only'] = array_values(array_filter(array_map('trim', explode(',', $m[1])), static fn (string $s): bool => $s !== ''));
+    } else {
+        fwrite(STDERR, "Unknown argument: $arg\n" . $usage);
+        exit(2);
+    }
+}
+
+$log = static function (string $line): void {
+    fwrite(STDERR, '[' . gmdate('H:i:s') . '] ' . $line . "\n");
+};
+
+$paths = $config['paths'];
+$output = new JsonStore($paths['voices'], 0640);
+if ($ifOlderThan !== null) {
+    $mtime = $output->mtime();
+    if ($mtime !== null && time() - $mtime < $ifOlderThan * 3600) {
+        $log('last run ' . round((time() - $mtime) / 3600, 1) . ' h ago: nothing to do.');
+        exit(0);
+    }
+}
+
+// Two runs at once would burn the YouTube quota twice and fight over the cache.
+$lockPath = $paths['data'] . '/voices.lock';
+$lock = fopen($lockPath, 'c');
+if ($lock === false) {
+    $log("Cannot open lock file $lockPath");
+    exit(1);
+}
+chmod($lockPath, 0600);
+if (!flock($lock, LOCK_EX | LOCK_NB)) {
+    $log('Another run is already in progress: nothing to do.');
+    exit(0);
+}
+
+try {
+    foreach ([$paths['voicesCache'], $paths['transcripts']] as $dir) {
+        JsonStore::ensureDir($dir);
+    }
+    $apiKey = trim((string)@file_get_contents($paths['youtubeKey']));
+    if ($apiKey === '' && $options['dryRun'] === false) {
+        throw new RuntimeException('No YouTube API key at ' . $paths['youtubeKey']);
+    }
+    $llm = new LlmClient(
+        $config['llm']['profiles'],
+        (float)$config['llm']['temperature'],
+        (int)$config['llm']['maxRetries'],
+        null,
+        null,
+        $log,
+        (float)($config['llm']['minInterval'] ?? 0),
+    );
+    // Spacing costs a minute on a job that runs once a night and buys the
+    // transcripts of the most watched videos, which is where the value is.
+    $fetcher = new TranscriptFetcher(
+        $paths['python'],
+        $paths['transcriptScript'],
+        $paths['transcripts'],
+        60,
+        null,
+        (float)($config['voices']['transcriptInterval'] ?? 5),
+    );
+    $reason = $fetcher->unavailableReason();
+    if ($reason !== null) {
+        // Ten videos answering "error" is one broken environment, not ten broken
+        // videos: say so here rather than publishing a page with nothing on it.
+        $cached = count(glob($paths['transcripts'] . '/*.json') ?: []);
+        if ($cached === 0 && $options['dryRun'] === false) {
+            throw new RuntimeException('transcripts unavailable and none cached: ' . $reason);
+        }
+        $log('WARNING: ' . $reason . ' — falling back to ' . $cached . ' cached transcripts');
+    }
+    $game = (string)$config['app']['game'];
+    $builder = new VoicesBuilder(
+        new YouTubeClient($apiKey),
+        new CommentFilter(),
+        $fetcher,
+        new ThumbnailStore($paths['voicesMedia']),
+        new VideoSummarizer($llm, $paths['prompts'] . '/voices-summary.md', $paths['voicesCache'], 'summary', $game),
+        new Synthesizer($llm, $paths['prompts'] . '/voices-synthesis.md', 'synthesis', $game),
+        $output,
+        $paths['voicesCache'],
+        $config['voices']['queries'],
+        ['summary' => $config['llm']['profiles']['summary']['model'], 'synthesis' => $config['llm']['profiles']['synthesis']['model']],
+        (string)$config['voices']['host'],
+        $log,
+    );
+    $options['topN'] ??= (int)$config['voices']['topN'];
+    $document = $builder->run($options);
+    if ($options['dryRun'] === false) {
+        $failed = count(array_filter($document['videos'], static fn (array $v): bool => $v['summary']['status'] !== 'ok'));
+        $log(sprintf('%d videos, %d with transcript, %d summaries failed, synthesis %s, %d model calls',
+            count($document['videos']), $document['stats']['withTranscript'], $failed,
+            $document['synthesis']['status'] ?? '—', $llm->calls()));
+    }
+    exit(0);
+} catch (Throwable $e) {
+    $log('ERROR: ' . $e->getMessage());
+    exit(1);
+} finally {
+    flock($lock, LOCK_UN);
+    fclose($lock);
+}

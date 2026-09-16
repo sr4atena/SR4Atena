@@ -21,6 +21,7 @@ use ManorLedger\Auth\UserStore;
 use ManorLedger\Http\Controllers\ApiController;
 use ManorLedger\Http\Controllers\DashboardController;
 use ManorLedger\Http\Controllers\LoginController;
+use ManorLedger\Http\Controllers\VoicesController;
 use ManorLedger\Support\Clock;
 use ManorLedger\Support\Config;
 use ManorLedger\Support\SystemClock;
@@ -114,6 +115,7 @@ final class Kernel
         $login = new LoginController($auth, $session, $csrf, $view, $appName, $gameName);
         $dashboard = new DashboardController($session, $view, $appName, $gameName);
         $api = new ApiController($session, $this->config->string('paths.dashboard'));
+        $voices = new VoicesController($session, $this->config->string('paths.voices'), $this->config->string('paths.voicesMedia'));
 
         $router = new Router();
         $router->get('/', $dashboard->index(...));
@@ -121,6 +123,10 @@ final class Kernel
         $router->post('/login', $login->submit(...));
         $router->post('/logout', $login->logout(...));
         $router->get('/api/dashboard', $api->dashboard(...));
+        $router->get('/api/voices', $voices->index(...));
+        // One variable path segment in the whole application: the controller
+        // declares the only /media/yt/ path this request may legitimately have.
+        $router->get(VoicesController::mediaRouteFor($request->path()), $voices->media(...));
         $router->get('/healthz', static fn (Request $r): Response => Response::text('ok')->withHeader('Cache-Control', 'no-store'));
         return $router;
     }

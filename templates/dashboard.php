@@ -67,6 +67,7 @@ $initial = mb_strtoupper(mb_substr($user['username'], 0, 1));
     <a class="tab" role="tab" href="#crescita" data-view-link="crescita" aria-selected="false">Crescita</a>
     <a class="tab" role="tab" href="#monetizzazione" data-view-link="monetizzazione" aria-selected="false">Monetizzazione</a>
     <a class="tab" role="tab" href="#salute" data-view-link="salute" aria-selected="false">Salute</a>
+    <a class="tab" role="tab" href="#voci" data-view-link="voci" aria-selected="false">Voci</a>
   </nav>
   <div class="segmented" role="group" aria-label="Periodo dei grafici">
     <button type="button" data-period="7g" aria-pressed="false">7g</button>

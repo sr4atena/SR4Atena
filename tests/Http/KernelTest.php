@@ -39,7 +39,8 @@ final class KernelTest extends TestCase
         $config = new Config([
             'app'   => ['name' => 'Manor Ledger', 'game' => "The Locust's Manor", 'host' => 'ledger.example', 'debug' => $debug],
             'paths' => ['users' => $this->dir . '/users.json', 'throttle' => $this->dir . '/throttle', 'sessions' => $this->dir . '/sessions',
-                        'authLog' => $this->dir . '/auth.log', 'dashboard' => $broken ? 12345 : $this->dir . '/dashboard.json'],
+                        'authLog' => $this->dir . '/auth.log', 'dashboard' => $broken ? 12345 : $this->dir . '/dashboard.json',
+                        'voices' => $this->dir . '/voices.json', 'voicesMedia' => $this->dir . '/media/yt'],
             'auth'  => ['idleTimeout' => 1800, 'absoluteTimeout' => 43200, 'maxFailures' => 5, 'lockoutSeconds' => 900, 'cookieName' => '__Host-manor_session'],
         ]);
         return new Kernel($config, self::ROOT, new FrozenClock(1_700_000_000), $this->driver);
@@ -75,6 +76,14 @@ final class KernelTest extends TestCase
         yield 'login post without csrf' => ['POST', '/login', 403];
         yield 'logout without csrf' => ['POST', '/logout', 403];
         yield 'api unauthenticated' => ['GET', '/api/dashboard', 401];
+        yield 'voices unauthenticated' => ['GET', '/api/voices', 401];
+        yield 'thumbnail unauthenticated' => ['GET', '/media/yt/O8eWFVZxgcI.jpg', 401];
+        // The id is the only variable path segment in the application: anything
+        // that is not exactly eleven id characters is not a route at all.
+        yield 'thumbnail with a short id' => ['GET', '/media/yt/short.jpg', 404];
+        yield 'thumbnail with a traversal' => ['GET', '/media/yt/../../users.json', 404];
+        yield 'thumbnail without an extension' => ['GET', '/media/yt/O8eWFVZxgcI', 404];
+        yield 'media prefix alone' => ['GET', '/media/yt', 404];
         yield 'healthz' => ['GET', '/healthz', 200];
         yield 'unknown' => ['GET', '/nope', 404];
         yield 'method mismatch' => ['DELETE', '/login', 405];
@@ -167,6 +176,34 @@ final class KernelTest extends TestCase
         self::assertSame(302, $logout->status());
         self::assertSame('/login', $logout->header('Location'));
         self::assertSame(1, $this->driver->destroys);
+    }
+
+    public function testVoicesAndThumbnailsAreServedOnlyToASession(): void
+    {
+        $kernel = $this->kernel();
+        $this->login($kernel);
+
+        $missing = $kernel->handle($this->request('GET', '/api/voices'));
+        self::assertSame(503, $missing->status());
+        self::assertSame('{"error":"voices not built yet"}', $missing->body());
+
+        file_put_contents($this->dir . '/voices.json', '{"generatedAt":"2026-09-17T06:03:11Z"}');
+        $api = $kernel->handle($this->request('GET', '/api/voices'));
+        self::assertSame(200, $api->status());
+        self::assertSame($this->dir . '/voices.json', $api->filePath());
+        self::assertSame('no-store', $api->header('Cache-Control'));
+        self::assertSame(304, $kernel->handle($this->request('GET', '/api/voices', [], ['If-None-Match' => (string)$api->header('ETag')]))->status());
+
+        // A well-formed id that has no file is a 404, not a 500 and not a path.
+        self::assertSame(404, $kernel->handle($this->request('GET', '/media/yt/O8eWFVZxgcI.jpg'))->status());
+
+        mkdir($this->dir . '/media/yt', 0755, true);
+        file_put_contents($this->dir . '/media/yt/O8eWFVZxgcI.jpg', "\xFF\xD8\xFF\xE0" . str_repeat('x', 64));
+        $image = $kernel->handle($this->request('GET', '/media/yt/O8eWFVZxgcI.jpg'));
+        self::assertSame(200, $image->status());
+        self::assertSame('image/jpeg', $image->header('Content-Type'));
+        // Cloudflare sits in front of this host: an authenticated image must never be cached publicly.
+        self::assertSame('private, max-age=86400', $image->header('Cache-Control'));
     }
 
     public function testCrashIsGenericUnlessDebug(): void

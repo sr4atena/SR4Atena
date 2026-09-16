@@ -314,3 +314,174 @@ body.drawer-open { overflow: hidden; }
 .card-foot { justify-content: space-between; align-items: center; gap: var(--sp-3); }
 .footnote { color: var(--text-muted); font-size: 11.5px; font-style: italic; }
 .signal-good { border-left-color: var(--good); }
+
+/* =====================================================================
+   17 ---- Voci -------------------------------------------------------
+   The fifth view: qualitative, text-first. No new colour is introduced —
+   tone reuses the status tokens (good/warning/critical), recency reuses
+   critical/serious/dim, and the only accent is the amber already in use.
+   Spacing stays on the 8px scale. Everything is set in CSS: the JS only
+   writes element.style for computed widths and timeline positions.
+   ===================================================================== */
+.view-voci { display: flex; flex-direction: column; gap: var(--sp-6); }
+.view-voci .kpi-row { margin-top: 0; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+body[data-view="voci"] .segmented { display: none; }
+
+/* 17.1 hero: the verdict --------------------------------------------- */
+.voci-hero {
+  position: relative; overflow: hidden;
+  padding: var(--sp-6) var(--sp-5) var(--sp-5) var(--sp-6);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: radial-gradient(120% 160% at 0% 0%, var(--accent-wash), transparent 58%), var(--surface);
+}
+.voci-hero::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--accent), transparent 85%); }
+.voci-hero-head { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; margin-bottom: var(--sp-3); }
+.voci-eyebrow { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); }
+.voci-verdict {
+  font-size: clamp(18px, 0.9vw + 11px, 23px); line-height: 1.55; font-weight: 400;
+  letter-spacing: -0.005em; max-width: 70ch; color: var(--text); text-wrap: pretty;
+}
+.voci-hero-meta { margin-top: var(--sp-4); font-size: 12px; color: var(--text-muted); max-width: 70ch; }
+.voci-pill.voci-stale { text-transform: none; letter-spacing: 0.02em; font-weight: 600; }
+
+/* 17.2 tone strip ----------------------------------------------------- */
+/* overflow-x: clip keeps a tooltip near the edge from widening the page;
+   overflow-y stays visible so the tooltip can rise above the axis. */
+.voci-strip { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: var(--sp-4) var(--sp-5) var(--sp-3); overflow-x: clip; overflow-y: visible; }
+.voci-strip-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap; }
+.voci-strip-title { font-size: 13px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.08em; }
+.voci-legend { display: flex; gap: var(--sp-3); flex-wrap: wrap; }
+.voci-tone { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-soft); white-space: nowrap; }
+.voci-tone-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--chart-dim); }
+.tone-positive .voci-tone-dot { background: var(--good); }
+.tone-mixed .voci-tone-dot { background: var(--warning); }
+.tone-negative .voci-tone-dot { background: var(--critical); }
+.tone-unknown .voci-tone-dot { background: transparent; box-shadow: inset 0 0 0 2px var(--chart-dim); }
+
+.voci-axis { position: relative; height: 28px; margin: var(--sp-6) 0 var(--sp-2); }
+.voci-axis-line { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--chart-axis); }
+.voci-dot { position: absolute; top: 50%; width: 28px; height: 28px; margin: -14px 0 0 0; transform: translateX(-50%); display: grid; place-items: center; text-decoration: none; }
+.voci-dot::after { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--chart-dim); box-shadow: 0 0 0 3px var(--surface); transition: transform 0.15s ease; }
+.voci-dot.tone-positive::after { background: var(--good); }
+.voci-dot.tone-mixed::after { background: var(--warning); }
+.voci-dot.tone-negative::after { background: var(--critical); }
+.voci-dot.tone-unknown::after { background: var(--surface); box-shadow: 0 0 0 3px var(--surface), inset 0 0 0 2px var(--chart-dim); }
+.voci-dot:hover::after, .voci-dot:focus-visible::after { transform: scale(1.35); }
+.voci-dot-tip {
+  position: absolute; bottom: calc(100% - 4px); left: 50%; transform: translateX(-50%);
+  width: max-content; max-width: 240px; padding: 7px 9px; z-index: 5;
+  background: var(--surface-3); border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  opacity: 0; pointer-events: none; transition: opacity 0.15s ease;
+}
+.voci-dot-tip.is-start { left: 0; transform: none; }
+.voci-dot-tip.is-end { left: auto; right: 0; transform: none; }
+.voci-dot:hover .voci-dot-tip, .voci-dot:focus-visible .voci-dot-tip { opacity: 1; }
+.voci-dot-date { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+.voci-dot-title { display: block; font-size: 12px; line-height: 1.35; color: var(--text); }
+.voci-axis-ends { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); }
+
+/* 17.3 the two columns ------------------------------------------------ */
+.voci-points { list-style: none; margin: 0; padding: 0; }
+.voci-point { padding: var(--sp-3) 0; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 7px; }
+.voci-point:first-child { padding-top: 0; }
+.voci-point:last-child { border-bottom: 0; padding-bottom: 0; }
+.voci-point-main { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-3); }
+.voci-point-text { font-size: 13.5px; line-height: 1.4; }
+.voci-point-bar { height: 3px; border-radius: 2px; background: var(--surface-3); overflow: hidden; }
+.voci-point-fill { display: block; height: 100%; border-radius: 0 2px 2px 0; background: var(--accent-2); }
+.voci-point.rec-persistent .voci-point-fill { background: var(--critical); }
+.voci-point.rec-recent .voci-point-fill { background: var(--serious); }
+.voci-point.rec-old .voci-point-fill, .voci-point.rec-unknown .voci-point-fill { background: var(--chart-dim); }
+.voci-point-foot { display: flex; align-items: baseline; gap: var(--sp-3); font-size: 11.5px; color: var(--text-muted); }
+.voci-point-count { color: var(--text-soft); font-variant-numeric: tabular-nums; }
+.voci-point-range { font-variant-numeric: tabular-nums; }
+.voci-recency-legend { margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px dashed var(--border-strong); }
+.voci-legend-title { margin: 0 0 var(--sp-2); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+.voci-legend-list { display: grid; grid-template-columns: auto 1fr; gap: 6px var(--sp-3); align-items: baseline; }
+.voci-legend-list dt { margin: 0; }
+.voci-legend-list dd { margin: 0; font-size: 12px; color: var(--text-soft); line-height: 1.4; }
+
+/* 17.4 pills ---------------------------------------------------------- */
+.voci-pill {
+  display: inline-flex; align-items: center; white-space: nowrap; flex: none;
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text-muted);
+}
+.voci-pill.rec-persistent { color: var(--bad-text); border-color: rgba(208, 59, 59, 0.5); background: rgba(208, 59, 59, 0.12); }
+.voci-pill.rec-recent { color: var(--serious); border-color: rgba(236, 131, 90, 0.5); background: rgba(236, 131, 90, 0.12); }
+.voci-pill-warn { color: var(--warning); border-color: rgba(250, 178, 25, 0.4); background: rgba(250, 178, 25, 0.08);
+  text-transform: none; font-weight: 600; letter-spacing: 0.01em; }
+.voci-pill-soft { text-transform: none; font-weight: 600; letter-spacing: 0.01em; border-color: var(--border); }
+
+/* 17.5 video grid ----------------------------------------------------- */
+.voci-section-head { display: flex; flex-direction: column; gap: 6px; margin-bottom: var(--sp-4); }
+.voci-section-title { font-size: 17px; font-weight: 600; }
+.voci-section-says { font-size: 12.5px; color: var(--text-muted); max-width: 80ch; line-height: 1.5; }
+.voci-videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: var(--sp-4); }
+.voci-video { display: flex; flex-direction: column; min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.voci-video:hover { border-color: var(--border-strong); }
+.voci-video.is-failed { border-style: dashed; }
+.voci-thumb { position: relative; display: block; aspect-ratio: 16 / 9; background: var(--surface-3); overflow: hidden; }
+.voci-thumb-img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+.voci-thumb:hover .voci-thumb-img { transform: scale(1.03); }
+.voci-thumb-ph { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  background: linear-gradient(135deg, var(--surface-2), var(--surface-3)); color: var(--text-muted); font-size: 11px; letter-spacing: 0.04em; }
+.voci-thumb.is-empty .voci-thumb-ph { display: flex; }
+.voci-thumb-ph-mark { font-size: 20px; color: var(--chart-dim); }
+.voci-video.is-failed .voci-thumb { filter: saturate(0.35); opacity: 0.7; }
+.voci-video-body { display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4) var(--sp-4); }
+.voci-video-title { font-size: 14.5px; font-weight: 600; line-height: 1.35; }
+.voci-video-link { text-decoration: none; }
+.voci-video-link:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.voci-video-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+.voci-sep { color: var(--border-strong); }
+.voci-video-flags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.voci-oneline { font-size: 13.5px; line-height: 1.5; color: var(--text); margin-top: var(--sp-1); }
+.voci-video-points { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-1); }
+.voci-chipgroup-title { margin: 0 0 5px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+.voci-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 5px 6px; }
+.voci-chip { display: inline-flex; align-items: baseline; gap: 5px; max-width: 100%; padding: 3px 9px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text-soft); font-size: 11.5px; line-height: 1.35; }
+.voci-chip-glyph { font-weight: 700; flex: none; }
+.voci-chips.is-like .voci-chip-glyph { color: var(--good-text); }
+.voci-chips.is-improve .voci-chip-glyph { color: var(--serious); }
+
+/* 17.6 pull quotes: the verbatim player sentence ---------------------- */
+.voci-quote {
+  position: relative; margin: var(--sp-2) 0 0; padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-5);
+  background: var(--surface-2); border-left: 2px solid var(--accent-2); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.voci-quote::before { content: "\201C"; position: absolute; left: 7px; top: 2px; font: 700 30px/1 Georgia, "Times New Roman", serif; color: var(--accent); opacity: 0.45; }
+.voci-quote-text { margin: 0; font-size: 13.5px; line-height: 1.55; font-style: italic; color: var(--text); }
+.voci-quote-meta { margin-top: 6px; font-size: 11px; color: var(--text-muted); }
+.voci-failed-note { border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-2); padding: var(--sp-3); }
+.voci-failed-title { font-size: 12.5px; font-weight: 600; color: var(--text-soft); }
+.voci-failed-text { margin-top: 4px; font-size: 12.5px; line-height: 1.45; color: var(--text-muted); }
+.voci-source-note { font-size: 11.5px; line-height: 1.55; color: var(--text-muted); max-width: 90ch; }
+
+/* 17.7 responsive ----------------------------------------------------- */
+@media (max-width: 1080px) {
+  .view-voci .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .view-voci { gap: var(--sp-5); }
+  .voci-hero { padding: var(--sp-5) var(--sp-4) var(--sp-4) var(--sp-5); }
+  .voci-hero-meta { margin-top: var(--sp-3); }
+  .voci-strip { padding: var(--sp-3) var(--sp-4); }
+  .voci-axis { margin-top: var(--sp-5); }
+  .voci-dot-tip { max-width: 170px; }
+  .voci-videos { grid-template-columns: 1fr; gap: var(--sp-3); }
+  .voci-video-body { padding: var(--sp-3); }
+  .voci-section-title { font-size: 16px; }
+  /* Five tabs instead of four: keep the fixed bottom bar from overflowing at 390px. */
+  .tab { display: block; text-align: center; padding: 8px 4px; font-size: 11.5px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+@media (max-width: 420px) {
+  .view-voci .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .voci-legend { gap: var(--sp-2); }
+  .tab { font-size: 11px; padding: 8px 2px; }
+}
+@media (forced-colors: active) {
+  .voci-dot::after { box-shadow: 0 0 0 2px CanvasText; }
+  .voci-pill, .voci-chip { border-color: CanvasText; }
+}
