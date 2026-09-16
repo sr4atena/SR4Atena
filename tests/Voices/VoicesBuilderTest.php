@@ -141,8 +141,9 @@ final class VoicesBuilderTest extends TestCase
 
         $synthesis = $document['synthesis'];
         self::assertSame('ok', $synthesis['status']);
-        self::assertSame('old', $synthesis['improvements'][0]['recency']);
-        self::assertSame('recent', $synthesis['improvements'][1]['recency'], 'missing labels are computed from the dates');
+        // Two videos only: both points sit at or after the cutoff, so both are
+        // current. The label always comes from the dates, never from the model.
+        self::assertSame(['recent', 'recent'], array_column($synthesis['improvements'], 'recency'));
         self::assertCount(2, $synthesis['timeline']);
         self::assertSame(3, $this->llmCalls, 'two summaries and one synthesis');
         self::assertSame(0640, fileperms($this->dir . '/voices.json') & 0777, 'the web process reads it, nothing more');

@@ -90,8 +90,14 @@ comments that passed a deterministic relevance filter, and public
 auto-generated captions. Nothing of ours goes with it: no Roblox figures, no
 user records, no server data. Calls are made from the owner's workstation
 under a paid (not free-tier) key, so the applicable data-handling terms are
-those of the paid API; they should be re-read whenever the key or plan
-changes, and the answer recorded here. The key never reaches the server. A
+those of the paid API. Read on 2026-09-16 at
+<https://ai.google.dev/gemini-api/terms>, those terms state that for paid
+services "Google doesn't use your prompts (including associated system
+instructions, cached content, and files such as images, videos, or documents)
+or responses to improve our products", while for the unpaid tier "Google uses
+the content you submit to the Services and any generated responses to provide,
+improve, and develop Google products and services and machine learning
+technologies". Re-read them whenever the key or the plan changes. The key never reaches the server. A
 local model (Ollama, `qwen2.5:14b-instruct`) is wired as a fallback and every
 summary records which model produced it, so a mixed or degraded run is
 visible on the page rather than silent.

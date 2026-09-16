@@ -166,7 +166,10 @@ final class LlmClientTest extends TestCase
         yield 'spanish' => [['La atmósfera de la mansión por la noche', 'La barra de resistencia es muy corta para el juego'], 'es'];
         yield 'portuguese' => [['A atmosfera da mansão à noite', 'A barra de resistência é muito curta para o jogo'], 'pt'];
         yield 'english' => [['The atmosphere of the manor at night', 'The stamina bar is very short for the game'], 'en'];
-        yield 'nothing to judge' => [['', 'Lag'], 'it'];
+        // Noun phrases match no function word at all: the language is unknown,
+        // and calling it Italian is how a Spanish answer used to slip through.
+        yield 'nothing to judge' => [['', 'Lag'], VideoSummarizer::UNDETERMINED];
+        yield 'spanish noun phrases' => [['Atmósfera nocturna', 'Sonido inmersivo'], VideoSummarizer::UNDETERMINED];
     }
 
     #[DataProvider('languages')]
@@ -198,5 +201,19 @@ final class LlmClientTest extends TestCase
         self::assertSame(['a' => 1], LlmClient::decodeObject("```json\n{\"a\": 1}\n```"));
         self::assertSame(['a' => 1], LlmClient::decodeObject("Ecco il risultato:\n{\"a\": 1}"));
         self::assertNull(LlmClient::decodeObject('non è JSON'));
+    }
+
+    public function testAnUndeterminedLanguageIsAskedOnceAndThenAccepted(): void
+    {
+        $nouns = ['tone' => 'mixed', 'quotes' => [], 'oneLine' => 'Atmósfera nocturna',
+                  'likes' => ['Atmósfera nocturna', 'Sonido inmersivo'], 'improvements' => []];
+        $client = $this->client([self::gemini($nouns), self::gemini($nouns)]);
+
+        $answer = $client->json('summary', 's', 'u', VideoSummarizer::patient(VideoSummarizer::validator(...)));
+
+        self::assertSame($nouns['likes'], $answer['data']['likes']);
+        self::assertCount(2, $this->sent, 'asked once to rewrite in Italian, then taken as it is');
+        self::assertStringContainsString('CORREZIONE OBBLIGATORIA', (string)$this->sent[1]['body']);
+        self::assertStringContainsString('non riconosco la lingua', (string)$this->sent[1]['body']);
     }
 }

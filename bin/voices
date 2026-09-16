@@ -140,7 +140,7 @@ try {
         new CommentFilter(),
         $fetcher,
         new ThumbnailStore($paths['voicesMedia']),
-        new VideoSummarizer($llm, $paths['prompts'] . '/voices-summary.md', $paths['voicesCache'], 'summary', $game),
+        new VideoSummarizer($llm, $paths['prompts'] . '/voices-summary.md', $paths['voicesCache'], 'summary', $game, $log),
         new Synthesizer($llm, $paths['prompts'] . '/voices-synthesis.md', 'synthesis', $game),
         $output,
         $paths['voicesCache'],

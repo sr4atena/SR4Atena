@@ -54,13 +54,22 @@ export function statsRow(data) {
   const dates = videos.map((v) => v.publishedAt).filter(Boolean).sort();
   const span = dates.length ? `dal ${fmtDate(dates[0], 'axis')} al ${fmtDate(dates[dates.length - 1], 'axis')}` : null;
   const candidates = data.stats?.candidates;
+  // "Disabled by the creator" and "we could not get it" are different facts:
+  // only the first is something the page is entitled to state.
+  const disabled = videos.filter((v) => v.transcript?.status === 'missing').length;
+  const unusable = videos.filter((v) => v.transcript?.status === 'error' || v.transcript?.status === 'blocked').length;
+  const why = [];
+  if (disabled) why.push(`${fmtInt(disabled)} con i sottotitoli disabilitati`);
+  if (unusable) why.push(`${fmtInt(unusable)} non recuperabili`);
+  // The list length is configuration (voices.topN), so never spell it out.
+  const n = fmtInt(videos.length);
   return kpiRow([
     { label: 'Video analizzati', value: fmtInt(videos.length), sub: candidates ? `i più visti fra ${fmtInt(candidates)} candidati` : null,
-      how: 'I dieci video più visti che nominano il gioco nel titolo.' },
+      how: `I ${n} video più visti che nominano il gioco nel titolo.` },
     { label: 'Visualizzazioni raccolte', value: fmtCompact(views), sub: span, accent: true,
-      how: 'Somma delle visualizzazioni dei dieci video considerati.' },
+      how: `Somma delle visualizzazioni dei ${n} video considerati.` },
     { label: 'Trascrizioni disponibili', value: `${fmtInt(withTranscript)} su ${fmtInt(videos.length)}`,
-      sub: 'sugli altri i sottotitoli sono disabilitati',
+      sub: why.length ? why.join(', ') : null,
       how: 'Il parlato del creatore è la fonte principale; senza, si usano solo i commenti.' },
     { label: 'Commenti tenuti', value: fmtInt(kept), sub: fetched ? `su ${fmtInt(fetched)} letti` : null,
       how: 'Scartati i commenti rivolti al canale: restano quelli che parlano del gioco.' },
@@ -127,7 +136,7 @@ export function pointsSection(data) {
     recencyOf(a.recency).rank - recencyOf(b.recency).rank || arraySafe(b.videos).length - arraySafe(a.videos).length);
 
   const cLikes = card({ title: 'Cosa piace', span: 6, terms: ['Sintesi', 'Tono'],
-    says: 'I punti di forza ricorrenti nei dieci video, dal più citato al meno citato.' });
+    says: `I punti di forza ricorrenti nei ${fmtInt(arraySafe(data.videos).length)} video, dal più citato al meno citato.` });
   cLikes.body.appendChild(pointList(likes, false));
   g.appendChild(cLikes.root);
 

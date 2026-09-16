@@ -86,7 +86,8 @@ function videosSection(videos) {
   const section = el('section', 'voci-videos-section');
   section.setAttribute('aria-labelledby', 'voci-videos-title');
   const head = el('div', 'voci-section-head');
-  const h = el('h2', 'voci-section-title', 'I dieci video più visti');
+  // The list length is configuration (voices.topN), so never spell it out.
+  const h = el('h2', 'voci-section-title', `I ${videos.length} video più visti`);
   h.id = 'voci-videos-title';
   head.appendChild(h);
   head.appendChild(el('p', 'voci-section-says',

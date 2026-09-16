@@ -11,9 +11,9 @@
     "fellBackTo": null
   },
   "stats": {
-    "candidates": 83,
+    "candidates": 98,
     "excludedNonRoblox": 1,
-    "withTranscript": 5
+    "withTranscript": 6
   },
   "videos": [
     {
@@ -484,6 +484,192 @@
         "oneLine": null,
         "quotes": []
       }
+    },
+    {
+      "id": "Pr9tGm2VbX4",
+      "title": "The Locust's Manor: a chave vermelha em 3 minutos",
+      "channel": "Corredor Sombrio",
+      "channelId": "UC1corredorso00",
+      "publishedAt": "2026-09-10",
+      "views": 12940,
+      "likes": 498,
+      "commentCount": 37,
+      "url": "https://www.youtube.com/watch?v=Pr9tGm2VbX4",
+      "thumbnail": "/media/yt/Pr9tGm2VbX4.jpg",
+      "transcript": {
+        "status": "ok",
+        "language": "pt",
+        "generated": true,
+        "chars": 8134
+      },
+      "comments": {
+        "fetched": 37,
+        "kept": 9
+      },
+      "summary": {
+        "status": "ok",
+        "generatedAt": "2026-09-17T06:02:41Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [
+          "transcript",
+          "comments"
+        ],
+        "tone": "positive",
+        "likes": [
+          "Ritmo serrato delle stanze finali",
+          "Indizi sonori chiari prima dell'inseguimento"
+        ],
+        "improvements": [
+          "Mappa poco leggibile sui telefoni"
+        ],
+        "oneLine": "Una guida breve alla chiave rossa, con qualche appunto sulla leggibilità della mappa.",
+        "quotes": [
+          {
+            "text": "no celular o mapa fica ilegivel, tive que jogar no pc pra conseguir ler",
+            "likes": 31,
+            "topic": "mappa su telefono"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Ky7dNs0WqL3",
+      "title": "LOCUST'S MANOR но я не могу выйти #shorts",
+      "channel": "Короткие Ужасы",
+      "channelId": "UC2korotkieuz0",
+      "publishedAt": "2026-09-07",
+      "views": 9865,
+      "likes": 402,
+      "commentCount": 0,
+      "url": "https://www.youtube.com/watch?v=Ky7dNs0WqL3",
+      "thumbnail": "/media/yt/Ky7dNs0WqL3.jpg",
+      "transcript": {
+        "status": "missing",
+        "language": null,
+        "generated": false,
+        "chars": 0
+      },
+      "comments": {
+        "fetched": 0,
+        "kept": 0
+      },
+      "summary": {
+        "status": "failed",
+        "generatedAt": "2026-09-17T06:02:49Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [],
+        "tone": null,
+        "likes": [],
+        "improvements": [],
+        "oneLine": null,
+        "quotes": []
+      }
+    },
+    {
+      "id": "Uf4hJb8ZcT1",
+      "title": "Reacting to The Locust's Manor with my little brother",
+      "channel": "Twin Reacts",
+      "channelId": "UC3twinreacts0",
+      "publishedAt": "2026-08-30",
+      "views": 7412,
+      "likes": 286,
+      "commentCount": 24,
+      "url": "https://www.youtube.com/watch?v=Uf4hJb8ZcT1",
+      "thumbnail": "/media/yt/Uf4hJb8ZcT1.jpg",
+      "transcript": {
+        "status": "missing",
+        "language": null,
+        "generated": false,
+        "chars": 0
+      },
+      "comments": {
+        "fetched": 24,
+        "kept": 6
+      },
+      "summary": {
+        "status": "ok",
+        "generatedAt": "2026-09-17T06:02:55Z",
+        "model": "qwen2.5:14b-instruct",
+        "basedOn": [
+          "comments"
+        ],
+        "tone": "mixed",
+        "likes": [
+          "Reazioni credibili ai jumpscare"
+        ],
+        "improvements": [
+          "Tempi di attesa lunghi fra una partita e l'altra",
+          "Voce di gioco troppo bassa rispetto alla musica"
+        ],
+        "oneLine": "Una reazione in due che conferma i jumpscare riusciti e la fatica delle attese in lobby.",
+        "quotes": []
+      }
+    },
+    {
+      "id": "Xa2mVe6RnP8",
+      "title": "THE LOCUST'S MANOR meme compilation",
+      "channel": "Meme Locust",
+      "channelId": "UC4memelocust0",
+      "publishedAt": "2026-08-24",
+      "views": 5533,
+      "likes": 901,
+      "commentCount": 0,
+      "url": "https://www.youtube.com/watch?v=Xa2mVe6RnP8",
+      "thumbnail": "/media/yt/Xa2mVe6RnP8.jpg",
+      "transcript": {
+        "status": "missing",
+        "language": null,
+        "generated": false,
+        "chars": 0
+      },
+      "comments": {
+        "fetched": 0,
+        "kept": 0
+      },
+      "summary": {
+        "status": "failed",
+        "generatedAt": "2026-09-17T06:03:01Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [],
+        "tone": null,
+        "likes": [],
+        "improvements": [],
+        "oneLine": null,
+        "quotes": []
+      }
+    },
+    {
+      "id": "Lo5zQd1YhK7",
+      "title": "Locust's Manor speedrun any% 4:12",
+      "channel": "Runner Nocturne",
+      "channelId": "UC5runnernoct0",
+      "publishedAt": "2026-08-16",
+      "views": 4288,
+      "likes": 173,
+      "commentCount": 3,
+      "url": "https://www.youtube.com/watch?v=Lo5zQd1YhK7",
+      "thumbnail": "/media/yt/Lo5zQd1YhK7.jpg",
+      "transcript": {
+        "status": "error",
+        "language": null,
+        "generated": false,
+        "chars": 0
+      },
+      "comments": {
+        "fetched": 3,
+        "kept": 0
+      },
+      "summary": {
+        "status": "failed",
+        "generatedAt": "2026-09-17T06:03:06Z",
+        "model": "gemini-3.6-flash",
+        "basedOn": [],
+        "tone": null,
+        "likes": [],
+        "improvements": [],
+        "oneLine": null,
+        "quotes": []
+      }
     }
   ],
   "synthesis": {
@@ -498,7 +684,9 @@
       "O8eWFVZxgcI",
       "eGxhf71MXyE",
       "Qv2pK7bTn4A",
-      "Hn6vLqz_D2M"
+      "Hn6vLqz_D2M",
+      "Uf4hJb8ZcT1",
+      "Pr9tGm2VbX4"
     ],
     "likes": [
       {
@@ -662,6 +850,11 @@
         "tone": "positive"
       },
       {
+        "date": "2026-08-30",
+        "id": "Uf4hJb8ZcT1",
+        "tone": "mixed"
+      },
+      {
         "date": "2026-09-02",
         "id": "O8eWFVZxgcI",
         "tone": "mixed"
@@ -669,6 +862,11 @@
       {
         "date": "2026-09-09",
         "id": "eGxhf71MXyE",
+        "tone": "positive"
+      },
+      {
+        "date": "2026-09-10",
+        "id": "Pr9tGm2VbX4",
         "tone": "positive"
       },
       {

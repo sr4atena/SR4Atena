@@ -5,7 +5,7 @@
  * Four drivers (`gemini`, `ollama`, `openai`, `anthropic`) share one paced
  * retry-and-fallback path. Measured on 2026-09-16 (PLAN-voices §6): model ids
  * drift, so the id comes from configuration and a 404 naming a successor is
- * surfaced whole; and the free tier throttles a burst with 429/503, so pacing
+ * surfaced whole; and the API throttles a burst with 429/503, so pacing
  * and backoff are what keep the work on the better model. What counts as a
  * usable answer is the caller's business: `json()` takes a validator and
  * retries once with its complaint appended before moving down the chain.
@@ -22,7 +22,7 @@ final class LlmClient
     private const RETRYABLE = [408, 409, 425, 429, 500, 502, 503, 504];
     /** Attempts per profile: one bad answer is not a verdict on the model. */
     private const ATTEMPTS = 3;
-    /** 429 and 503 are the free tier saying "slow down", not "you are broken". */
+    /** 429 and 503 are the provider saying "slow down", not "you are broken". */
     private const THROTTLED = [429, 503];
     private const THROTTLE_BACKOFF = 20.0;
 
@@ -129,7 +129,7 @@ final class LlmClient
                 $pause = $wait > 0 ? min(120.0, $wait + 1.0)
                     : (in_array($status, self::THROTTLED, true) ? self::THROTTLE_BACKOFF * (2 ** ($try - 1)) : 2.0 * $try);
                 ($this->log)('llm: ' . $profile . ' ' . $last . ', waiting ' . round($pause, 1)
-                    . ' s then retry ' . $try . '/' . ($this->maxRetries - 1));
+                    . ' s then attempt ' . ($try + 1) . '/' . $this->maxRetries);
                 ($this->sleep)($pause);
             }
         }

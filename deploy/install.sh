@@ -37,25 +37,44 @@ done
 SSH=(ssh -i "$KEY" -o BatchMode=yes "$VPS")
 RSYNC_SSH="ssh -i $KEY -o BatchMode=yes"
 
-echo "→ syncing code to $VPS:/tmp/manor-ledger"
-rsync -az --delete -e "$RSYNC_SSH" \
+# The code, the key and the data used to be staged in /tmp, which is
+# world-writable: any local user on this shared host could swap a file or plant
+# a symlink between the upload and the privileged install that reads it. The
+# remote now makes a private directory of its own — mode 700, under /var/tmp —
+# and we check the name against the template before it travels through
+# "ssh sudo", so nothing unvalidated ever reaches a privileged shell.
+STAGE=$("${SSH[@]}" 'umask 077 && mktemp -d /var/tmp/manor-stage.XXXXXX')
+case "$STAGE" in
+  /var/tmp/manor-stage.??????) ;;
+  *) echo "unexpected staging directory from the server: $STAGE" >&2; exit 1 ;;
+esac
+cleanup() { "${SSH[@]}" "rm -rf -- '$STAGE'" >/dev/null 2>&1; return 0; }
+trap cleanup EXIT
+
+echo "→ syncing code to $VPS:$STAGE/code"
+rsync -az --delete --no-links -e "$RSYNC_SSH" \
   --exclude '/.git' --exclude '/data' --exclude '/vendor' --exclude '/.phpunit.cache' \
   --exclude '/tests' --exclude 'composer.lock' \
-  ./ "$VPS:/tmp/manor-ledger/"
+  ./ "$VPS:$STAGE/code/"
 
 if [ -n "$API_KEY_FILE" ]; then
   echo "→ uploading Roblox API key"
-  rsync -az --chmod=600 -e "$RSYNC_SSH" "$API_KEY_FILE" "$VPS:/tmp/manor-ledger.api-key"
+  rsync -az --chmod=600 --no-links -e "$RSYNC_SSH" "$API_KEY_FILE" "$VPS:$STAGE/api-key"
 fi
 if [ "$WITH_DATA" = 1 ]; then
   echo "→ uploading history and snapshots"
-  rsync -az -e "$RSYNC_SSH" data/history.json data/snapshots "$VPS:/tmp/manor-ledger-data/"
+  rsync -az --no-links -e "$RSYNC_SSH" data/history.json data/snapshots "$VPS:$STAGE/data/"
 fi
 
 echo "→ installing on the VPS"
-"${SSH[@]}" "sudo HOST='$HOST' APP_DIR='$APP_DIR' DATA_DIR='$DATA_DIR' bash -s" <<'REMOTE'
+"${SSH[@]}" "sudo HOST='$HOST' APP_DIR='$APP_DIR' DATA_DIR='$DATA_DIR' STAGE='$STAGE' bash -s" <<'REMOTE'
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
+
+# Everything below installs from $STAGE. It was uploaded with --no-links, so a
+# link anywhere in it is something that appeared afterwards: refuse the lot.
+[ -d "$STAGE" ] && [ ! -L "$STAGE" ] || { echo "the staging directory is not a directory" >&2; exit 1; }
+[ -z "$(find "$STAGE" -type l -print -quit)" ] || { echo "refusing to install from a tree containing symlinks" >&2; exit 1; }
 
 # 1. Packages (nginx-light has everything we need and half the footprint).
 need=(nginx-light php8.3-fpm php8.3-cli php8.3-curl php8.3-mbstring)
@@ -77,23 +96,21 @@ touch /var/log/php/manor-ledger.log && chown manor:manor /var/log/php/manor-ledg
 
 # 3. Code: root-owned, read-only for the service user.
 install -d -m 755 "$APP_DIR"
-rsync -a --delete --chown=root:root /tmp/manor-ledger/ "$APP_DIR/"
+rsync -a --delete --chown=root:root "$STAGE/code/" "$APP_DIR/"
 find "$APP_DIR" -type d -exec chmod 755 {} + -o -type f -exec chmod 644 {} +
 chmod 755 "$APP_DIR"/bin/*
-rm -rf /tmp/manor-ledger
 
 # 4. Secrets and data (only when uploaded).
-if [ -f /tmp/manor-ledger.api-key ]; then
-  install -m 640 -o root -g manor /tmp/manor-ledger.api-key /etc/manor-ledger/api-key
-  shred -u /tmp/manor-ledger.api-key
+if [ -f "$STAGE/api-key" ]; then
+  install -m 640 -o root -g manor "$STAGE/api-key" /etc/manor-ledger/api-key
+  shred -u "$STAGE/api-key"
 fi
-if [ -d /tmp/manor-ledger-data ]; then
-  [ -f /tmp/manor-ledger-data/history.json ] && install -m 600 -o manor -g manor /tmp/manor-ledger-data/history.json "$DATA_DIR/history.json"
-  if [ -d /tmp/manor-ledger-data/snapshots ]; then
-    rsync -a --chown=manor:manor /tmp/manor-ledger-data/snapshots/ "$DATA_DIR/snapshots/"
+if [ -d "$STAGE/data" ]; then
+  [ -f "$STAGE/data/history.json" ] && install -m 600 -o manor -g manor "$STAGE/data/history.json" "$DATA_DIR/history.json"
+  if [ -d "$STAGE/data/snapshots" ]; then
+    rsync -a --chown=manor:manor "$STAGE/data/snapshots/" "$DATA_DIR/snapshots/"
     chmod 600 "$DATA_DIR"/snapshots/* 2>/dev/null || true
   fi
-  rm -rf /tmp/manor-ledger-data
 fi
 
 # 5. php-fpm pool, nginx site, systemd timer.
@@ -140,6 +157,8 @@ if ! cmp -s "$APP_DIR/deploy/sshd-hardening.conf" /etc/ssh/sshd_config.d/70-mano
   install -m 644 "$APP_DIR/deploy/sshd-hardening.conf" /etc/ssh/sshd_config.d/70-manor-hardening.conf
   if sshd -t; then systemctl reload ssh; echo "sshd: hardening applied"; else rm -f /etc/ssh/sshd_config.d/70-manor-hardening.conf; echo "sshd: config rejected, drop-in removed" >&2; fi
 fi
+
+rm -rf "$STAGE"
 
 echo "ok: $(php -v | head -1)"
 systemctl is-active nginx php8.3-fpm cloudflared manor-ledger-refresh.timer | paste -sd' '

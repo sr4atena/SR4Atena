@@ -20,7 +20,6 @@ VPS="${MANOR_VPS:?set MANOR_VPS=user@host in the environment or in deploy/deploy
 KEY="${MANOR_SSH_KEY:-$HOME/.ssh/id_ed25519}"
 DATA_DIR=/var/lib/manor-ledger
 OWNER=manor-fetch:manor
-STAGE=/tmp/manor-voices
 
 DRY_RUN=0
 while [ $# -gt 0 ]; do
@@ -39,8 +38,27 @@ echo "→ publishing voices.json (generated $generated) and $images thumbnails t
 
 run() { if [ "$DRY_RUN" = 1 ]; then printf '  would run:'; printf ' %q' "$@"; echo; else "$@"; fi; }
 
+SSH=(ssh -i "$KEY" -o BatchMode=yes "$VPS")
 RSYNC_SSH="ssh -i $KEY -o BatchMode=yes"
-run rsync -az --delete -e "$RSYNC_SSH" data/voices.json data/media/yt "$VPS:$STAGE/"
+
+# /tmp is world-writable, so anything staged there can be replaced or
+# symlinked by another local user between the upload and the privileged
+# install. The remote creates a private directory instead — its own, mode 700,
+# under /var/tmp — and the name is checked against the template before it is
+# allowed anywhere near "ssh sudo".
+if [ "$DRY_RUN" = 1 ]; then
+  STAGE=/var/tmp/manor-voices.XXXXXX
+else
+  STAGE=$("${SSH[@]}" 'umask 077 && mktemp -d /var/tmp/manor-voices.XXXXXX')
+  case "$STAGE" in
+    /var/tmp/manor-voices.??????) ;;
+    *) echo "unexpected staging directory from the server: $STAGE" >&2; exit 1 ;;
+  esac
+  cleanup() { "${SSH[@]}" "rm -rf -- '$STAGE'" >/dev/null 2>&1; return 0; }
+  trap cleanup EXIT
+fi
+
+run rsync -az --delete --no-links -e "$RSYNC_SSH" data/voices.json data/media/yt "$VPS:$STAGE/"
 
 if [ "$DRY_RUN" = 1 ]; then
   echo "  would run: ssh $VPS sudo install -m 640 -o $OWNER $STAGE/voices.json $DATA_DIR/voices.json"
@@ -50,9 +68,13 @@ fi
 
 # One privileged step, with the ownership and modes the two service users need:
 # manor-fetch owns the data, the manor web pool only reads it.
-ssh -i "$KEY" -o BatchMode=yes "$VPS" "sudo DATA_DIR='$DATA_DIR' OWNER='$OWNER' STAGE='$STAGE' bash -s" <<'REMOTE'
+"${SSH[@]}" "sudo DATA_DIR='$DATA_DIR' OWNER='$OWNER' STAGE='$STAGE' bash -s" <<'REMOTE'
 set -euo pipefail
-[ -f "$STAGE/voices.json" ] || { echo "nothing staged" >&2; exit 1; }
+# Nothing here follows a link: the staging tree was uploaded with --no-links,
+# so a link in it would be something that was put there after the upload.
+[ -d "$STAGE" ] && [ ! -L "$STAGE" ] || { echo "the staging directory is not a directory" >&2; exit 1; }
+[ -f "$STAGE/voices.json" ] && [ ! -L "$STAGE/voices.json" ] || { echo "nothing staged, or a symlink where the document should be" >&2; exit 1; }
+[ -z "$(find "$STAGE" -type l -print -quit)" ] || { echo "refusing to install from a tree containing symlinks" >&2; exit 1; }
 install -d -m 750 -o "${OWNER%%:*}" -g "${OWNER##*:}" "$DATA_DIR/media" "$DATA_DIR/media/yt"
 install -m 640 -o "${OWNER%%:*}" -g "${OWNER##*:}" "$STAGE/voices.json" "$DATA_DIR/voices.json"
 # The lock file keeps its old owner across a chown, which would then break the

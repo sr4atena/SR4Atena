@@ -20,7 +20,7 @@ use ManorLedger\Http\Response;
 final class VoicesController
 {
     public const MEDIA_PREFIX = '/media/yt/';
-    private const MEDIA_ROUTE = '#^/media/yt/([A-Za-z0-9_-]{11})\.jpg$#';
+    private const MEDIA_ROUTE = '#^/media/yt/([A-Za-z0-9_-]{11})\.jpg\z#';
 
     public function __construct(
         private readonly Session $session,

@@ -129,7 +129,7 @@ Same prompt, JSON response mode, temperature 0.2.
 | `qwen2.5:7b-instruct` (local) | `eGxhf71MXyE`, English | 5 s | **Fails.** Valid JSON, worthless content: verbatim English fragments instead of concepts, `"I found a key already."` listed as a thing players like. Extraction without comprehension. |
 | `qwen2.5:14b-instruct` (local) | same | 21 s | **Passes.** Italian, real concepts: *meccanica di chiavi per aprire porte*, *stamina meter*, *ridurre il ritmo lento delle interazioni*. |
 | `qwen2.5:14b-instruct` (local) | `lHul7HACuLo`, **Portuguese** | 40 s | **Content passes, language fails.** Comprehension is good but it answered in **Spanish**. The Italian instruction holds on English input and drifts on Romance-language input. |
-| **`gemini-3.6-flash`** (Google AI Studio, free tier) | `lHul7HACuLo`, **Portuguese** | 15 s | **Passes everything, by a wide margin.** Flawless Italian, and the points are specific enough to act on: *glitch di collisione che spingono il giocatore verso il soffitto negli armadi*, *tendenza dei mostri a stazionare davanti ai nascondigli*, *scarsa accessibilità per giocatori daltonici a causa dei codici colore*. That last one is a real accessibility finding neither local model reached. |
+| **`gemini-3.6-flash`** (Google AI Studio, free tier at the time of the test) | `lHul7HACuLo`, **Portuguese** | 15 s | **Passes everything, by a wide margin.** Flawless Italian, and the points are specific enough to act on: *glitch di collisione che spingono il giocatore verso il soffitto negli armadi*, *tendenza dei mostri a stazionare davanti ai nascondigli*, *scarsa accessibilità per giocatori daltonici a causa dei codici colore*. That last one is a real accessibility finding neither local model reached. |
 
 `gemma3:4b` was not tested: strictly smaller than a model that already failed.
 
@@ -139,7 +139,8 @@ Two API facts learned while testing, both worth coding against:
   available to new users"* and names its successor in the message. Read the
   model id from configuration, never hardcode it, and log the API's suggestion
   when a 404 mentions one.
-- **The free tier can be busy.** `gemini-flash-latest` returned HTTP 503
+- **The service can be busy.** On the free tier used for this test,
+  `gemini-flash-latest` returned HTTP 503
   *"experiencing high demand"* on the same run that `gemini-3.6-flash`
   succeeded. Retries with backoff are not optional, and the local fallback
   below earns its place.
@@ -156,8 +157,10 @@ Two API facts learned while testing, both worth coding against:
 | `summary` (≤ 10 calls/day, 0 on a cached day) | `gemini-3.6-flash` | `qwen2.5:14b-instruct` on Ollama |
 | `synthesis` (exactly 1 call/day) | `gemini-3.6-flash` | `qwen2.5:14b-instruct` on Ollama |
 
-Gemini wins both on the measurements above, is free at this volume, and is the
-only candidate that held the output language on non-English input. The key is
+Gemini wins both on the measurements above, costs very little at this volume,
+and is the only candidate that held the output language on non-English input.
+**The key has since been moved to the paid tier**, which is what `SECURITY.md`
+describes; the measurements above were taken on the free one. The key is
 already in place at `data/gemini-api-key` (mode 600, git-ignored); it is a
 newer-format key, 53 characters, not the classic `AIza…` shape, so **do not
 validate keys by prefix**.
@@ -167,11 +170,17 @@ covers the 503s, it keeps the feature working offline, and it means a demo
 never depends on someone else's service being up. When the fallback is used,
 record it in `models` in the output so the page can say so.
 
-Since Gemini is doing the work, `SECURITY.md` must state plainly what leaves
-the machine: public video titles, public comments and public captions, sent to
-Google AI Studio under its free-tier terms — **check whether that tier reserves
-the right to train on submitted content and write the answer down**. Nothing of
-the owner's own data, and no Roblox figures, ever go near it.
+Since Gemini is doing the work, `SECURITY.md` states plainly what leaves the
+machine: public video titles, public comments and public captions, sent to
+Google under the terms of the **paid** Gemini API. Read on 2026-09-16 at
+<https://ai.google.dev/gemini-api/terms>, those terms say that for paid
+services "Google doesn't use your prompts (including associated system
+instructions, cached content, and files such as images, videos, or documents)
+or responses to improve our products", whereas for the unpaid tier "Google uses
+the content you submit to the Services and any generated responses to provide,
+improve, and develop Google products and services and machine learning
+technologies". Re-read them whenever the key or the plan changes. Nothing of the
+owner's own data, and no Roblox figures, ever go near it.
 
 ### Quality gate (step 4 of the order of work)
 
@@ -222,7 +231,9 @@ workstation should never see), `error`.
 
 ### `bin/voices-publish`
 
-`rsync -az` `data/voices.json` and `data/media/yt/` into `/tmp` on the VPS, then
+`rsync -az` `data/voices.json` and `data/media/yt/` into a staging directory the
+server creates for itself under `/var/tmp` (mode 700, never world-writable
+`/tmp`), then
 one `ssh sudo` step installing them as `manor-fetch:manor`, `0640` for the JSON
 and `0644` for the images, under `/var/lib/manor-ledger/`. Same shape and guard
 rails as `deploy/install.sh`. Supports `--dry-run`.

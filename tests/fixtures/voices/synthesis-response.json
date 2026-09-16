@@ -1,7 +1,7 @@
 {
   "likes": [ { "point": "Atmosfera della villa notturna", "videos": ["AAAAAAAAAAA", "CCCCCCCCCCC"] } ],
   "improvements": [
-    { "point": "Lag nella lobby iniziale", "videos": ["AAAAAAAAAAA"], "recency": "old" },
+    { "point": "Lag nella lobby iniziale", "videos": ["AAAAAAAAAAA"] },
     { "point": "Barra della stamina troppo breve", "videos": ["CCCCCCCCCCC"] }
   ],
   "verdict": "Nel periodo osservato l'atmosfera resta il punto di forza costante. Il lag della lobby compare solo nei video di agosto e sembra risolto. La stamina resta invece un tema aperto nelle uscite più recenti."

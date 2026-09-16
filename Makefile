@@ -1,5 +1,8 @@
 # Manor Ledger — developer shortcuts. PHP 8.3 runs in Docker because the host
 # ships an older PHP; on the VPS the same commands run with the system php.
+# Every Docker target bind-mounts the whole repository, so data/ and the 0600
+# key files in it are visible inside the container. No target uses host
+# networking any more; `refresh` reaches Roblox over the default bridge.
 PHP_IMG ?= php:8.3-cli
 DOCKER  = docker run --rm -u "$$(id -u):$$(id -g)" -v "$(CURDIR)":/app -w /app
 
@@ -39,8 +42,11 @@ voices-venv:     ## Create data/venv with youtube-transcript-api (host Python, n
 	data/venv/bin/pip install --quiet --upgrade pip
 	data/venv/bin/pip install --quiet -r tools/requirements.txt
 
+# Host PHP, exactly like deploy/systemd/user/manor-voices.service: the job
+# shells out to data/venv/bin/python for transcripts, which the container has
+# not got.
 voices:          ## Build data/voices.json from YouTube (runs here, never on the VPS)
-	$(DOCKER) --network host $(PHP_IMG) php bin/voices $(ARGS)
+	/opt/lampp/bin/php bin/voices $(ARGS)
 
 publish-voices:  ## Copy voices.json and the thumbnails to the VPS
 	bin/voices-publish $(ARGS)
