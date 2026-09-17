@@ -279,7 +279,9 @@ function campaignsCard(rows, ads) {
     { key: 'roi', label: 'Ritorno', num: true, fmt: (r) => fmtPct(r.roi),
       cls: (r) => (typeof r.roi !== 'number' ? null : r.roi >= 1 ? 'num-good' : 'num-bad') },
   ];
-  c.body.appendChild(table(columns, rows, { caption: 'Campagne pubblicitarie con spesa, volumi e ritorno attribuito' }));
+  const scroll = el('div', 'table-scroll');
+  scroll.appendChild(table(columns, rows, { caption: 'Campagne pubblicitarie con spesa, volumi e ritorno attribuito' }));
+  c.body.appendChild(scroll);
   const spent = sum(rows.map((r) => r.spent));
   const returned = sum(rows.map((r) => r.revenueUsdNet));
   note(c.body, `In totale ${fmtUsd(spent)} spesi e ${fmtUsd(returned)} netti attribuiti nei giorni di spesa`

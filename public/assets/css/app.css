@@ -162,6 +162,11 @@ a { color: inherit; }
 .chart { width: 100%; height: 280px; }
 .chart-tall { height: 340px; }
 .chart-table { max-height: 320px; overflow: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+/* A wide data table scrolls inside its card instead of widening the page:
+   ten campaign columns at 390px would otherwise push the fixed tab bar past
+   the screen. */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 0; }
+.table-scroll > .data-table { min-width: max-content; }
 .model-note { color: var(--text-muted); font-size: 12.5px; margin: var(--sp-3) 0 var(--sp-4); max-width: 90ch; }
 
 /* 7 ---- KPI tiles --------------------------------------------------- */
