@@ -89,7 +89,15 @@ rm -f /etc/nginx/sites-enabled/default
 
 # 2. Unprivileged service user + directories.
 id manor >/dev/null 2>&1 || useradd --system --home-dir "$DATA_DIR" --shell /usr/sbin/nologin manor
-install -d -m 750 -o manor -g manor "$DATA_DIR" "$DATA_DIR"/{cache,snapshots,sessions,throttle}
+# The job user owns the data directory, the web pool only belongs to its group:
+# manor-fetch must be able to CREATE files there (ads.json, a first history),
+# not just rewrite the ones it already has, and the setgid bit hands every new
+# file to group manor, which is all php-fpm needs to read the built dashboard.
+id manor-fetch >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin -G manor manor-fetch
+install -d -m 2750 -o manor-fetch -g manor "$DATA_DIR" "$DATA_DIR"/{cache,snapshots}
+chown manor-fetch:manor "$DATA_DIR" "$DATA_DIR"/{cache,snapshots}
+chmod 2750 "$DATA_DIR" "$DATA_DIR"/{cache,snapshots}
+install -d -m 750 -o manor -g manor "$DATA_DIR"/{sessions,throttle}
 install -d -m 750 -o root -g manor /etc/manor-ledger
 install -d -m 755 -o root -g root /var/log/php
 touch /var/log/php/manor-ledger.log && chown manor:manor /var/log/php/manor-ledger.log && chmod 640 /var/log/php/manor-ledger.log
@@ -106,9 +114,9 @@ if [ -f "$STAGE/api-key" ]; then
   shred -u "$STAGE/api-key"
 fi
 if [ -d "$STAGE/data" ]; then
-  [ -f "$STAGE/data/history.json" ] && install -m 600 -o manor -g manor "$STAGE/data/history.json" "$DATA_DIR/history.json"
+  [ -f "$STAGE/data/history.json" ] && install -m 600 -o manor-fetch -g manor "$STAGE/data/history.json" "$DATA_DIR/history.json"
   if [ -d "$STAGE/data/snapshots" ]; then
-    rsync -a --chown=manor:manor "$STAGE/data/snapshots/" "$DATA_DIR/snapshots/"
+    rsync -a --chown=manor-fetch:manor "$STAGE/data/snapshots/" "$DATA_DIR/snapshots/"
     chmod 600 "$DATA_DIR"/snapshots/* 2>/dev/null || true
   fi
 fi
