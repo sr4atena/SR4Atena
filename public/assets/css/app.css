@@ -121,13 +121,18 @@ a { color: inherit; }
   max-width: var(--content-max); margin: 0 auto; padding: var(--sp-2) var(--sp-5);
   background: var(--bg);
 }
-.tabs { display: flex; gap: var(--sp-1); }
+.tabs { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+/* Same relief as the Glossario button: a tab has to look pressable before it
+   is hovered, or the whole navigation reads as plain text on the background. */
 .tab {
   display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius-sm);
-  text-decoration: none; color: var(--text-soft); font-weight: 500; border: 1px solid transparent;
+  text-decoration: none; color: var(--text-soft); font-weight: 500;
+  border: 1px solid var(--border-strong); background: var(--surface-2);
 }
-.tab:hover { color: var(--text); background: var(--surface); }
-.tab[aria-selected="true"] { color: var(--text); background: var(--surface); border-color: var(--border); box-shadow: inset 0 -2px 0 var(--accent); }
+.tab:hover { color: var(--text); background: var(--surface-3); }
+/* The bottom bar on a phone has room for six tabs only if the long names shorten. */
+.tab-short { display: none; }
+.tab[aria-selected="true"] { color: var(--text); background: var(--accent-wash); border-color: var(--accent-2); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
 .segmented { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface); }
 .segmented button { border: 0; background: none; padding: 6px 12px; color: var(--text-soft); cursor: pointer; font-size: 13px; }
 .segmented button + button { border-left: 1px solid var(--border); }
@@ -184,6 +189,8 @@ a { color: inherit; }
 .data-table tbody tr:last-child td { border-bottom: 0; }
 .data-table tbody tr:hover { background: var(--surface-2); }
 .data-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.data-table .num-good { color: var(--good-text); }
+.data-table .num-bad { color: var(--bad-text); }
 .data-table tr.is-provisional td { color: var(--text-muted); font-style: italic; }
 .data-table-compact th, .data-table-compact td { padding: 5px 8px; font-size: 12px; }
 .data-table-compact thead th { position: sticky; top: 0; background: var(--surface); }
@@ -277,11 +284,11 @@ body.drawer-open { overflow: hidden; }
   .chip-fresh { font-size: 11px; padding: 3px 8px; max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
   .toolbar { padding: var(--sp-2) var(--sp-4); justify-content: flex-end; }
   .tabs {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; gap: 0;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; gap: 4px; flex-wrap: nowrap;
     background: rgba(11, 15, 23, 0.95); border-top: 1px solid var(--border);
     padding: 6px var(--sp-2) calc(6px + env(safe-area-inset-bottom));
   }
-  .tab { flex: 1; justify-content: center; padding: 8px 4px; font-size: 12.5px; border: 0; border-radius: var(--radius-sm); }
+  .tab { flex: 1; justify-content: center; padding: 8px 4px; font-size: 12.5px; border-radius: var(--radius-sm); }
   .tab[aria-selected="true"] { box-shadow: inset 0 2px 0 var(--accent); }
   .main { padding: var(--sp-2) var(--sp-4) calc(72px + env(safe-area-inset-bottom)); }
   .foot { padding-bottom: 80px; }
@@ -323,9 +330,9 @@ body.drawer-open { overflow: hidden; }
    Spacing stays on the 8px scale. Everything is set in CSS: the JS only
    writes element.style for computed widths and timeline positions.
    ===================================================================== */
-.view-voci { display: flex; flex-direction: column; gap: var(--sp-6); }
-.view-voci .kpi-row { margin-top: 0; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-body[data-view="voci"] .segmented { display: none; }
+.view-ai-sentiment { display: flex; flex-direction: column; gap: var(--sp-6); }
+.view-ai-sentiment .kpi-row { margin-top: 0; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+body[data-view="ai-sentiment"] .segmented { display: none; }
 
 /* 17.1 hero: the verdict --------------------------------------------- */
 .voci-hero {
@@ -461,10 +468,10 @@ body[data-view="voci"] .segmented { display: none; }
 
 /* 17.7 responsive ----------------------------------------------------- */
 @media (max-width: 1080px) {
-  .view-voci .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .view-ai-sentiment .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 720px) {
-  .view-voci { gap: var(--sp-5); }
+  .view-ai-sentiment { gap: var(--sp-5); }
   .voci-hero { padding: var(--sp-5) var(--sp-4) var(--sp-4) var(--sp-5); }
   .voci-hero-meta { margin-top: var(--sp-3); }
   .voci-strip { padding: var(--sp-3) var(--sp-4); }
@@ -473,13 +480,15 @@ body[data-view="voci"] .segmented { display: none; }
   .voci-videos { grid-template-columns: 1fr; gap: var(--sp-3); }
   .voci-video-body { padding: var(--sp-3); }
   .voci-section-title { font-size: 16px; }
-  /* Five tabs instead of four: keep the fixed bottom bar from overflowing at 390px. */
-  .tab { display: block; text-align: center; padding: 8px 4px; font-size: 11.5px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Six tabs: keep the fixed bottom bar from overflowing at 390px. */
+  .tab { display: block; text-align: center; padding: 8px 3px; font-size: 11px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tab-long { display: none; }
+  .tab-short { display: inline; }
 }
 @media (max-width: 420px) {
-  .view-voci .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .view-ai-sentiment .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .voci-legend { gap: var(--sp-2); }
-  .tab { font-size: 11px; padding: 8px 2px; }
+  .tab { font-size: 10.5px; padding: 8px 2px; }
 }
 @media (forced-colors: active) {
   .voci-dot::after { box-shadow: 0 0 0 2px CanvasText; }

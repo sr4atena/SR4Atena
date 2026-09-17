@@ -65,6 +65,22 @@ The refresh unit is idempotent: `--if-older-than=8` makes the noon retry a
 no-op when the morning run succeeded, and a manual `systemctl start` is
 always safe.
 
+### Importing the advertising spend
+
+Ads Manager has no API, so the Ads view's costs come from an export downloaded
+by hand. Copy the zip to the VPS and import it as the job user that owns the
+data directory, then rebuild:
+
+```bash
+scp RobloxAdsReport_*.zip ubuntu@vps:/tmp/
+sudo -u manor-fetch MANOR_DATA_DIR=/var/lib/manor-ledger php /opt/manor-ledger/bin/ads-import /tmp/RobloxAdsReport_*.zip
+sudo -u manor-fetch MANOR_DATA_DIR=/var/lib/manor-ledger php /opt/manor-ledger/bin/build
+```
+
+The ledger is replaced at every import and the next scheduled `bin/build`
+picks it up on its own; until the first import the view shows its sources and
+leaves the cost and return cards empty.
+
 ## Shared-host guard rails
 
 This machine is not the dashboard's alone. Other services were there first,

@@ -65,9 +65,10 @@ $initial = mb_strtoupper(mb_substr($user['username'], 0, 1));
   <nav class="tabs" aria-label="Viste" role="tablist">
     <a class="tab" role="tab" href="#valore" data-view-link="valore" aria-selected="true">Valore</a>
     <a class="tab" role="tab" href="#crescita" data-view-link="crescita" aria-selected="false">Crescita</a>
-    <a class="tab" role="tab" href="#monetizzazione" data-view-link="monetizzazione" aria-selected="false">Monetizzazione</a>
+    <a class="tab" role="tab" href="#monetizzazione" data-view-link="monetizzazione" aria-selected="false"><span class="tab-long">Monetizzazione</span><span class="tab-short">Monetiz.</span></a>
     <a class="tab" role="tab" href="#salute" data-view-link="salute" aria-selected="false">Salute</a>
-    <a class="tab" role="tab" href="#voci" data-view-link="voci" aria-selected="false">Voci</a>
+    <a class="tab" role="tab" href="#ads" data-view-link="ads" aria-selected="false"><span class="tab-long">Analisi Ads</span><span class="tab-short">Ads</span></a>
+    <a class="tab" role="tab" href="#ai-sentiment" data-view-link="ai-sentiment" aria-selected="false"><span class="tab-long">AI Sentiment</span><span class="tab-short">Sentiment</span></a>
   </nav>
   <div class="segmented" role="group" aria-label="Periodo dei grafici">
     <button type="button" data-period="7g" aria-pressed="false">7g</button>

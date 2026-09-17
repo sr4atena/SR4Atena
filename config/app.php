@@ -31,6 +31,9 @@ return [
         'snapshots'  => $dataDir . '/snapshots',
         'history'    => $dataDir . '/history.json',
         'dashboard'  => $dataDir . '/dashboard.json',
+        // Campaign spend from the Ads Manager export: no API, so bin/ads-import
+        // writes it by hand and bin/build joins it with the analytics.
+        'ads'        => $dataDir . '/ads.json',
         'users'      => $stateDir . '/users.json',
         'throttle'   => $stateDir . '/throttle',
         'sessions'   => $stateDir . '/sessions',

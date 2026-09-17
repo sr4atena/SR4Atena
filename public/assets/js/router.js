@@ -1,8 +1,12 @@
 /**
- * Hash router: #valore (default), #crescita, #monetizzazione, #salute.
- * Keeps the nav tabs' aria-selected in sync and calls the view renderer.
+ * Hash router: #valore (default), #crescita, #monetizzazione, #salute, #ads,
+ * #ai-sentiment. Keeps the nav tabs' aria-selected in sync and calls the view
+ * renderer.
  */
 import { setView } from './state.js';
+
+/** Hashes that shipped before a view was renamed: bookmarks must keep working. */
+const ALIASES = { voci: 'ai-sentiment' };
 
 export function initRouter(views, render) {
   const names = Object.keys(views);
@@ -13,6 +17,11 @@ export function initRouter(views, render) {
     return names.includes(name) ? name : names[0];
   }
   function apply() {
+    const asked = location.hash.replace(/^#/, '');
+    // An old link lands on the new hash, and replaceState keeps it out of the history.
+    if (ALIASES[asked]) {
+      history.replaceState(null, '', '#' + ALIASES[asked]);
+    }
     const name = current();
     setView(name);
     tabs.forEach((tab) => {

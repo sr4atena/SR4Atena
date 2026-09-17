@@ -1,0 +1,79 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Imports a Roblox Ads Manager export into data/ads.json (the campaign ledger
+ * the Ads view costs its charts with).
+ *
+ *   bin/ads-import ~/Downloads/RobloxAdsReport_10674300622_2026-09-14.zip
+ *   bin/ads-import path/to/extracted/dir
+ *   bin/ads-import Roblox_Campaigns_Default_Aggregated_2026-08-14_2026-09-14.csv
+ *   bin/ads-import --print <export>     also dump the ledger to stdout
+ *
+ * Ads Manager has no API: the export is downloaded by hand, so this runs by
+ * hand too. Each import replaces the ledger, and a newer export is a superset
+ * of the older one as long as its window still covers the campaigns — the
+ * summary below prints the window so a too-short export is visible at once.
+ * `bin/build` picks the file up on the next run.
+ *
+ * Exit codes: 0 ok, 1 failure, 2 bad usage.
+ */
+declare(strict_types=1);
+
+use ManorLedger\Ads\AdsReport;
+use ManorLedger\Storage\JsonStore;
+
+if (PHP_SAPI !== 'cli') {
+    fwrite(STDERR, "Command line only.\n");
+    exit(2);
+}
+
+require dirname(__DIR__) . '/src/autoload.php';
+$config = require dirname(__DIR__) . '/config/app.php';
+
+$args = array_slice($argv, 1);
+$print = in_array('--print', $args, true);
+$paths = array_values(array_filter($args, static fn (string $a): bool => !str_starts_with($a, '--')));
+
+if (in_array('--help', $args, true) || count($paths) !== 1) {
+    fwrite(STDERR, "Usage: bin/ads-import [--print] <export.zip|dir|campaigns.csv>\n");
+    exit(2);
+}
+
+try {
+    $report = (new AdsReport())->read($paths[0]);
+} catch (Throwable $e) {
+    fwrite(STDERR, 'import failed: ' . $e->getMessage() . "\n");
+    exit(1);
+}
+
+$ledger = ['importedAt' => gmdate('Y-m-d\TH:i:s\Z')] + $report;
+// 0640 like the dashboard: the php-fpm pool reads what this job writes.
+$store = new JsonStore($config['paths']['ads'], 0640);
+$store->write($ledger);
+
+if ($print) {
+    echo json_encode($ledger, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT), "\n";
+}
+
+$spent = array_sum(array_map(static fn (array $c): float => (float)$c['spent'], $ledger['campaigns']));
+printf(
+    "%s: %d campagne, spesa $ %s, finestra %s → %s\n",
+    $config['paths']['ads'],
+    count($ledger['campaigns']),
+    number_format($spent, 2, ',', '.'),
+    $ledger['window']['from'] ?? 'n/d',
+    $ledger['window']['to'] ?? 'n/d',
+);
+foreach ($ledger['campaigns'] as $campaign) {
+    printf(
+        "  %-38s %s → %-10s $ %8s  %s impression, %s click, %s partite\n",
+        mb_strimwidth((string)$campaign['name'], 0, 38, '…'),
+        $campaign['from'] ?? '??',
+        ($campaign['running'] ? 'in corso' : ($campaign['to'] ?? '??')),
+        number_format((float)$campaign['spent'], 2, ',', '.'),
+        number_format((int)($campaign['impressions'] ?? 0), 0, ',', '.'),
+        number_format((int)($campaign['clicks'] ?? 0), 0, ',', '.'),
+        number_format((int)($campaign['plays'] ?? 0), 0, ',', '.'),
+    );
+}
+echo "Ora lancia bin/build per aggiornare la dashboard.\n";

@@ -17,6 +17,9 @@ flowchart LR
   REF --> SNAP[("data/snapshots/*.gz")]
   CACHE -->|"merge: newer day wins,<br/>nothing is deleted"| HIST[("data/history.json")]
   HIST --> BUILD["bin/build<br/>Analytics"]
+  EXP["Ads Manager export<br/>(zip, downloaded by hand)"] --> IMP["bin/ads-import"]
+  IMP --> ADS[("data/ads.json<br/>campaign spend")]
+  ADS --> BUILD
   BUILD --> DASH[("data/dashboard.json")]
   DASH --> RD["GET /api/dashboard<br/>after login"]
   RD --> BR["browser"]
@@ -60,20 +63,21 @@ The two service accounts and the separate `web/` directory are explained in
 
 | Path | Role |
 |---|---|
-| `bin/` | CLI entry points (`refresh`, `build`, `user`, `serve`). Thin: parse args, call `src/`. |
+| `bin/` | CLI entry points (`refresh`, `build`, `ads-import`, `user`, `serve`). Thin: parse args, call `src/`. |
 | `config/` | `metrics.json` (catalog), `dimensions.json` (metric × dimension pairs), `glossary.json`, `app.php` (settings + env overrides). |
 | `src/ManorLedger/` | PSR-4 code, namespace `ManorLedger\`. No framework. |
 | `public/` | The **only** web root. `index.php` front controller + static assets. |
 | `templates/` | PHP templates (login, layout). All output escaped with `e()`. |
 | `tests/` | PHPUnit. Pure-PHP units, no network. |
 | `deploy/` | nginx site, php-fpm pool, cron, install script for the VPS. |
-| `data/` | **git-ignored** runtime state: `cache/`, `history.json`, `dashboard.json`, `users.json`, `api-key`. |
+| `data/` | **git-ignored** runtime state: `cache/`, `history.json`, `dashboard.json`, `ads.json`, `users.json`, `api-key`. |
 
 Namespaces map to folders:
 
 - `ManorLedger\Roblox` – `AnalyticsClient`, `RateBudget`, `MetricCatalog`
+- `ManorLedger\Ads` – `AdsReport` (reads the Ads Manager export; campaign spend has no API)
 - `ManorLedger\Storage` – `JsonStore` (atomic write + flock), `History`, `Snapshots`
-- `ManorLedger\Analytics` – `Series`, `Economics`, `Seasonality`, `Anomalies`, `DashboardBuilder`
+- `ManorLedger\Analytics` – `Series`, `Economics`, `Seasonality`, `Anomalies`, `AdsAnalysis`, `DashboardBuilder`
 - `ManorLedger\Voices` – `YouTubeClient`, `CommentFilter`, `TranscriptFetcher`, `ThumbnailStore`, `LlmClient`, `VideoSummarizer`, `Synthesizer`, `VoicesBuilder` (runs on the workstation, publishes `data/voices.json`)
 - `ManorLedger\Auth` – `PasswordHasher`, `UserStore`, `Session`, `Csrf`, `LoginThrottle`, `Totp`
 - `ManorLedger\Http` – `Request`, `Response`, `Router`, `SecurityHeaders`, controllers
@@ -193,6 +197,33 @@ Dimension pairs are merged into the same file under the key
     "dauMauStickiness":     { "unit": "pct",   "dates": [], "series": [ … ] },
     "revenuePlatformShare": { "unit": "pct",   "dates": [], "series": [ {"label": "Phone", "…": "…"} ] }
   },
+  "ads": {                                   // Analytics\AdsAnalysis; {} when there is nothing to show
+    "ledger": { "importedAt": "2026-09-17T06:21:00Z", "source": "RobloxAdsReport_<universeId>_<exported-at>.zip",
+                "window": { "from": "2026-08-14", "to": "2026-09-14" }, "currency": "USD" },
+    "paidLabels": ["SponsoredAds", "SearchAds"],
+    "campaigns": [                           // one row per campaign, dated by the days its spend landed on
+      { "id": "c0ffee00-0000-4000-8000-000000000001", "name": "Autumn flight", "objective": "Maximize Plays", "from": "2026-09-11", "to": "2026-09-14",
+        "declaredTo": "2026-09-14", "days": 4, "running": true, "budget": 20.0,
+        "spent": 120.0, "allocated": 120.0, "impressions": 250000, "clicks": 40000, "plays": 12000,
+        "ctr": 0.16, "playRate": 0.3, "cpm": 0.48, "cpc": 0.003, "cpp": 0.01,
+        "revenueUsdNet": 30.0, "roi": 0.25 } ],
+    "windows": [ { "from": "2026-08-23", "to": "2026-08-30", "label": "ads attive" } ],
+    "totals": { "spentUsd": 300.0, "impressions": 900000, "clicks": 150000, "plays": 60000,
+                "campaigns": 3, "spendDays": 10, "buyersDauDays": 80000, "paidPlays": 50000,
+                "costPerDauDay": 0.00375, "costPerPlay": 0.006,
+                "revenueUsdNet": 75.0, "revenueUsdNetAll": 90.0, "roi": 0.25 },
+    // every entry below is the shared {unit, dates, series[]} shape
+    "spend": {},                             // usd, daily total (see the allocation note)
+    "spendByCampaign": {},                   // usd, one series per campaign
+    "spendEstimated": ["2026-08-23"],        // days spread evenly for want of impressions
+    "buyers": {}, "paidPlays": {},           // int, from the paid AcquisitionSources
+    "dauSplit": {},                          // int, labels "paid" and "organic"
+    "paidShare": {},                         // pct of DAU that came from ads
+    "costPerDauDay": {}, "costPerPlay": {},  // usd
+    "revenueUsdNet": {}, "roi": {},          // usd and pct: attributed revenue and return on spend
+    "cumulative": {},                        // usd, labels "spend" and "revenue"
+    "retentionBySource": { "d1": {}, "d7": {} }   // pct, labels "paid" and "organic"
+  },
   "weekOverWeek": [                          // same-weekday comparison, last 8 days
     { "date": "2026-09-14", "weekday": "dom", "revenue": 118000, "revenuePrev": 121000,
       "delta": -0.025, "dau": 70000, "arpdau": 1.69, "provisional": false } ],
@@ -250,6 +281,35 @@ are ignored.
 Any value can be `null`, including a whole KPI. `ItemMonetizationRevenue|Platform`
 is not collected, and the country breakdown is already reduced to the top eight
 plus a bucket labelled `"Altri"`.
+
+### `data/ads.json` (written by `bin/ads-import` from the Ads Manager export)
+
+Campaign spend is the one number the Analytics API never returns, and Ads
+Manager has no API at all: the export is downloaded by hand as a zip of CSVs
+and imported with `bin/ads-import <export.zip|dir|csv>`. Only
+`Roblox_Campaigns_Default_*.csv` is read — the other four attribution windows
+in the same zip are subsets of the same money and would double-count.
+
+```json
+{ "importedAt": "2026-09-17T06:21:00Z",
+  "source": "RobloxAdsReport_<universeId>_<exported-at>.zip",
+  "window": { "from": "2026-08-14", "to": "2026-09-14" },   // the export's own coverage
+  "currency": "USD",
+  "campaigns": [
+    { "id": "c0ffee00-0000-4000-8000-000000000001", "name": "Autumn flight", "universeId": 10674300622,
+      "objective": "Maximize Plays", "budgetType": "Daily", "budget": 20.0,
+      "from": "2026-09-11", "to": "2026-09-14",   // `to` = the window's end while the campaign is open
+      "running": true, "spent": 120.0,
+      "impressions": 250000, "clicks": 40000, "plays": 12000, "paymentMethod": "Ad Credit" } ] }
+```
+
+The export is **aggregated over its window**: a campaign is one row with a
+total, never a daily series. `Analytics\AdsAnalysis` derives the daily cost by
+fitting the days × campaigns table to two margins at once — the daily shape of
+paid impressions measured by the API, and each campaign's own impression total
+from the export — so overlapping flights do not all inherit the same shape.
+Each campaign's total is exact by construction; the shape inside it is an
+estimate, and the view says so.
 
 ### `data/voices.json` (written by `bin/voices` on the workstation, served by `GET /api/voices`)
 

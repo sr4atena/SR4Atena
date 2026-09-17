@@ -16,6 +16,20 @@ final class DashboardBuilder
     private const DIMENSION_PAIRS = [
         'DailyActiveUsers|Platform', 'DailyRevenue|Platform', 'DailyActiveUsers|Country',
         'DailyActiveUsers|AgeGroupV2', 'DailyActiveUsers|IsNewUser', 'ItemMonetizationRevenue|Platform',
+        // Where the players came from: the funnel by AcquisitionSource is what
+        // the Ads view reads, paid sources included (SponsoredAds, SearchAds).
+        'UniqueUsersWithImpressions|AcquisitionSource', 'UniqueUsersWithClicks|AcquisitionSource',
+        'UniqueUsersWithPlaySessions|AcquisitionSource', 'DailyActiveUsers|AcquisitionSource',
+        'EndToEndCVR|AcquisitionSource',
+    ];
+    /** History pairs the ads analysis folds into paid vs organic (not all of them are published as dimensions). */
+    private const SOURCE_PAIRS = [
+        'impressions' => 'UniqueUsersWithImpressions|AcquisitionSource',
+        'clicks'      => 'UniqueUsersWithClicks|AcquisitionSource',
+        'plays'       => 'UniqueUsersWithPlaySessions|AcquisitionSource',
+        'dau'         => 'DailyActiveUsers|AcquisitionSource',
+        'd1'          => 'ForwardD1Retention|AcquisitionSource',
+        'd7'          => 'ForwardD7Retention|AcquisitionSource',
     ];
     private const COUNTRY_TOP = 8;
     private const OTHER_LABEL = 'Altri';
@@ -30,16 +44,19 @@ final class DashboardBuilder
     private readonly Seasonality $seasonality;
     private readonly Anomalies $anomalies;
     private readonly SessionSurvival $sessionSurvival;
+    private readonly AdsAnalysis $adsAnalysis;
 
     /**
      * @param array $config        Decoded config/app.php.
      * @param array $catalogById   metricId => catalog entry (name, en, category, format, breakdown...).
      * @param array $glossary      Decoded config/glossary.json (list of {term, meaning}).
+     * @param array|null $adsLedger Decoded data/ads.json (campaign spend), null when never imported.
      */
     public function __construct(
         private readonly array $config,
         private readonly array $catalogById,
         private readonly array $glossary,
+        private readonly ?array $adsLedger = null,
     ) {
         $eco = $config['economics'];
         $this->economics = new Economics(
@@ -51,6 +68,7 @@ final class DashboardBuilder
         $this->seasonality = new Seasonality();
         $this->anomalies   = new Anomalies();
         $this->sessionSurvival = new SessionSurvival();
+        $this->adsAnalysis = new AdsAnalysis($this->economics);
     }
 
     /** @param int $fetchedAt Unix time of the fetch the history was last fed with (decides the provisional day). */
@@ -106,6 +124,7 @@ final class DashboardBuilder
             'metrics'          => $this->metrics($history),
             'dimensions'       => $dimensions,
             'derived'          => $this->derived($revenueAll, $revenue, $dau, $inputs, $dimensions),
+            'ads'              => $this->adsAnalysis->build($this->adsLedger, $this->bySource($history), $revenueAll, $dau),
             'weekOverWeek'     => $this->weekOverWeek($revenueAll, $dau, $provisionalDate),
             'seasonality'      => $dataThrough === null ? null : $this->seasonality->build($revenue, $dau, $dataThrough),
             'sessionSurvival'  => $this->sessionSurvival->build($history->metric(self::SESSION_BUCKET_METRIC), $dataThrough),
@@ -245,6 +264,25 @@ final class DashboardBuilder
         return $out;
     }
 
+    /**
+     * The AcquisitionSource breakdowns the ads analysis needs, as
+     * label => (date => value) maps with Roblox's unattributed bucket dropped.
+     *
+     * @return array<string, array<string, array<string, int|float|null>>>
+     */
+    private function bySource(History $history): array
+    {
+        $out = [];
+        foreach (self::SOURCE_PAIRS as $key => $pair) {
+            $metric = $history->metric($pair);
+            if ($metric !== null) {
+                $out[$key] = $this->knownLabels($metric['series']);
+            }
+        }
+
+        return $out;
+    }
+
     private function topWithOthers(array $labelMaps, int $top): array
     {
         uasort($labelMaps, static fn (array $a, array $b) => array_sum($b) <=> array_sum($a));
@@ -332,25 +370,9 @@ final class DashboardBuilder
         return $out;
     }
 
-    /**
-     * The shared {unit, dates, series[]} shape. Dates span the full calendar
-     * between first and last day so gaps show up as null, never as a skipped tick.
-     *
-     * @param array<string, array<string, int|float|null>> $labelMaps
-     */
+    /** @param array<string, array<string, int|float|null>> $labelMaps */
     private function block(string $unit, array $labelMaps, ?int $decimals = null): array
     {
-        $all = Series::alignDates($labelMaps);
-        $dates = $all === [] ? [] : Series::calendar($all[0], end($all));
-        $series = [];
-        foreach ($labelMaps as $label => $map) {
-            $values = Series::values($map, $dates);
-            if ($decimals !== null) {
-                $values = array_map(static fn ($v) => $v === null ? null : round((float)$v, $decimals), $values);
-            }
-            $series[] = ['label' => (string)$label, 'values' => $values];
-        }
-
-        return ['unit' => $unit, 'dates' => $dates, 'series' => $series];
+        return Series::block($unit, $labelMaps, $decimals);
     }
 }

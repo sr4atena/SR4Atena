@@ -13,9 +13,11 @@ import * as valore from './views/valore.js';
 import * as crescita from './views/crescita.js';
 import * as monetizzazione from './views/monetizzazione.js';
 import * as salute from './views/salute.js';
-import * as voci from './views/voci.js';
+import * as ads from './views/ads.js';
+import * as aiSentiment from './views/voci.js';
 
-const views = { valore, crescita, monetizzazione, salute, voci };
+// Keys are the hash and the body[data-view] value; router.js maps the old #voci to the new one.
+const views = { valore, crescita, monetizzazione, salute, ads, 'ai-sentiment': aiSentiment };
 const main = document.getElementById('main');
 
 function showStatus(title, text, { retry = false } = {}) {

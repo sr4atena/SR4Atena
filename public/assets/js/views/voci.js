@@ -14,7 +14,7 @@ import { heroSection, statsRow, timelineSection, pointsSection } from '../voci/s
 import { videoCard } from '../voci/video-card.js';
 import { cap, CAP, arraySafe } from '../voci/common.js';
 
-export const title = 'Voci';
+export const title = 'AI Sentiment';
 
 /** The daily file changes once a day: one fetch per session is enough. */
 let cached = null;
@@ -25,7 +25,7 @@ export function render(main) {
   main.replaceChildren(statusBox('Caricamento delle voci…', null));
   if (cached) { paint(main, cached); return; }
   load().then((result) => {
-    if (mine !== renderId || getState().view !== 'voci' || !result) return;
+    if (mine !== renderId || getState().view !== 'ai-sentiment' || !result) return;
     if (result.data) { cached = result.data; paint(main, result.data); }
     else main.replaceChildren(statusBox(result.title, result.text, result.retry));
   });

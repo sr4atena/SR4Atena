@@ -6,7 +6,7 @@
 PHP_IMG ?= php:8.3-cli
 DOCKER  = docker run --rm -u "$$(id -u):$$(id -g)" -v "$(CURDIR)":/app -w /app
 
-.PHONY: help deps test lint check build refresh serve import-legacy deploy voices voices-venv publish-voices
+.PHONY: help deps test lint check build refresh ads-import serve import-legacy deploy voices voices-venv publish-voices
 
 help:            ## Show this help
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*##' '{printf "  %-14s %s\n", $$1, $$2}'
@@ -27,6 +27,11 @@ build:           ## Compute data/dashboard.json from data/history.json
 
 refresh:         ## Fetch from Roblox into the local data dir (needs data/api-key)
 	$(DOCKER) $(PHP_IMG) php bin/refresh
+
+# Ads Manager has no API: EXPORT is the zip downloaded by hand from the ads
+# dashboard (or the directory it was extracted to).
+ads-import:      ## Import campaign spend: make ads-import EXPORT=~/Downloads/RobloxAdsReport_*.zip
+	$(DOCKER) $(PHP_IMG) php bin/ads-import "$(EXPORT)"
 
 import-legacy:   ## One-off: merge the old cache directory into data/history.json
 	$(DOCKER) $(PHP_IMG) php bin/import-legacy $(LEGACY)

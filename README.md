@@ -66,7 +66,8 @@ worth reading:
 | **Valore** (default) | How much is the game earning and what is it worth? | Revenue in Robux and in net USD, 7-day run-rate, estimated valuation over time (conservative / base band), cumulative USD, same-weekday week-over-week table, sale scenarios at plateau. |
 | **Crescita** | Is the audience growing and coming back? | DAU / MAU, stickiness, D1 / D7 retention, weekday seasonality index, DAU by platform, new vs returning, visits, session length, peak concurrent users. |
 | **Monetizzazione** | Who pays, how much, and where do players come from? | ARPDAU / ARPPU, paying users and conversion, revenue share by platform, acquisition funnel (impressions → clicks → plays) and its conversion rates, recommendation play-through rate, ads. |
-| **Voci** | What are players saying about the game, and how has that changed? | The fifteen most-watched YouTube videos about the game, each summarised from its transcript and its game-related comments; a two-column table of praise and requested fixes with each fix labelled *recent*, *persistent* or *old*; a verdict that reasons over time rather than averaging; verbatim player quotes. |
+| **AI Sentiment** | What are players saying about the game, and how has that changed? | The fifteen most-watched YouTube videos about the game, each summarised from its transcript and its game-related comments; a two-column table of praise and requested fixes with each fix labelled *recent*, *persistent* or *old*; a verdict that reasons over time rather than averaging; verbatim player quotes. |
+| **Analisi Ads** | Where do the players come from, what did the advertising cost and what came back? | Acquisition sources day by day and as a mix, bought vs organic audience, daily spend per campaign joined from the Ads Manager export, cost per player acquired, spend against attributed revenue, return on spend with the break-even line, the cumulative account, D1 retention of paid vs organic traffic, and one row per campaign. |
 | **Salute** | Is anything broken or degrading? | Anomaly signals first (robust z-score vs same-weekday baseline), then FPS, crash rate and counts, out-of-memory exits, server frame rate, memory, DataStore / MemoryStore request status, abuse reports. |
 
 Every chart card carries a one-sentence *"Cosa dice"* explanation and chips
@@ -146,10 +147,11 @@ Details and the full glossary: [docs/METRICS.md](docs/METRICS.md).
 ## Repository layout
 
 ```
-bin/            CLI entry points: refresh, build, import-legacy, user, serve
+bin/            CLI entry points: refresh, build, ads-import, import-legacy, user, serve
 config/         metrics catalog, dimension pairs, glossary, app settings
 src/ManorLedger/
   Roblox/       API client, rate budget, metric catalog, refresher
+  Ads/          Ads Manager export reader (campaign spend, no API for it)
   Voices/       YouTube client, comment filter, transcripts, model adapter, synthesis
   Storage/      atomic JSON store, incremental history, gzip snapshots
   Analytics/    series maths, economics, seasonality, anomalies, builder

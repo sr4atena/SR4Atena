@@ -30,21 +30,30 @@ export function fmtInt(v) {
 export function fmtDec(v, digits = 2) {
   return isNum(v) ? nf({ minimumFractionDigits: digits, maximumFractionDigits: digits }).format(v) : '—';
 }
-/** Adaptive decimals: 1,69 / 12,3 / 1.234 */
+/**
+ * Adaptive decimals: 1.234 / 12,3 / 1,69 / 0,0022. Below a cent the two
+ * decimals of money are not enough — a cost per player of $ 0,00225 would
+ * read as zero — so small magnitudes keep growing decimals instead.
+ */
 export function fmtAuto(v) {
   if (!isNum(v)) return '—';
   const a = Math.abs(v);
   if (a >= 1000) return fmtInt(v);
   if (a >= 100) return fmtDec(v, 0);
   if (a >= 10) return fmtDec(v, 1);
-  return fmtDec(v, 2);
+  if (a >= 0.1 || a === 0) return fmtDec(v, 2);
+  if (a >= 0.001) return fmtDec(v, 4);
+  return fmtDec(v, 6);
 }
 export function fmtPct(v, digits = 1) {
   return isNum(v) ? fmtDec(v * 100, digits) + ' %' : '—';
 }
 export function fmtUsd(v) {
   if (!isNum(v)) return '—';
-  return '$ ' + (Math.abs(v) >= 10000 ? fmtInt(v) : fmtDec(v, 2));
+  const a = Math.abs(v);
+  if (a >= 10000) return '$ ' + fmtInt(v);
+  // Ad costs live below a cent: two decimals would print every one of them as 0,00.
+  return '$ ' + (a < 0.1 && a !== 0 ? fmtAuto(v) : fmtDec(v, 2));
 }
 export function fmtRobux(v) {
   return isNum(v) ? fmtAuto(v) + ' R$' : '—';

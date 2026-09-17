@@ -40,7 +40,10 @@ if (!$history->exists()) {
 $cache     = new JsonStore($paths['cache'] . '/metrics.json');
 $fetchedAt = $history->fetchedAt() ?? ($cache->read()['fetchedAt'] ?? null) ?? (new JsonStore($paths['history']))->mtime() ?? time();
 
-$dashboard = (new DashboardBuilder($config, $catalogById, $glossary))->build($history, (int)$fetchedAt);
+// Optional: the dashboard is complete without it, only the Ads view loses its costs.
+$adsLedger = (new JsonStore($paths['ads']))->read();
+
+$dashboard = (new DashboardBuilder($config, $catalogById, $glossary, $adsLedger))->build($history, (int)$fetchedAt);
 // 0640: the php-fpm pool runs as a different user and must read this file,
 // while the group keeps it away from everyone else on the host.
 $store = new JsonStore($paths['dashboard'], 0640);
@@ -50,7 +53,7 @@ if ($print) {
     echo json_encode($dashboard, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT), "\n";
 }
 printf(
-    "%s: %d KB, dataThrough %s, provisional %s, %d metrics, %d dimension pairs, %d anomalies\n",
+    "%s: %d KB, dataThrough %s, provisional %s, %d metrics, %d dimension pairs, %d anomalies, ads %s\n",
     $paths['dashboard'],
     (int)round(filesize($paths['dashboard']) / 1024),
     $dashboard['dataThrough'] ?? 'n/a',
@@ -58,4 +61,5 @@ printf(
     count($dashboard['metrics']),
     count($dashboard['dimensions']),
     count($dashboard['anomalies']),
+    $dashboard['ads'] === [] ? 'n/d' : sprintf('%d campagne', count($dashboard['ads']['campaigns'])),
 );

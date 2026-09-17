@@ -248,6 +248,29 @@ final class Series
         return self::sorted($out);
     }
 
+    /**
+     * The {unit, dates, series[]} shape dashboard.json is made of. Dates span
+     * the full calendar between the first and the last day, so a gap shows up
+     * as an explicit null and never as a skipped tick.
+     *
+     * @param array<string, array<string, int|float|null>> $labelMaps
+     */
+    public static function block(string $unit, array $labelMaps, ?int $decimals = null): array
+    {
+        $all = self::alignDates($labelMaps);
+        $dates = $all === [] ? [] : self::calendar($all[0], end($all));
+        $series = [];
+        foreach ($labelMaps as $label => $map) {
+            $values = self::values($map, $dates);
+            if ($decimals !== null) {
+                $values = array_map(static fn ($v) => $v === null ? null : round((float)$v, $decimals), $values);
+            }
+            $series[] = ['label' => (string)$label, 'values' => $values];
+        }
+
+        return ['unit' => $unit, 'dates' => $dates, 'series' => $series];
+    }
+
     private static function ts(string $date): int
     {
         $t = strtotime($date . ' 00:00:00 UTC');
