@@ -95,9 +95,9 @@ Two readings are shown on purpose:
 
 - **Base (30 ×)** assumes the current level holds. It is the theoretical
   ceiling and answers "how far are we from a target".
-- **Conservative (18 ×)** is what a buyer would pay for a game whose audience
-  has settled; the *Scenari di vendita* table applies it to a plateau at
-  6 / 10 / 15 % of the historical DAU peak with today's ARPDAU.
+- **Conservative (18 ×)** is the discounted reading for a game whose audience
+  has settled; the plateau table applies it at 6 / 10 / 15 % of the historical
+  DAU peak with today's ARPDAU.
 
 Both are estimates for steering decisions, not appraisals.
 

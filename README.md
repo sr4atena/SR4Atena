@@ -8,7 +8,7 @@ Analytics pipeline and dashboard for the Roblox experience **The Locust's Manor*
 It ingests the Roblox Open Cloud Analytics API once a day, keeps an
 incremental history that outlives Roblox's 28-day retention, and serves a
 curated, dark-theme dashboard focused on one question first: *how much
-economic value is the game producing, and what would it be worth?*
+economic value is the game producing, and what is that stream worth?*
 
 The second half of the dashboard is diagnostic: growth, monetisation and
 technical health, with anomaly detection to surface what needs attention.
@@ -63,7 +63,7 @@ worth reading:
 
 | View | Question it answers | Key content |
 |---|---|---|
-| **Valore** (default) | How much is the game earning and what is it worth? | Revenue in Robux and in net USD, 7-day run-rate, estimated valuation over time (conservative / base band), cumulative USD, same-weekday week-over-week table, sale scenarios at plateau. |
+| **Valore** (default) | How much is the game earning and what is it worth? | Revenue in Robux and in net USD, 7-day run-rate, estimated valuation over time (conservative / base band), cumulative USD, same-weekday week-over-week table, plateau scenarios. |
 | **Crescita** | Is the audience growing and coming back? | DAU / MAU, stickiness, D1 / D7 retention, weekday seasonality index, DAU by platform, new vs returning, visits, session length, peak concurrent users. |
 | **Monetizzazione** | Who pays, how much, and where do players come from? | ARPDAU / ARPPU, paying users and conversion, revenue share by platform, acquisition funnel (impressions → clicks → plays) and its conversion rates, recommendation play-through rate, ads. |
 | **Salute** | Is anything broken or degrading? | Anomaly signals first (robust z-score vs same-weekday baseline), then FPS, crash rate and counts, out-of-memory exits, server frame rate, memory, DataStore / MemoryStore request status, abuse reports. |
@@ -126,10 +126,10 @@ configurable assumptions (`config/app.php`, `economics`), all shown in the UI:
 | Assumption | Default | Why |
 |---|---|---|
 | DevEx rate | 0.0038 USD per Robux | Roblox Developer Exchange rate. |
-| Royalty share | 17 % | Share of revenue paid to the publishing partner before the developer. |
+| Royalty share | 17 % | Revenue share withheld before the developer's net. |
 | Valuation multiple, base | 30 × monthly net | "The current level holds" scenario: the theoretical ceiling. |
-| Valuation multiple, conservative | 18 × monthly net | What a buyer would put on the table for a game past its growth phase. |
-| Plateau shares | 6 %, 10 %, 15 % of peak DAU | Sale scenarios once the audience settles. |
+| Valuation multiple, conservative | 18 × monthly net | The discounted reading for a game past its growth phase. |
+| Plateau shares | 6 %, 10 %, 15 % of peak DAU | Scenarios for an audience that has settled. |
 
 - Net USD per day = Robux × DevEx × (1 − royalty).
 - Monthly net run-rate = **7-day mean** of net USD × 30. The mean, not the

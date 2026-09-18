@@ -66,7 +66,7 @@ return [
     ],
     'economics' => [
         'devexUsdPerRobux' => 0.0038,  // Roblox DevEx rate
-        'royaltyShare'     => 0.17,    // publisher share paid out before the developer
+        'royaltyShare'     => 0.17,    // revenue share withheld before the developer's net
         'multiples'        => ['conservative' => 18, 'base' => 30],
         'plateauShares'    => [0.06, 0.10, 0.15],
     ],
