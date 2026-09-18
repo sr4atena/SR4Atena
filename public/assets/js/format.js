@@ -128,6 +128,27 @@ export function fmtTime(isoDateTime) {
   if (!isoDateTime) return '';
   return df({ hour: '2-digit', minute: '2-digit' }).format(new Date(isoDateTime));
 }
+/** The Europe/Rome calendar day of an instant, as YYYY-MM-DD. */
+function romeDay(date) {
+  const parts = df({ year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date);
+  const p = Object.fromEntries(parts.filter((x) => x.type !== 'literal').map((x) => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day}`;
+}
+/**
+ * "oggi alle 07:07" / "ieri alle 07:07" / "il 16 set alle 07:07". A bare time
+ * reads as fresh whatever day it belongs to, so the day is named unless it is
+ * today: the freshness chip is the one place where being wrong about this
+ * costs trust.
+ */
+export function fmtStamp(isoDateTime, now = new Date()) {
+  if (!isoDateTime) return '';
+  const d = new Date(isoDateTime);
+  if (Number.isNaN(d.getTime())) return '';
+  const day = romeDay(d);
+  if (day === romeDay(now)) return `oggi alle ${fmtTime(d)}`;
+  if (day === romeDay(new Date(now.getTime() - 86400000))) return `ieri alle ${fmtTime(d)}`;
+  return `il ${fmtDate(day, 'axis')} alle ${fmtTime(d)}`;
+}
 export function weekdayIndex(iso) {
   // 0 = Monday ... 6 = Sunday
   return (parseDay(iso).getUTCDay() + 6) % 7;

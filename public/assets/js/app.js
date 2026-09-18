@@ -5,7 +5,7 @@
 import { initRouter } from './router.js';
 import { getState, setData, setPeriod, restorePeriod, onPeriodChange } from './state.js';
 import { PERIODS } from './series.js';
-import { fmtDate, fmtTime } from './format.js';
+import { fmtDate, fmtStamp } from './format.js';
 import { initGlossary } from './glossary.js';
 import { disposeCharts, refreshCharts, connectView } from './charts.js';
 import { el } from './cards.js';
@@ -65,10 +65,17 @@ async function load() {
 function wireHeader(data) {
   const chip = document.getElementById('freshness');
   if (chip) {
+    // "dati al 16 set" alone reads as two days stale on the 18th: Roblox
+    // publishes a day late and revises it, so the provisional day is named
+    // next to the consolidated one, and the fetch says which day it ran.
     const through = data.dataThrough ? fmtDate(data.dataThrough, 'axis') : null;
+    const prov = data.provisionalDate ? fmtDate(data.provisionalDate, 'axis') : null;
     const stamp = data.coverage?.fetchedAt ?? data.generatedAt;
-    const at = stamp ? fmtTime(stamp) : null;
-    chip.textContent = [through && `dati al ${through}`, at && `aggiornati alle ${at}`].filter(Boolean).join(' · ');
+    chip.textContent = [
+      through && `dati al ${through}`,
+      prov && `${prov} provvisorio`,
+      stamp && `aggiornati ${fmtStamp(stamp)}`,
+    ].filter(Boolean).join(' · ');
     const cov = data.coverage;
     if (cov?.from && cov?.to) chip.setAttribute('title', `Storico dal ${fmtDate(cov.from, 'long')} al ${fmtDate(cov.to, 'long')} (${cov.days ?? ''} giorni)`);
   }
