@@ -84,7 +84,7 @@ and session ids are never logged.
 asset is Apache ECharts, pinned to an exact version with its SHA-256 recorded
 next to the file. PHPUnit is a dev-only dependency.
 
-**Third-party model and what leaves the machine.** The *Voci* view sends
+**Third-party model and what leaves the machine.** The *AI Sentiment* view sends
 text to Google's Gemini API: public video titles and descriptions, public
 comments that passed a deterministic relevance filter, and public
 auto-generated captions. Nothing of ours goes with it: no Roblox figures, no

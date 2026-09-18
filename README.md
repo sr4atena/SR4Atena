@@ -13,9 +13,9 @@ economic value is the game producing, and what would it be worth?*
 The second half of the dashboard is diagnostic: growth, monetisation and
 technical health, with anomaly detection to surface what needs attention.
 
-> Zero runtime dependencies (PHP 8.2+ with curl/json/zlib), no framework, no
-> build step. Apache ECharts is vendored for the charts. Everything else in
-> this repository is original code.
+> Zero runtime dependencies (PHP 8.2+ with curl/json/mbstring/zlib), no
+> framework, no build step. Apache ECharts is vendored for the charts.
+> Everything else in this repository is original code.
 
 ## Contents
 
@@ -55,7 +55,7 @@ worth reading:
 - [`src/ManorLedger/Voices/Synthesizer.php`](src/ManorLedger/Voices/Synthesizer.php)
   — the one model call a day, and the fields computed from dates here instead
   of being asked of the model.
-- [`tests/`](tests) — 274 tests that touch no network: every HTTP transport,
+- [`tests/`](tests) — 288 tests that touch no network: every HTTP transport,
   clock and subprocess is injected, including the Roblox API's 429, 202-polling
   and range-too-wide branches.
 
@@ -66,9 +66,9 @@ worth reading:
 | **Valore** (default) | How much is the game earning and what is it worth? | Revenue in Robux and in net USD, 7-day run-rate, estimated valuation over time (conservative / base band), cumulative USD, same-weekday week-over-week table, sale scenarios at plateau. |
 | **Crescita** | Is the audience growing and coming back? | DAU / MAU, stickiness, D1 / D7 retention, weekday seasonality index, DAU by platform, new vs returning, visits, session length, peak concurrent users. |
 | **Monetizzazione** | Who pays, how much, and where do players come from? | ARPDAU / ARPPU, paying users and conversion, revenue share by platform, acquisition funnel (impressions → clicks → plays) and its conversion rates, recommendation play-through rate, ads. |
-| **AI Sentiment** | What are players saying about the game, and how has that changed? | The fifteen most-watched YouTube videos about the game, each summarised from its transcript and its game-related comments; a two-column table of praise and requested fixes with each fix labelled *recent*, *persistent* or *old*; a verdict that reasons over time rather than averaging; verbatim player quotes. |
-| **Analisi Ads** | Where do the players come from, what did the advertising cost and what came back? | Acquisition sources day by day and as a mix, bought vs organic audience, daily spend per campaign joined from the Ads Manager export, cost per player acquired, spend against attributed revenue, return on spend with the break-even line, the cumulative account, D1 retention of paid vs organic traffic, and one row per campaign. |
 | **Salute** | Is anything broken or degrading? | Anomaly signals first (robust z-score vs same-weekday baseline), then FPS, crash rate and counts, out-of-memory exits, server frame rate, memory, DataStore / MemoryStore request status, abuse reports. |
+| **Analisi Ads** | Where do the players come from, what did the advertising cost and what came back? | Acquisition sources day by day and as a mix, bought vs organic audience, daily spend per campaign joined from the Ads Manager export, cost per player acquired, spend against attributed revenue, return on spend with the break-even line, the cumulative account, D1 retention of paid vs organic traffic, and one row per campaign. |
+| **AI Sentiment** | What are players saying about the game, and how has that changed? | The fifteen most-watched YouTube videos about the game, each summarised from its transcript and its game-related comments; a two-column table of praise and requested fixes with each fix labelled *recent*, *persistent* or *old*; a verdict that reasons over time rather than averaging; verbatim player quotes. |
 
 Every chart card carries a one-sentence *"Cosa dice"* explanation and chips
 for the acronyms it uses; a global glossary defines all of them. Hovering (or
@@ -107,8 +107,8 @@ Roblox API ──► bin/refresh ──► data/cache/*.json     raw, 28-day win
   scores) and the economic model below. `DashboardBuilder` assembles one JSON
   document that the browser renders; the contract is documented in
   [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-- **Voices** (`ManorLedger\Voices`): YouTube Data API for the video list and
-  comments, `youtube-transcript-api` for captions, a deterministic comment
+- **AI Sentiment** (`ManorLedger\Voices`): YouTube Data API for the video list
+  and comments, `youtube-transcript-api` for captions, a deterministic comment
   filter that drops chatter aimed at the creator, then one model call per
   video (cached by id) and one synthesis call per day. This job runs on the
   owner's workstation and publishes to the server, because YouTube refuses
@@ -147,7 +147,8 @@ Details and the full glossary: [docs/METRICS.md](docs/METRICS.md).
 ## Repository layout
 
 ```
-bin/            CLI entry points: refresh, build, ads-import, import-legacy, user, serve
+bin/            CLI entry points: refresh, build, ads-import, import-legacy, user,
+                serve, voices, voices-publish
 config/         metrics catalog, dimension pairs, glossary, app settings
 src/ManorLedger/
   Roblox/       API client, rate budget, metric catalog, refresher
@@ -224,7 +225,8 @@ The dashboard is private. Threat model and controls are in
   on every POST;
 - a strict Content Security Policy with no inline scripts or styles, HSTS,
   `nosniff`, `Referrer-Policy: same-origin`, `frame-ancestors 'none'`;
-- the only endpoints are `/login`, `/logout`, `/api/dashboard`, `/healthz`;
+- the only endpoints are `/login`, `/logout`, `/api/dashboard`, `/api/voices`,
+  `/media/yt/{id}.jpg` and `/healthz`;
   nothing mutates state from the web, and the API key is unreachable from the
   web process (separate user, `open_basedir`, `disable_functions`).
 

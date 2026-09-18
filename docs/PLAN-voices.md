@@ -1,10 +1,21 @@
 # Plan: "Voci" — what YouTube says about the game
 
 Status: **implemented and in production since 2026-09-16.** This document was
-the brief for the implementation and is kept as its design record. It records the decisions taken, the
-measurements behind them, the data contract, the order of work and the
-acceptance criteria. Read `ARCHITECTURE.md`, `DEV.md` and `SECURITY.md` first;
+the brief for the implementation and is kept as its design record. It records
+the decisions taken, the measurements behind them, the data contract, the order
+of work and the acceptance criteria. Read `ARCHITECTURE.md`, `DEV.md` and `SECURITY.md` first;
 everything below follows their conventions.
+
+> **What changed after this plan was written.** The view shipped as
+> **AI Sentiment**, not *Voci*: that is the tab label and the hash is
+> `#ai-sentiment`, with the old `#voci` kept as an alias in
+> `public/assets/js/router.js`. The code was not renamed, so the namespace
+> `ManorLedger\Voices`, `bin/voices`, `data/voices.json` and `views/voci.js`
+> keep their original names throughout this document. It is also the sixth
+> view rather than the fifth — *Analisi Ads* was added later — and it analyses
+> the **fifteen** most-watched videos (`config/app.php`, `voices.topN`), not
+> ten. The rest of this document is kept as it was written, as the record of
+> the decisions and the measurements behind them.
 
 ## 1. Goal
 

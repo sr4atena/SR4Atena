@@ -5,8 +5,9 @@ rejected and the measurement or failure that settled it. They are recorded here
 because the reasoning is not visible from the code alone: what a line does is in
 the code, why it is that line is here.
 
-Measurements quoted below were taken on this project's own data; the Voci
-figures come from the field test recorded in [PLAN-voices.md](PLAN-voices.md).
+Measurements quoted below were taken on this project's own data; the AI
+Sentiment figures come from the field test recorded in
+[PLAN-voices.md](PLAN-voices.md).
 
 ---
 
@@ -225,7 +226,7 @@ and the `no-cache` fallback), `src/ManorLedger/Http/View.php`,
 
 ---
 
-## 9. Voci: transcripts first, comments filtered, and where the job runs
+## 9. AI Sentiment: transcripts first, comments filtered, and where the job runs
 
 **Decision** — The per-video summary is built primarily from the caption track
 and secondarily from comments that survive a deterministic filter. The job runs

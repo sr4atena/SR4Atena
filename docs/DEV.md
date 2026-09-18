@@ -15,11 +15,16 @@ make build    # rebuild data/dashboard.json from data/history.json
 make serve    # development server on http://127.0.0.1:8099
 ```
 
-Each target wraps a container invocation of this form:
+Most targets wrap a container invocation of this form:
 
 ```bash
 docker run --rm -u "$(id -u):$(id -g)" -v "$PWD":/app -w /app php:8.3-cli vendor/bin/phpunit
 ```
+
+Four targets deliberately do not: `serve` runs the host PHP, and the YouTube
+ones — `voices-venv`, `voices` and `publish-voices` — need the host's Python
+virtualenv for the caption fetcher and an SSH key to publish. That job never
+runs on the VPS: YouTube refuses caption requests from datacenter addresses.
 
 ## Conventions
 

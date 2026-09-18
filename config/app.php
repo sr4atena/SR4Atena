@@ -70,8 +70,9 @@ return [
         'multiples'        => ['conservative' => 18, 'base' => 30],
         'plateauShares'    => [0.06, 0.10, 0.15],
     ],
-    // Voci: the ten most watched YouTube videos about the game. The job runs on
-    // the workstation (datacenter IPs cannot read captions) and the VPS only serves.
+    // AI Sentiment: the most watched YouTube videos about the game (topN below).
+    // The job runs on the workstation (datacenter IPs cannot read captions) and
+    // the VPS only serves.
     'voices' => [
         'queries' => ["The Locust's Manor", "The Locust's Manor Roblox"],
         // Measured cut: #15 still has 4 288 views, #16 has 4 182 and no comments.

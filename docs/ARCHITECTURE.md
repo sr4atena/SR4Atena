@@ -63,7 +63,7 @@ The two service accounts and the separate `web/` directory are explained in
 
 | Path | Role |
 |---|---|
-| `bin/` | CLI entry points (`refresh`, `build`, `ads-import`, `user`, `serve`). Thin: parse args, call `src/`. |
+| `bin/` | CLI entry points (`refresh`, `build`, `ads-import`, `import-legacy`, `user`, `serve`, `voices`, `voices-publish`). Thin: parse args, call `src/`. |
 | `config/` | `metrics.json` (catalog), `dimensions.json` (metric × dimension pairs), `glossary.json`, `app.php` (settings + env overrides). |
 | `src/ManorLedger/` | PSR-4 code, namespace `ManorLedger\`. No framework. |
 | `public/` | The **only** web root. `index.php` front controller + static assets. |
