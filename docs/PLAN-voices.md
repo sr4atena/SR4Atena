@@ -416,7 +416,7 @@ Each step ends with a verification; do not start the next before it passes.
 | Failure | Behaviour |
 |---|---|
 | Captions disabled (five of ten today) | `transcript.status: missing`; summary from filtered comments; card shows a "trascrizione non disponibile" badge. |
-| Transcript request blocked | Same as missing; should not happen from the workstation. |
+| Transcript request blocked | The first refusal stops every further caption request of the run and writes `.blocked.json` in the transcript cache, so a second run a few hours later asks nothing at all; it expires after `voices.blockCooldownHours` (6 h), or by hand with `bin/voices --clear-block`. Summaries fall back to the cache and to comments, the run still publishes, and the log says so. |
 | Local model unavailable | Fall back to the synthesis profile for summaries too, and say so in the log; if that also fails, keep yesterday's file. |
 | Remote model down or over quota | Cached per-video summaries reused; synthesis kept from the previous run with `status: stale` and its date shown. |
 | YouTube quota exceeded | Job exits non-zero, previous `voices.json` untouched, page shows the older data with its date. |

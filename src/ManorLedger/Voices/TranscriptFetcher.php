@@ -13,6 +13,18 @@
  * transient failures retried; `missing` is never retried, because captions
  * disabled by the creator is a permanent property of the video.
  *
+ * `blocked` is not retried either, and for the opposite reason: it describes
+ * the *address*, not the video. If the address is refused, the next video will
+ * be refused for the same reason, so retrying per video multiplies one refusal
+ * by the videos left and by the tries allowed — useless work, and the surest
+ * way to keep the refusal in place, since these limiters measure the last
+ * request rather than the first. The first `blocked` answer therefore trips a
+ * breaker: the rest of the run asks nothing at all, and a marker in the cache
+ * directory keeps a second run of the same day from repeating the attempt.
+ * Everything else degrades as before — the summaries of videos already seen
+ * come from their own cache, so a refused night costs the transcripts of new
+ * videos and nothing more.
+ *
  * Results are cached on disk because a published video's captions do not
  * change, and because it lets the transcripts be fetched from a host that
  * YouTube serves (the workstation) even when PHP runs elsewhere.
@@ -31,10 +43,19 @@ final class TranscriptFetcher
     public const PERMANENT = ['ok', 'missing'];
     private const MAX_CHARS = 20000;
     private const BACKOFF = 5.0;
+    /**
+     * The one file in the cache directory that is not a transcript: it says
+     * until when this address is to stay away. A dot file, so the `*.json`
+     * globs that count cached transcripts never see it.
+     */
+    public const BLOCK_MARKER = '.blocked.json';
 
     private Closure $runner;
     private Closure $sleep;
+    private Closure $now;
     private float $lastRunAt = 0.0;
+    private bool $blocked = false;
+    private ?int $blockedUntil = null;
 
     /** @param ?callable $runner fn(string $python, string $script, string $id, int $timeout): array{out: string, code: int} */
     public function __construct(
@@ -46,9 +67,43 @@ final class TranscriptFetcher
         private readonly float $minInterval = 0.0,
         private readonly int $maxTries = 3,
         ?callable $sleep = null,
+        /**
+         * How long to stay away after a block. Its only job is to stop a second
+         * run on the same day from re-probing, because with the breaker above
+         * the cost of trying again too early is exactly one request. Long
+         * enough to cover a manual re-run, short enough that the job of the
+         * next morning still gets to find out whether the wall has come down.
+         */
+        private readonly float $blockCooldownHours = 6.0,
+        ?callable $now = null,
     ) {
         $this->runner = $runner !== null ? Closure::fromCallable($runner) : Closure::fromCallable(self::run(...));
         $this->sleep = $sleep !== null ? Closure::fromCallable($sleep) : static fn (float $s) => usleep((int)($s * 1e6));
+        $this->now = $now !== null ? Closure::fromCallable($now) : static fn (): int => time();
+        $this->readMarker();
+    }
+
+    /** True when this address is serving nothing until the cooldown expires. */
+    public function isBlocked(): bool
+    {
+        return $this->blocked;
+    }
+
+    /** Unix time the block was set to expire, or null when there is none. */
+    public function blockedUntil(): ?int
+    {
+        return $this->blockedUntil;
+    }
+
+    /**
+     * Forget the block and ask again. Only worth doing once something outside
+     * this code has established that YouTube is answering again.
+     */
+    public function clearBlock(): void
+    {
+        $this->blocked = false;
+        $this->blockedUntil = null;
+        @unlink($this->cacheDir . '/' . self::BLOCK_MARKER);
     }
 
     /**
@@ -58,6 +113,14 @@ final class TranscriptFetcher
      */
     public function unavailableReason(): ?string
     {
+        if ($this->blocked) {
+            // The hour in this sentence is ours, not YouTube's. YouTube refuses
+            // without a word and never says for how long, so the deadline is our
+            // own cooldown and must not read like a promise from them.
+            return 'YouTube refused caption requests from this address and does not say for how long; '
+                . 'our own cooldown holds until ' . gmdate('Y-m-d H:i', (int)$this->blockedUntil)
+                . ' UTC (bin/voices --clear-block to ask before that)';
+        }
         if (!is_file($this->script)) {
             return 'transcript script not found: ' . $this->script;
         }
@@ -85,6 +148,13 @@ final class TranscriptFetcher
                 return self::normalise($cached);
             }
         }
+        // The breaker. Nothing is going to get through, and every request that
+        // does not get through is a reason for the block to last longer.
+        if ($this->blocked) {
+            return self::normalise(['status' => 'blocked',
+                'error' => 'not asked: our cooldown after a refusal holds until '
+                    . gmdate('Y-m-d H:i', (int)$this->blockedUntil) . ' UTC']);
+        }
         if (!is_file($this->script) || !is_executable($this->python)) {
             return self::normalise(['status' => 'error',
                 'error' => 'cannot run ' . $this->python . ' ' . $this->script . ' (make voices-venv)']);
@@ -104,12 +174,45 @@ final class TranscriptFetcher
 
                 return $transcript;
             }
+            // A refusal is about the address: the next video would be refused
+            // for the same reason, so stop here rather than ask again.
+            if ($transcript['status'] === 'blocked') {
+                $this->trip();
+
+                return $transcript;
+            }
             if ($try < $this->maxTries) {
                 ($this->sleep)(self::BACKOFF * (2 ** ($try - 1)));
             }
         }
 
         return $transcript;
+    }
+
+    /**
+     * Raise the breaker and write it down, so that a job running twice in one
+     * day does not spend its second run walking into the same wall.
+     */
+    private function trip(): void
+    {
+        $this->blocked = true;
+        $this->blockedUntil = ($this->now)() + (int)round(max(0.0, $this->blockCooldownHours) * 3600);
+        JsonStore::ensureDir($this->cacheDir);
+        (new JsonStore($this->cacheDir . '/' . self::BLOCK_MARKER))->write([
+            'at'    => gmdate('Y-m-d\TH:i:s\Z', ($this->now)()),
+            'until' => $this->blockedUntil,
+        ]);
+    }
+
+    /** A block left behind by an earlier run, if it has not expired yet. */
+    private function readMarker(): void
+    {
+        $marker = (new JsonStore($this->cacheDir . '/' . self::BLOCK_MARKER))->read();
+        $until  = (int)($marker['until'] ?? 0);
+        if ($until > ($this->now)()) {
+            $this->blocked = true;
+            $this->blockedUntil = $until;
+        }
     }
 
     /** YouTube throttles a burst of caption requests from one IP: do not send one. */

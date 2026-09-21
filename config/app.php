@@ -82,6 +82,10 @@ return [
         'host'    => (string)$env('MANOR_VOICES_HOST', 'workstation'),
         // YouTube throttles a burst of caption requests from one IP.
         'transcriptInterval' => 5.0,
+        // After a refusal, how many hours before this address asks again. The
+        // breaker in TranscriptFetcher already stops the rest of the run; this
+        // only keeps a second run of the same day from re-probing.
+        'blockCooldownHours' => 6.0,
     ],
     // One adapter, one profile per task, the model chosen by configuration:
     // ids drift (gemini-2.5-flash already 404s) and the free tier answers 503

@@ -333,8 +333,10 @@ sequenceDiagram
   P-->>T: status, language, text
   alt ok or missing, a property of the video
     T->>T: cache the answer on disk
-  else error or blocked, a property of the moment
-    T->>T: retry, never cache
+  else error, a property of the moment
+    T->>T: retry with backoff, never cache
+  else blocked, a property of the address
+    T->>T: trip the breaker, write .blocked.json, ask nothing more
   end
   T-->>B: transcript
   B->>S: summarize(video, transcript, comments)

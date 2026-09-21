@@ -35,11 +35,11 @@ final class TranscriptFetcherTest extends TestCase
         return $path;
     }
 
-    private function fetcher(string $script, ?callable $runner = null): TranscriptFetcher
+    private function fetcher(string $script, ?callable $runner = null, float $cooldownHours = 6.0, ?int $now = null): TranscriptFetcher
     {
         return new TranscriptFetcher('/bin/sh', $script, $this->dir . '/cache', 10, $runner, 5.0, 3, function (float $s): void {
             $this->slept[] = $s;
-        });
+        }, $cooldownHours, $now === null ? null : static fn (): int => $now);
     }
 
     public function testRunsTheScriptAndCachesTheResult(): void
@@ -70,9 +70,13 @@ final class TranscriptFetcherTest extends TestCase
 
     public function testBlockedAndBrokenRunsAreNeverCached(): void
     {
-        $blocked = $this->fetcher($this->fakeScript('{"status":"blocked","error":"RequestBlocked"}'))->fetch('O8eWFVZxgcI');
+        $refused = $this->fetcher($this->fakeScript('{"status":"blocked","error":"RequestBlocked"}'));
+        $blocked = $refused->fetch('O8eWFVZxgcI');
         self::assertSame('blocked', $blocked['status']);
         self::assertFileDoesNotExist($this->dir . '/cache/O8eWFVZxgcI.json', 'that is about the network, not the video');
+        // A refusal now stands until the cooldown expires, which is the subject
+        // of its own test; the rest of this one is about broken runs.
+        $refused->clearBlock();
 
         $garbage = $this->fetcher($this->fakeScript('Traceback (most recent call last)', 1))->fetch('O8eWFVZxgcI');
         self::assertSame('error', $garbage['status']);
@@ -124,6 +128,77 @@ final class TranscriptFetcherTest extends TestCase
 
         $missingScript = new TranscriptFetcher('/bin/sh', $this->dir . '/nope.py', $this->dir . '/cache');
         self::assertStringContainsString('not found', (string)$missingScript->unavailableReason());
+    }
+
+    /**
+     * A refusal is about the address, not the video: after the first one every
+     * remaining video must knock zero times, not three.
+     */
+    public function testTheFirstBlockStopsTheRunInsteadOfKnockingAgain(): void
+    {
+        $asked = 0;
+        $runner = static function () use (&$asked): array {
+            $asked++;
+
+            return ['code' => 0, 'out' => '{"status":"blocked","error":"RequestBlocked"}'];
+        };
+        $fetcher = $this->fetcher($this->fakeScript('unused'), $runner);
+
+        self::assertSame('blocked', $fetcher->fetch('O8eWFVZxgcI')['status']);
+        self::assertSame('blocked', $fetcher->fetch('9s7sZkuW_Jg')['status']);
+        self::assertSame('blocked', $fetcher->fetch('lHul7HACuLo')['status']);
+
+        self::assertSame(1, $asked, 'one refusal is the address answering for every video');
+        self::assertTrue($fetcher->isBlocked());
+        self::assertSame([], array_filter($this->slept, static fn (float $s): bool => $s >= 5.0), 'and no backoff to wait through');
+    }
+
+    public function testTheBlockOutlivesTheProcessForTheCooldown(): void
+    {
+        $asked = 0;
+        $runner = static function () use (&$asked): array {
+            $asked++;
+
+            return ['code' => 0, 'out' => '{"status":"blocked","error":"RequestBlocked"}'];
+        };
+        $this->fetcher($this->fakeScript('unused'), $runner, 6.0, 1_000_000)->fetch('O8eWFVZxgcI');
+        self::assertFileExists($this->dir . '/cache/' . TranscriptFetcher::BLOCK_MARKER);
+
+        // A new process, an hour later: the job of the next morning must not
+        // spend its run walking into the same wall.
+        $next = $this->fetcher($this->fakeScript('unused'), $runner, 6.0, 1_003_600);
+        self::assertTrue($next->isBlocked());
+        self::assertSame('blocked', $next->fetch('9s7sZkuW_Jg')['status']);
+        self::assertSame(1, $asked, 'the second process asked nothing at all');
+        $reason = (string)$next->unavailableReason();
+        self::assertStringContainsString('refused caption requests', $reason);
+        // The deadline is ours, and the sentence has to say so: YouTube never
+        // tells us when a refusal ends, and a log line that implies it would be
+        // read as a promise at eight in the morning.
+        self::assertStringContainsString('our own cooldown', $reason);
+
+        // The marker is not a transcript, and must not be counted as one.
+        self::assertSame([], glob($this->dir . '/cache/*.json') ?: []);
+    }
+
+    public function testTheBlockExpiresOnItsOwnAndCanBeForgotten(): void
+    {
+        $runner = static fn (): array => ['code' => 0, 'out' => '{"status":"blocked","error":"RequestBlocked"}'];
+        $this->fetcher($this->fakeScript('unused'), $runner, 6.0, 1_000_000)->fetch('O8eWFVZxgcI');
+
+        // Thirteen hours later the cooldown is long over and the fetcher asks again.
+        $later = $this->fetcher($this->fakeScript('{"status":"ok","text":"el juego da miedo"}'), null, 6.0, 1_046_800);
+        self::assertFalse($later->isBlocked());
+        self::assertSame('ok', $later->fetch('9s7sZkuW_Jg')['status']);
+
+        // And within the cooldown, --clear-block is the way to insist.
+        $this->fetcher($this->fakeScript('unused'), $runner, 6.0, 2_000_000)->fetch('_1OZU-1N3VE');
+        $insisting = $this->fetcher($this->fakeScript('{"status":"missing"}'), null, 6.0, 2_003_600);
+        self::assertTrue($insisting->isBlocked());
+        $insisting->clearBlock();
+        self::assertFalse($insisting->isBlocked());
+        self::assertNull($insisting->blockedUntil());
+        self::assertSame('missing', $insisting->fetch('BNuGG3cOKBY')['status']);
     }
 
     public function testAnEmptyTranscriptCountsAsMissing(): void

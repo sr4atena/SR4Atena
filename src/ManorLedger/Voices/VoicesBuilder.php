@@ -121,6 +121,16 @@ final class VoicesBuilder
             array_keys($transcriptStatuses),
             $transcriptStatuses,
         )));
+        if ($this->transcripts->isBlocked()) {
+            // Not a fault of this machine and not one of the videos: the address
+            // is in a corner for a while. Say it plainly, because the page will
+            // show summaries that nobody refreshed tonight.
+            $this->log('WARNING: YouTube refused caption requests from this address, so no further '
+                . 'request was sent. It never says how long a refusal lasts: our own cooldown holds '
+                . 'until ' . gmdate('Y-m-d H:i', (int)$this->transcripts->blockedUntil()) . ' UTC. '
+                . 'Tonight\'s summaries come from the cache and from comments; run again after that, '
+                . 'or with --clear-block once YouTube answers again.');
+        }
         if ($rows !== [] && $transcriptStatuses['error'] * 2 > count($rows)) {
             // Captions disabled is a property of a video; `error` never is.
             $this->log('WARNING: more than half the transcripts failed with "error". That is this machine or a '

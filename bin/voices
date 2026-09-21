@@ -9,6 +9,7 @@
  *   bin/voices --remodel              redo the summaries the fallback model wrote, keep the others
  *   bin/voices --resynthesize         reuse every cached summary, redo the synthesis only
  *   bin/voices --refresh-transcripts  ask tools/transcript.py again instead of reusing its cache
+ *   bin/voices --clear-block          forget an earlier "blocked" verdict and ask YouTube again
  *   bin/voices --top=10               analyse fewer videos than config says
  *   bin/voices --dry-run              print the planned calls, send nothing
  *
@@ -39,11 +40,12 @@ require dirname(__DIR__) . '/src/autoload.php';
 $config = require dirname(__DIR__) . '/config/app.php';
 
 $usage = <<<TXT
-Usage: bin/voices [--top=N] [--if-older-than=HOURS] [--only=ID,ID] [--remodel] [--resynthesize] [--refresh-transcripts] [--dry-run] [--help]
+Usage: bin/voices [--top=N] [--if-older-than=HOURS] [--only=ID,ID] [--remodel] [--resynthesize] [--refresh-transcripts] [--clear-block] [--dry-run] [--help]
 
 TXT;
 
 $options = ['only' => [], 'remodel' => false, 'resynthesize' => false, 'dryRun' => false, 'refreshTranscripts' => false];
+$clearBlock = false;
 $ifOlderThan = null;
 foreach (array_slice($argv, 1) as $arg) {
     if ($arg === '--help' || $arg === '-h') {
@@ -58,6 +60,8 @@ foreach (array_slice($argv, 1) as $arg) {
         $options['resynthesize'] = true;
     } elseif ($arg === '--refresh-transcripts') {
         $options['refreshTranscripts'] = true;
+    } elseif ($arg === '--clear-block') {
+        $clearBlock = true;
     } elseif (preg_match('/^--top=(\d+)$/', $arg, $m) === 1) {
         $options['topN'] = (int)$m[1];
     } elseif (preg_match('/^--if-older-than=(\d+(?:\.\d+)?)$/', $arg, $m) === 1) {
@@ -123,13 +127,22 @@ try {
         60,
         null,
         (float)($config['voices']['transcriptInterval'] ?? 5),
+        3,
+        null,
+        (float)($config['voices']['blockCooldownHours'] ?? 6),
     );
+    if ($clearBlock && $fetcher->isBlocked()) {
+        $log('forgetting the block set at ' . gmdate('Y-m-d H:i', (int)$fetcher->blockedUntil()) . ' UTC and asking again');
+        $fetcher->clearBlock();
+    }
     $reason = $fetcher->unavailableReason();
     if ($reason !== null) {
         // Ten videos answering "error" is one broken environment, not ten broken
         // videos: say so here rather than publishing a page with nothing on it.
+        // A block is the one reason that is nobody's fault and fixes itself, so
+        // it never stops the run: the cache carries the night.
         $cached = count(glob($paths['transcripts'] . '/*.json') ?: []);
-        if ($cached === 0 && $options['dryRun'] === false) {
+        if ($cached === 0 && $options['dryRun'] === false && !$fetcher->isBlocked()) {
             throw new RuntimeException('transcripts unavailable and none cached: ' . $reason);
         }
         $log('WARNING: ' . $reason . ' — falling back to ' . $cached . ' cached transcripts');
