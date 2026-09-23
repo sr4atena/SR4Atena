@@ -336,7 +336,7 @@ sequenceDiagram
   else error, a property of the moment
     T->>T: retry with backoff, never cache
   else blocked, a property of the address
-    T->>T: trip the breaker, write .blocked.json, ask nothing more
+    T->>T: trip the breaker, write .blocked.json (6 h, 12 h, then 24 h), ask nothing more
   end
   T-->>B: transcript
   B->>S: summarize(video, transcript, comments)
