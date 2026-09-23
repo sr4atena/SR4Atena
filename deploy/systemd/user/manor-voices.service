@@ -15,6 +15,8 @@ Environment=MANOR_DATA_DIR=%h/SR4Atena/data
 ExecStart=/opt/lampp/bin/php bin/voices
 ExecStart=/bin/bash bin/voices-publish
 
-# The run paces itself against YouTube, so give it room rather than killing it.
-TimeoutStartSec=45min
+# The run paces itself against YouTube at one caption request every two
+# minutes, so give it room rather than killing it: fifteen uncached videos
+# with retries still fit.
+TimeoutStartSec=120min
 Nice=10

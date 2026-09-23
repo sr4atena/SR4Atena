@@ -118,15 +118,16 @@ try {
         $log,
         (float)($config['llm']['minInterval'] ?? 0),
     );
-    // Spacing costs a minute on a job that runs once a night and buys the
-    // transcripts of the most watched videos, which is where the value is.
+    // Spacing costs two minutes per uncached video on a job that runs once a
+    // night, and buys the transcripts of the most watched videos, which is
+    // where the value is.
     $fetcher = new TranscriptFetcher(
         $paths['python'],
         $paths['transcriptScript'],
         $paths['transcripts'],
         60,
         null,
-        (float)($config['voices']['transcriptInterval'] ?? 5),
+        (float)($config['voices']['transcriptInterval'] ?? 120),
         3,
         null,
         (float)($config['voices']['blockCooldownHours'] ?? 6),

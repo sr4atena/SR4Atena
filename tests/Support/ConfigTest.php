@@ -35,4 +35,10 @@ final class ConfigTest extends TestCase
             putenv('MANOR_DATA_DIR');
         }
     }
+
+    public function testCaptionRequestsAreAtLeastTwoMinutesApart(): void
+    {
+        $config = Config::load(__DIR__ . '/../../config/app.php');
+        self::assertGreaterThanOrEqual(120.0, (float)$config->get('voices.transcriptInterval'));
+    }
 }

@@ -80,8 +80,11 @@ return [
         // outvote the substantial videos (see config/prompts/voices-synthesis.md).
         'topN'    => 15,
         'host'    => (string)$env('MANOR_VOICES_HOST', 'workstation'),
-        // YouTube throttles a burst of caption requests from one IP.
-        'transcriptInterval' => 5.0,
+        // At most one caption request every two minutes, measured start to
+        // start. YouTube throttles caption requests from one address, and the
+        // job has no deadline worth trading that for: most videos come from
+        // the cache, and a new one costs two minutes, not a refusal.
+        'transcriptInterval' => 120.0,
         // After a refusal, how many hours before this address asks again. The
         // breaker in TranscriptFetcher already stops the rest of the run; this
         // only keeps a second run of the same day from re-probing.
