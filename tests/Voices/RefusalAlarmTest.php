@@ -24,7 +24,7 @@ final class RefusalAlarmTest extends TestCase
     {
         // 2026-09-23 06:00 UTC = 08:00 in Rome; six hours on, 14:00.
         $now = 1_790_143_200;
-        $this->alarm(true, 'manor-voices.service')->raise(['streak' => 1, 'hours' => 6.0, 'until' => $now + 21_600], $now);
+        $this->alarm(true, 'manor-voices.service')->raise(['streak' => 1, 'hours' => 6.0, 'until' => $now + 21_600, 'error' => 'IpBlocked: too many requests'], $now);
 
         self::assertCount(2, $this->ran);
         [$retry, $alert] = $this->ran;
@@ -36,6 +36,7 @@ final class RefusalAlarmTest extends TestCase
         self::assertStringContainsString('blocco n. 1', implode(' ', $alert));
         self::assertStringContainsString('Pausa di 6 ore', implode(' ', $alert));
         self::assertStringContainsString('14:00', implode(' ', $alert));
+        self::assertStringContainsString('YouTube: IpBlocked', implode(' ', $alert));
     }
 
     public function testWithoutARetryUnitItOnlyAlerts(): void

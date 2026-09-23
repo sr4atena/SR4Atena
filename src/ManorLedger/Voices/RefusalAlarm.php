@@ -41,7 +41,7 @@ final class RefusalAlarm
     }
 
     /**
-     * @param array{streak: int, hours: float, until: int} $tripped what TranscriptFetcher::tripped() returned
+     * @param array{streak: int, hours: float, until: int, error?: string} $tripped what TranscriptFetcher::tripped() returned
      * @param int $now unix time, to turn the deadline into a delay
      */
     public function raise(array $tripped, int $now): void
@@ -71,9 +71,10 @@ final class RefusalAlarm
             $code = ($this->runner)([
                 'notify-send', '--urgency=critical', '--app-name=Manor Ledger', '--icon=dialog-warning',
                 sprintf('YouTube blocca i sottotitoli (blocco n. %d di fila)', $tripped['streak']),
-                sprintf("Pausa di %s ore. %s alle %s del %s.\nNessuna altra richiesta fino ad allora.",
+                sprintf("Pausa di %s ore. %s alle %s del %s.\nNessuna altra richiesta fino ad allora.%s",
                     $hours, $scheduled ? 'Nuovo tentativo automatico' : 'Nessun tentativo programmato: prossimo giro del timer giornaliero, non prima',
-                    $at->format('H:i'), $at->format('d/m')),
+                    $at->format('H:i'), $at->format('d/m'),
+                    ($tripped['error'] ?? '') !== '' ? "\nYouTube: " . mb_substr((string)$tripped['error'], 0, 120, 'UTF-8') : ''),
             ]);
             if ($code !== 0) {
                 $this->say('desktop notification failed (notify-send exit ' . $code . ')');

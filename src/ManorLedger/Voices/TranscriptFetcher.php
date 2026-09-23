@@ -69,6 +69,8 @@ final class TranscriptFetcher
     private array $cooldownLadder;
     /** @var list<array{id: string, try: int, error: string}> every `error` answer of this run */
     private array $errors = [];
+    /** What the script said about its last non-permanent answer, exception name first. */
+    private ?string $lastError = null;
 
     /** @param ?callable $runner fn(string $python, string $script, string $id, int $timeout): array{out: string, code: int} */
     public function __construct(
@@ -115,7 +117,7 @@ final class TranscriptFetcher
      * What this run's refusal set, or null when this run met no refusal: the
      * refusals in a row, the pause chosen for it and when it ends.
      *
-     * @return ?array{streak: int, hours: float, until: int}
+     * @return ?array{streak: int, hours: float, until: int, error: string}
      */
     public function tripped(): ?array
     {
@@ -133,6 +135,16 @@ final class TranscriptFetcher
     public function errors(): array
     {
         return $this->errors;
+    }
+
+    /**
+     * The script's own words for the last answer that was not `ok`/`missing`,
+     * e.g. "IpBlocked: …" or "AgeRestricted: …". `blocked` covers both the
+     * address and a few video-level walls, and only this tells them apart.
+     */
+    public function lastError(): ?string
+    {
+        return $this->lastError;
     }
 
     /**
@@ -212,6 +224,11 @@ final class TranscriptFetcher
                 : ['status' => 'error', 'error' => 'unparsable output (exit ' . $result['code'] . ')']);
             // Only a permanent answer is cached: a throttled minute must not
             // poison the cache, and a disabled caption track will not change.
+            if (!in_array($transcript['status'], self::PERMANENT, true)) {
+                $this->lastError = is_array($decoded)
+                    ? (string)($decoded['error'] ?? $transcript['status'])
+                    : 'unparsable output (exit ' . $result['code'] . ')';
+            }
             if (in_array($transcript['status'], self::PERMANENT, true)) {
                 $store->write($transcript);
                 // YouTube answered: whatever the count of refusals was, it ends here.
@@ -229,9 +246,7 @@ final class TranscriptFetcher
 
                 return $transcript;
             }
-            $this->errors[] = ['id' => $videoId, 'try' => $try, 'error' => is_array($decoded)
-                ? (string)($decoded['error'] ?? 'error')
-                : 'unparsable output (exit ' . $result['code'] . ')'];
+            $this->errors[] = ['id' => $videoId, 'try' => $try, 'error' => (string)$this->lastError];
             if ($try < $this->maxTries) {
                 ($this->sleep)(self::BACKOFF * (2 ** ($try - 1)));
             }
@@ -250,13 +265,15 @@ final class TranscriptFetcher
         $hours = $this->cooldownLadder[min($this->streak, count($this->cooldownLadder)) - 1];
         $this->blocked = true;
         $this->blockedUntil = ($this->now)() + (int)round($hours * 3600);
-        $this->tripped = ['streak' => $this->streak, 'hours' => $hours, 'until' => $this->blockedUntil];
+        $this->tripped = ['streak' => $this->streak, 'hours' => $hours, 'until' => $this->blockedUntil,
+                          'error' => (string)$this->lastError];
         JsonStore::ensureDir($this->cacheDir);
         (new JsonStore($this->cacheDir . '/' . self::BLOCK_MARKER))->write([
             'at'     => gmdate('Y-m-d\TH:i:s\Z', ($this->now)()),
             'until'  => $this->blockedUntil,
             'streak' => $this->streak,
             'hours'  => $hours,
+            'error'  => (string)$this->lastError,
         ]);
     }
 

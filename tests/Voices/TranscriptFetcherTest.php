@@ -164,6 +164,8 @@ final class TranscriptFetcherTest extends TestCase
         self::assertSame('blocked', $fetcher->fetch('lHul7HACuLo')['status']);
 
         self::assertSame(1, $asked, 'one refusal is the address answering for every video');
+        self::assertSame('RequestBlocked', $fetcher->lastError(), 'the script\'s own name for the wall is kept');
+        self::assertSame('RequestBlocked', $fetcher->tripped()['error'] ?? null);
         self::assertTrue($fetcher->isBlocked());
         self::assertSame([], array_filter($this->slept, static fn (float $s): bool => $s >= 5.0), 'and no backoff to wait through');
     }
