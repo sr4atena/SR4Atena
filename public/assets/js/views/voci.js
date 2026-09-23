@@ -93,7 +93,7 @@ function paint(main, data) {
     const min = Number(data.listRules?.recentMinSubscribers) || 0;
     const both = recent.filter((v) => arraySafe(v.lists).includes('top')).length;
     nodes.push(videosSection(recent, 'voci-recent-title', `I ${recent.length} video più recenti`,
-      `I più nuovi fra i video di almeno quattro minuti${min ? ` di canali con almeno ${fmtInt(min)} iscritti` : ''}, dal più recente.`
+      `I più nuovi fra i video di almeno quattro minuti${min ? ` di canali con almeno ${fmtInt(min)} iscritti` : ''}, dal più recente. Entra solo chi ha qualcosa da dire: un video senza sottotitoli né commenti lascia il posto al successivo.`
       + (both ? ` ${both === 1 ? 'Uno compare' : `${fmtInt(both)} compaiono`} anche fra i più visti: nell'analisi ${both === 1 ? 'conta' : 'contano'} una volta sola.` : '')));
   }
   const note = sourceNote(data);

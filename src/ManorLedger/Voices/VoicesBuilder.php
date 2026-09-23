@@ -73,81 +73,59 @@ final class VoicesBuilder
         $this->log(sprintf('%d candidates, %d excluded as non-Roblox, %d kept (%d found only through the archive)',
             $found['stats']['candidates'], $found['stats']['excludedNonRoblox'], count($top), $found['stats']['fromArchive'] ?? 0));
 
-        // Second list: the newest videos of creators with an audience. Only
-        // the archive knows publication order and subscribers, so without it
-        // the list is simply absent.
-        $recent = [];
-        if ($this->archive !== null && $recentN > 0) {
-            $candidates = $this->archive->recent($recentN * 2, $this->recentMinSubscribers);
-            $this->log('recent: ' . $candidates['note']);
-            $recent = $this->youtube->recentVideos($candidates['ids'], $recentN);
-        }
-        // One analysis per video: a video in both lists is summarised once and
-        // counted once by the synthesis; the page shows it in both sections.
-        $lists = ['top' => array_column($top, 'id'), 'recent' => array_column($recent, 'id')];
-        $videos = $top;
-        foreach ($recent as $video) {
-            if (!in_array($video['id'], $lists['top'], true)) {
-                $videos[] = $video;
-            }
-        }
-        if ($recent !== []) {
-            $this->log(sprintf('lists: %d most watched + %d most recent = %d videos to analyse (%d in both)',
-                count($top), count($recent), count($videos), count($top) + count($recent) - count($videos)));
-        }
-
-        $stored = $this->thumbnails->store($videos);
-        foreach (array_keys(array_filter($stored, static fn (bool $ok): bool => !$ok)) as $id) {
-            $this->log($id . ': thumbnail unavailable, the view will show a placeholder');
-        }
         $transcriptStatuses = array_fill_keys(TranscriptFetcher::STATUSES, 0);
         $regenerated = 0;
         $withTranscript = 0;
         $rows = [];
-        foreach ($videos as $video) {
-            $id = (string)$video['id'];
-            $selected = $only === [] || in_array($id, $only, true);
-            $comments = $this->youtube->comments($id, CommentFilter::MAX_KEPT);
-            $kept = $this->comments->filter($comments['comments']);
-            $transcript = $this->transcripts->fetch($id, ($options['refreshTranscripts'] ?? false) !== true);
-            $transcriptStatuses[$transcript['status']]++;
-            if ($transcript['status'] === 'ok') {
-                $withTranscript++;
-            }
-            $cached = $this->summarizer->cached($id);
-            // A mixed cache is not a result: --remodel redoes whatever the
-            // fallback wrote, and keeps everything the primary model produced.
-            $wrongModel = ($options['remodel'] ?? false) === true && $cached !== null
-                && ($cached['model'] ?? null) !== ($this->primaryModels['summary'] ?? null);
-            if ($wrongModel) {
-                $this->log($id . ': cached summary came from ' . ($cached['model'] ?? 'nothing') . ', asking the primary model again');
-            } elseif ($cached !== null && $selected && $only === []) {
-                $this->log($id . ': summary cached');
-            }
-            $summary = $selected
-                ? $this->summarizer->summarize($video, $transcript, $kept, $now, $only === [] && !$wrongModel)
-                : ($cached ?? self::failedSummary($now));
-            $produced = $selected && ($cached === null || $wrongModel || $only !== []);
-            $regenerated += $produced && $summary['status'] === 'ok' ? 1 : 0;
-            $this->log(sprintf('%s: %s · transcript %s (%d chars) · comments %d→%d · summary %s (%s)',
-                $id, mb_substr((string)$video['title'], 0, 48, 'UTF-8'), $transcript['status'],
-                $transcript['chars'], $comments['fetched'], count($kept), $summary['status'],
-                $summary['model'] ?? ($summary['error'] ?? 'nessun modello')));
-
-            $rows[] = [
-                'id' => $id, 'title' => $video['title'], 'channel' => $video['channel'],
-                'channelId' => $video['channelId'], 'publishedAt' => $video['publishedAt'],
-                'views' => $video['views'], 'likes' => $video['likes'], 'commentCount' => $video['commentCount'],
-                'url' => $video['url'],
-                'thumbnail' => '/media/yt/' . $id . '.jpg',
-                'transcript' => ['status' => $transcript['status'], 'language' => $transcript['language'],
-                                 'generated' => $transcript['generated'], 'chars' => $transcript['chars']],
-                'comments' => ['fetched' => $comments['fetched'], 'kept' => count($kept)],
-                'summary' => $summary,
-                'lists' => array_values(array_filter(['top', 'recent'], static fn (string $l): bool => in_array($id, $lists[$l], true))),
-            ];
+        $picked = [];
+        $ctx = ['only' => $only, 'now' => $now, 'options' => $options];
+        foreach ($top as $video) {
+            $rows[(string)$video['id']] = $this->row($video, $ctx, $transcriptStatuses, $regenerated);
+            $picked[(string)$video['id']] = $video;
         }
 
+        // Second list: the newest videos of creators with an audience. Only
+        // the archive knows publication order and subscribers, so without it
+        // the list is simply absent. A video enters only if it says
+        // something: one with neither captions nor comments would be a card
+        // with no summary, so the next candidate takes its place.
+        $recentIds = [];
+        $skipped = 0;
+        if ($this->archive !== null && $recentN > 0) {
+            $candidates = $this->archive->recent($recentN * 3, $this->recentMinSubscribers);
+            $this->log('recent: ' . $candidates['note']);
+            foreach ($this->youtube->recentVideos($candidates['ids'], $recentN * 3) as $video) {
+                if (count($recentIds) >= $recentN) {
+                    break;
+                }
+                $id = (string)$video['id'];
+                // One analysis per video: a video in both lists is summarised
+                // once and counted once; the page shows it in both sections.
+                $row = $rows[$id] ?? $this->row($video, $ctx, $transcriptStatuses, $regenerated);
+                if ($row['summary']['status'] !== 'ok') {
+                    $skipped++;
+                    $this->log($id . ': nothing to summarise (' . ($row['summary']['error'] ?? 'failed') . '), not listed among the recent');
+                    continue;
+                }
+                $rows[$id] = $row;
+                $picked[$id] = $video;
+                $recentIds[] = $id;
+            }
+        }
+        $lists = ['top' => array_column($top, 'id'), 'recent' => $recentIds];
+        foreach ($rows as $id => $row) {
+            $rows[$id]['lists'] = array_values(array_filter(['top', 'recent'], static fn (string $l): bool => in_array($id, $lists[$l], true)));
+        }
+        $rows = array_values($rows);
+        $withTranscript = count(array_filter($rows, static fn (array $r): bool => $r['transcript']['status'] === 'ok'));
+        if ($recentIds !== []) {
+            $this->log(sprintf('lists: %d most watched + %d most recent = %d videos to analyse (%d in both, %d recent skipped for lack of material)',
+                count($top), count($recentIds), count($rows), count($top) + count($recentIds) - count($rows), $skipped));
+        }
+        $stored = $this->thumbnails->store(array_values($picked));
+        foreach (array_keys(array_filter($stored, static fn (bool $ok): bool => !$ok)) as $id) {
+            $this->log($id . ': thumbnail unavailable, the view will show a placeholder');
+        }
         $this->log('transcripts: ' . implode(', ', array_map(
             static fn (string $s, int $n): string => $n . ' ' . $s,
             array_keys($transcriptStatuses),
@@ -194,6 +172,59 @@ final class VoicesBuilder
         $this->log('written ' . $this->output->path());
 
         return $document;
+    }
+
+    /**
+     * Comments, transcript and summary of one video, as the row the page reads.
+     *
+     * @param array<string, mixed> $video
+     * @param array{only: list<string>, now: string, options: array<string, mixed>} $ctx
+     * @param array<string, int> $transcriptStatuses
+     * @return array<string, mixed>
+     */
+    private function row(array $video, array $ctx, array &$transcriptStatuses, int &$regenerated): array
+    {
+        $only = $ctx['only'];
+        $now = $ctx['now'];
+        $options = $ctx['options'];
+        $id = (string)$video['id'];
+        $selected = $only === [] || in_array($id, $only, true);
+        $comments = $this->youtube->comments($id, CommentFilter::MAX_KEPT);
+        $kept = $this->comments->filter($comments['comments']);
+        $transcript = $this->transcripts->fetch($id, ($options['refreshTranscripts'] ?? false) !== true);
+        $transcriptStatuses[$transcript['status']]++;
+        $cached = $this->summarizer->cached($id);
+        // A mixed cache is not a result: --remodel redoes whatever the
+        // fallback wrote, and keeps everything the primary model produced.
+        $wrongModel = ($options['remodel'] ?? false) === true && $cached !== null
+            && ($cached['model'] ?? null) !== ($this->primaryModels['summary'] ?? null);
+        if ($wrongModel) {
+            $this->log($id . ': cached summary came from ' . ($cached['model'] ?? 'nothing') . ', asking the primary model again');
+        } elseif ($cached !== null && $selected && $only === []) {
+            $this->log($id . ': summary cached');
+        }
+        $summary = $selected
+            ? $this->summarizer->summarize($video, $transcript, $kept, $now, $only === [] && !$wrongModel)
+            : ($cached ?? self::failedSummary($now));
+        $produced = $selected && ($cached === null || $wrongModel || $only !== []);
+        $regenerated += $produced && $summary['status'] === 'ok' ? 1 : 0;
+        $this->log(sprintf('%s: %s · transcript %s (%d chars) · comments %d→%d · summary %s (%s)',
+            $id, mb_substr((string)$video['title'], 0, 48, 'UTF-8'), $transcript['status'],
+            $transcript['chars'], $comments['fetched'], count($kept), $summary['status'],
+            $summary['model'] ?? ($summary['error'] ?? 'nessun modello')));
+
+        return [
+            'id' => $id, 'title' => $video['title'], 'channel' => $video['channel'],
+            'channelId' => $video['channelId'], 'publishedAt' => $video['publishedAt'],
+            'views' => $video['views'], 'likes' => $video['likes'], 'commentCount' => $video['commentCount'],
+            'url' => $video['url'],
+            'thumbnail' => '/media/yt/' . $id . '.jpg',
+            'transcript' => ['status' => $transcript['status'], 'language' => $transcript['language'],
+                             'generated' => $transcript['generated'], 'chars' => $transcript['chars']],
+            'comments' => ['fetched' => $comments['fetched'], 'kept' => count($kept)],
+            'summary' => $summary,
+            'lists' => [],
+        ];
     }
 
     /** @param list<array<string, mixed>> $rows */

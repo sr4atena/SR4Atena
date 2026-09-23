@@ -51,18 +51,21 @@ final class VoicesBuilderTest extends TestCase
      * @param list<string> $llmBodies one JSON payload per expected model call
      * @param ?string $recentVideos the videos.list body for the recent list, with an archive
      */
-    private function builder(array $llmBodies, ?ArchiveSource $archive = null, ?string $recentVideos = null, int $comments = 2): VoicesBuilder
+    /** @param int|list<string> $comments how many comment answers (all the fixture), or the bodies themselves */
+    private function builder(array $llmBodies, ?ArchiveSource $archive = null, ?string $recentVideos = null, int|array $comments = 2): VoicesBuilder
     {
         $waves = [
             [self::fixture('search-page1.json'), self::fixture('search-page1.json')],
             [self::fixture('search-page2.json'), self::fixture('search-page2.json')],
             [self::fixture('videos.json')],
         ];
-        if ($recentVideos !== null) {
-            $waves[] = [$recentVideos];
-        }
-        for ($i = 0; $i < $comments; $i++) {
-            $waves[] = [self::fixture('comments.json')];
+        // The two most watched are processed first, then the recent list is
+        // asked for, then the comments of the recent ones.
+        foreach (is_int($comments) ? array_fill(0, $comments, self::fixture('comments.json')) : $comments as $n => $body) {
+            if ($n === 2 && $recentVideos !== null) {
+                $waves[] = [$recentVideos];
+            }
+            $waves[] = [$body];
         }
         $youtube = static function (array $requests) use (&$waves): array {
             $bodies = array_shift($waves) ?? [];
@@ -195,6 +198,37 @@ final class VoicesBuilderTest extends TestCase
         self::assertSame(['recent'], $document['videos'][2]['lists']);
         self::assertSame(4, $this->llmCalls, 'three summaries, not four, and one synthesis');
         self::assertCount(3, $document['synthesis']['videosConsidered'] ?? [], 'the synthesis reads each video once');
+    }
+
+    public function testARecentVideoWithNothingToSayGivesItsPlaceToTheNext(): void
+    {
+        $archive = $this->dir . '/archive.json';
+        file_put_contents($archive, json_encode(['videos' => [
+            'GGGGGGGGGGG' => ['views' => 1, 'subscribers' => 5000, 'seconds' => 900, 'publishedTime' => '2026-09-16T23:30:00Z'],
+            'EEEEEEEEEEE' => ['views' => 1, 'subscribers' => 239000, 'seconds' => 2489, 'publishedTime' => '2026-09-16T21:15:43Z'],
+        ]]));
+        $videos = json_decode(self::fixture('videos.json'), true);
+        $a = array_values(array_filter($videos['items'], static fn (array $i): bool => $i['id'] === 'AAAAAAAAAAA'))[0];
+        $e = $a;
+        $e['id'] = 'EEEEEEEEEEE';
+        $e['snippet']['publishedAt'] = '2026-09-16T21:15:43Z';
+        $g = $a;
+        $g['id'] = 'GGGGGGGGGGG';
+        $g['snippet']['title'] = "The Locust's Manor (1 view, no captions, no comments)";
+        $g['snippet']['publishedAt'] = '2026-09-16T23:30:00Z';
+        $comments = self::fixture('comments.json');
+
+        $document = $this->builder(
+            [self::fixture('summary-response.json'), self::fixture('summary-response.json'), self::fixture('summary-response.json'),
+             self::fixture('synthesis-response.json')],
+            new ArchiveSource($archive),
+            (string)json_encode(['items' => [$g, $e]]),
+            [$comments, $comments, '{"items":[]}', $comments],
+        )->run(['recentN' => 1]);
+
+        self::assertSame(['EEEEEEEEEEE'], $document['lists']['recent'], 'the newest had nothing to summarise: the next one takes its place');
+        self::assertNotContains('GGGGGGGGGGG', array_column($document['videos'], 'id'), 'and it is neither shown nor analysed');
+        self::assertStringContainsString('GGGGGGGGGGG: nothing to summarise', implode("\n", $this->log));
     }
 
     public function testASecondRunTheSameDayMakesNoModelCallAtAll(): void
