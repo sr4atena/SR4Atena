@@ -231,6 +231,18 @@ final class VoicesBuilderTest extends TestCase
         self::assertStringContainsString('GGGGGGGGGGG: nothing to summarise', implode("\n", $this->log));
     }
 
+    public function testAMostWatchedVideoWithNothingToSayIsNotListed(): void
+    {
+        // AAAAAAAAAAA has no captions; with no comments either there is
+        // nothing to summarise, so only CCCCCCCCCCC remains.
+        $document = $this->builder([self::fixture('summary-response.json'), self::fixture('synthesis-response.json')],
+            null, null, [self::fixture('comments.json'), '{"items":[]}'])->run();
+
+        self::assertSame(['CCCCCCCCCCC'], $document['lists']['top']);
+        self::assertSame(['CCCCCCCCCCC'], array_column($document['videos'], 'id'));
+        self::assertStringContainsString('AAAAAAAAAAA: nothing to summarise', implode("\n", $this->log));
+    }
+
     public function testASecondRunTheSameDayMakesNoModelCallAtAll(): void
     {
         $this->fullRun();

@@ -17,8 +17,8 @@ everything below follows their conventions.
 > with an archive (`voices.archive`), the fifteen most recent of channels with
 > at least 1,000 subscribers (`voices.recentN`, `voices.recentMinSubscribers`);
 > `videos` is their union, a video in both analysed once, and `lists` gives
-> each section its order. A recent video with neither captions nor comments
-> is skipped and the next candidate takes its place. Not
+> each section its order. In both lists a video with neither captions nor
+> comments is skipped and the next candidate takes its place. Not
 > ten. The rest of this document is kept as it was written, as the record of
 > the decisions and the measurements behind them.
 

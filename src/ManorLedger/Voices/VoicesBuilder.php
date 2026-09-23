@@ -68,8 +68,10 @@ final class VoicesBuilder
         if ($this->archive !== null) {
             $this->log('archive: ' . $extra['note']);
         }
-        $found = $this->youtube->topVideos($this->queries, $topN, 2, $extra['ids']);
-        $top = $found['videos'];
+        // Twice as many as needed, in order of views: a video with nothing to
+        // summarise gives its place to the next most watched.
+        $found = $this->youtube->topVideos($this->queries, $topN * 2, 2, $extra['ids']);
+        $top = [];
         $this->log(sprintf('%d candidates, %d excluded as non-Roblox, %d kept (%d found only through the archive)',
             $found['stats']['candidates'], $found['stats']['excludedNonRoblox'], count($top), $found['stats']['fromArchive'] ?? 0));
 
@@ -79,10 +81,24 @@ final class VoicesBuilder
         $rows = [];
         $picked = [];
         $ctx = ['only' => $only, 'now' => $now, 'options' => $options];
-        foreach ($top as $video) {
-            $rows[(string)$video['id']] = $this->row($video, $ctx, $transcriptStatuses, $regenerated);
-            $picked[(string)$video['id']] = $video;
+        $skippedTop = 0;
+        foreach ($found['videos'] as $video) {
+            if (count($top) >= $topN) {
+                break;
+            }
+            $id = (string)$video['id'];
+            $row = $this->row($video, $ctx, $transcriptStatuses, $regenerated);
+            if ($row['summary']['status'] !== 'ok') {
+                $skippedTop++;
+                $this->log($id . ': nothing to summarise (' . ($row['summary']['error'] ?? 'failed') . '), not listed among the most watched');
+                continue;
+            }
+            $rows[$id] = $row;
+            $picked[$id] = $video;
+            $top[] = $video;
         }
+
+        $this->log(sprintf('%d most watched kept, %d skipped for lack of material', count($top), $skippedTop));
 
         // Second list: the newest videos of creators with an audience. Only
         // the archive knows publication order and subscribers, so without it
@@ -119,8 +135,8 @@ final class VoicesBuilder
         $rows = array_values($rows);
         $withTranscript = count(array_filter($rows, static fn (array $r): bool => $r['transcript']['status'] === 'ok'));
         if ($recentIds !== []) {
-            $this->log(sprintf('lists: %d most watched + %d most recent = %d videos to analyse (%d in both, %d recent skipped for lack of material)',
-                count($top), count($recentIds), count($rows), count($top) + count($recentIds) - count($rows), $skipped));
+            $this->log(sprintf('lists: %d most watched + %d most recent = %d videos to analyse (%d in both; skipped for lack of material: %d most watched, %d recent)',
+                count($top), count($recentIds), count($rows), count($top) + count($recentIds) - count($rows), $skippedTop, $skipped));
         }
         $stored = $this->thumbnails->store(array_values($picked));
         foreach (array_keys(array_filter($stored, static fn (bool $ok): bool => !$ok)) as $id) {

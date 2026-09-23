@@ -87,7 +87,7 @@ function paint(main, data) {
   const recent = data.lists ? pick(data.lists.recent) : [];
   if (top.length) {
     nodes.push(videosSection(top, 'voci-videos-title', `I ${top.length} video più visti`,
-      'Ogni scheda riassume quello che il creatore dice giocando e quello che i suoi spettatori scrivono nei commenti. Le frasi fra virgolette sono citazioni testuali, mai tradotte.'));
+      'Ogni scheda riassume quello che il creatore dice giocando e quello che i suoi spettatori scrivono nei commenti. Le frasi fra virgolette sono citazioni testuali, mai tradotte. Un video senza sottotitoli né commenti lascia il posto al successivo per visualizzazioni.'));
   }
   if (recent.length) {
     const min = Number(data.listRules?.recentMinSubscribers) || 0;
