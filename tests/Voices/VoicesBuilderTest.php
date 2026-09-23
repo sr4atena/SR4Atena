@@ -5,6 +5,7 @@ namespace ManorLedger\Tests\Voices;
 
 use ManorLedger\Storage\JsonStore;
 use ManorLedger\Tests\TempDirTrait;
+use ManorLedger\Voices\ArchiveSource;
 use ManorLedger\Voices\CommentFilter;
 use ManorLedger\Voices\LlmClient;
 use ManorLedger\Voices\Synthesizer;
@@ -46,16 +47,23 @@ final class VoicesBuilderTest extends TestCase
         return (string)file_get_contents(__DIR__ . '/../fixtures/voices/' . $name);
     }
 
-    /** @param list<string> $llmBodies one JSON payload per expected model call */
-    private function builder(array $llmBodies): VoicesBuilder
+    /**
+     * @param list<string> $llmBodies one JSON payload per expected model call
+     * @param ?string $recentVideos the videos.list body for the recent list, with an archive
+     */
+    private function builder(array $llmBodies, ?ArchiveSource $archive = null, ?string $recentVideos = null, int $comments = 2): VoicesBuilder
     {
         $waves = [
             [self::fixture('search-page1.json'), self::fixture('search-page1.json')],
             [self::fixture('search-page2.json'), self::fixture('search-page2.json')],
             [self::fixture('videos.json')],
-            [self::fixture('comments.json')],
-            [self::fixture('comments.json')],
         ];
+        if ($recentVideos !== null) {
+            $waves[] = [$recentVideos];
+        }
+        for ($i = 0; $i < $comments; $i++) {
+            $waves[] = [self::fixture('comments.json')];
+        }
         $youtube = static function (array $requests) use (&$waves): array {
             $bodies = array_shift($waves) ?? [];
 
@@ -103,6 +111,8 @@ final class VoicesBuilderTest extends TestCase
             'workstation',
             function (string $line): void { $this->log[] = $line; },
             static fn (): int => self::NOW,
+            $archive,
+            1000,
         );
     }
 
@@ -125,7 +135,9 @@ final class VoicesBuilderTest extends TestCase
 
         $video = $document['videos'][0];
         self::assertSame(['id', 'title', 'channel', 'channelId', 'publishedAt', 'views', 'likes', 'commentCount',
-                          'url', 'thumbnail', 'transcript', 'comments', 'summary'], array_keys($video));
+                          'url', 'thumbnail', 'transcript', 'comments', 'summary', 'lists'], array_keys($video));
+        self::assertSame(['top'], $video['lists']);
+        self::assertSame(['top' => ['CCCCCCCCCCC', 'AAAAAAAAAAA'], 'recent' => []], $document['lists'], 'no archive, no recent list');
         self::assertSame('CCCCCCCCCCC', $video['id'], 'sorted by views, not by search rank');
         self::assertSame('/media/yt/CCCCCCCCCCC.jpg', $video['thumbnail']);
         self::assertFileExists($this->dir . '/media/yt/CCCCCCCCCCC.jpg');
@@ -149,6 +161,40 @@ final class VoicesBuilderTest extends TestCase
         self::assertCount(2, $synthesis['timeline']);
         self::assertSame(3, $this->llmCalls, 'two summaries and one synthesis');
         self::assertSame(0640, fileperms($this->dir . '/voices.json') & 0777, 'the web process reads it, nothing more');
+    }
+
+    public function testTheMostRecentJoinTheMostWatchedAndAVideoInBothIsAnalysedOnce(): void
+    {
+        $archive = $this->dir . '/archive.json';
+        file_put_contents($archive, json_encode(['videos' => [
+            // In the top list too: must be analysed once, shown in both.
+            'AAAAAAAAAAA' => ['views' => 1, 'subscribers' => 5000, 'seconds' => 900, 'publishedTime' => '2026-09-16T10:00:00Z'],
+            'EEEEEEEEEEE' => ['views' => 1, 'subscribers' => 239000, 'seconds' => 2489, 'publishedTime' => '2026-09-16T21:15:43Z'],
+            // Newer, but a channel without an audience: not in the list.
+            'FFFFFFFFFFF' => ['views' => 1, 'subscribers' => 40, 'seconds' => 900, 'publishedTime' => '2026-09-16T23:00:00Z'],
+        ]]));
+        $videos = json_decode(self::fixture('videos.json'), true);
+        $a = array_values(array_filter($videos['items'], static fn (array $i): bool => $i['id'] === 'AAAAAAAAAAA'))[0];
+        $e = $a;
+        $e['id'] = 'EEEEEEEEEEE';
+        $e['snippet']['title'] = 'The NEW Locust Horror Game on Roblox GOT SCARIER... (The Locust Manor)';
+        $e['snippet']['publishedAt'] = '2026-09-16T21:15:43Z';
+        $a['snippet']['publishedAt'] = '2026-09-16T10:00:00Z';
+
+        $document = $this->builder(
+            [self::fixture('summary-response.json'), self::fixture('summary-response.json'), self::fixture('summary-response.json'),
+             self::fixture('synthesis-response.json')],
+            new ArchiveSource($archive),
+            (string)json_encode(['items' => [$a, $e]]),
+            3,
+        )->run(['recentN' => 15]);
+
+        self::assertSame(['top' => ['CCCCCCCCCCC', 'AAAAAAAAAAA'], 'recent' => ['EEEEEEEEEEE', 'AAAAAAAAAAA']], $document['lists']);
+        self::assertSame(['CCCCCCCCCCC', 'AAAAAAAAAAA', 'EEEEEEEEEEE'], array_column($document['videos'], 'id'), 'the union, no doubles');
+        self::assertSame(['top', 'recent'], $document['videos'][1]['lists']);
+        self::assertSame(['recent'], $document['videos'][2]['lists']);
+        self::assertSame(4, $this->llmCalls, 'three summaries, not four, and one synthesis');
+        self::assertCount(3, $document['synthesis']['videosConsidered'] ?? [], 'the synthesis reads each video once');
     }
 
     public function testASecondRunTheSameDayMakesNoModelCallAtAll(): void

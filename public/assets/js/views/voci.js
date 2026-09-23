@@ -3,7 +3,9 @@
  * views this one does not read dashboard.json: it loads /api/voices on
  * first entry and keeps it for the session. Top to bottom: the verdict,
  * four facts, the tone strip over the month, the two-column table of
- * praise and requests, then one card per video with its player quotes.
+ * praise and requests, then the cards: the most watched videos and the most
+ * recent of creators with an audience. A video in both lists is analysed
+ * once and shown in both sections.
  *
  * Everything below the fetch is model output or third-party text: capped
  * and inserted with textContent, never innerHTML (see voci/common.js).
@@ -13,6 +15,7 @@ import { getState } from '../state.js';
 import { heroSection, statsRow, timelineSection, pointsSection } from '../voci/synthesis.js';
 import { videoCard } from '../voci/video-card.js';
 import { cap, CAP, arraySafe } from '../voci/common.js';
+import { fmtInt } from '../format.js';
 
 export const title = 'AI Sentiment';
 
@@ -76,22 +79,38 @@ function statusBox(title, text, retry = false) {
 function paint(main, data) {
   const videos = arraySafe(data.videos);
   const nodes = [heroSection(data), statsRow(data), timelineSection(data), pointsSection(data)];
-  if (videos.length) nodes.push(videosSection(videos));
+  const byId = new Map(videos.map((v) => [v.id, v]));
+  const pick = (ids) => arraySafe(ids).map((id) => byId.get(id)).filter(Boolean);
+  // Files written before the two lists existed carry no `lists`: all videos
+  // are the most watched, as they always were.
+  const top = data.lists ? pick(data.lists.top) : videos;
+  const recent = data.lists ? pick(data.lists.recent) : [];
+  if (top.length) {
+    nodes.push(videosSection(top, 'voci-videos-title', `I ${top.length} video più visti`,
+      'Ogni scheda riassume quello che il creatore dice giocando e quello che i suoi spettatori scrivono nei commenti. Le frasi fra virgolette sono citazioni testuali, mai tradotte.'));
+  }
+  if (recent.length) {
+    const min = Number(data.listRules?.recentMinSubscribers) || 0;
+    const both = recent.filter((v) => arraySafe(v.lists).includes('top')).length;
+    nodes.push(videosSection(recent, 'voci-recent-title', `I ${recent.length} video più recenti`,
+      `I più nuovi fra i video di almeno quattro minuti${min ? ` di canali con almeno ${fmtInt(min)} iscritti` : ''}, dal più recente.`
+      + (both ? ` ${both === 1 ? 'Uno compare' : `${fmtInt(both)} compaiono`} anche fra i più visti: nell'analisi ${both === 1 ? 'conta' : 'contano'} una volta sola.` : '')));
+  }
   const note = sourceNote(data);
   if (note) nodes.push(note);
   main.replaceChildren(...nodes);
 }
 
-function videosSection(videos) {
+/* The list lengths are configuration (voices.topN, voices.recentN), so the
+ * titles count what arrived instead of spelling a number out. */
+function videosSection(videos, id, title, says) {
   const section = el('section', 'voci-videos-section');
-  section.setAttribute('aria-labelledby', 'voci-videos-title');
+  section.setAttribute('aria-labelledby', id);
   const head = el('div', 'voci-section-head');
-  // The list length is configuration (voices.topN), so never spell it out.
-  const h = el('h2', 'voci-section-title', `I ${videos.length} video più visti`);
-  h.id = 'voci-videos-title';
+  const h = el('h2', 'voci-section-title', title);
+  h.id = id;
   head.appendChild(h);
-  head.appendChild(el('p', 'voci-section-says',
-    'Ogni scheda riassume quello che il creatore dice giocando e quello che i suoi spettatori scrivono nei commenti. Le frasi fra virgolette sono citazioni testuali, mai tradotte.'));
+  head.appendChild(el('p', 'voci-section-says', says));
   section.appendChild(head);
   const g = el('div', 'voci-videos');
   videos.forEach((v) => g.appendChild(videoCard(v)));

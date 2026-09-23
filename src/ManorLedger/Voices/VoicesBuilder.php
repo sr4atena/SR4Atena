@@ -40,6 +40,8 @@ final class VoicesBuilder
         ?callable $log = null,
         ?callable $now = null,
         private readonly ?ArchiveSource $archive = null,
+        /** Audience rule for the "most recent" list: subscribers on the channel. */
+        private readonly int $recentMinSubscribers = 1000,
     ) {
         $this->log = $log !== null ? Closure::fromCallable($log) : static fn (string $l): null => null;
         $this->now = $now !== null ? Closure::fromCallable($now) : static fn (): int => time();
@@ -54,9 +56,10 @@ final class VoicesBuilder
     {
         $only = $options['only'] ?? [];
         $topN = (int)($options['topN'] ?? 15);
+        $recentN = (int)($options['recentN'] ?? 0);
         $previous = $this->output->read() ?? [];
         if (($options['dryRun'] ?? false) === true) {
-            return $this->plan($topN, $previous);
+            return $this->plan($topN + $recentN, $previous);
         }
 
         $now = gmdate('Y-m-d\TH:i:s\Z', ($this->now)());
@@ -66,9 +69,32 @@ final class VoicesBuilder
             $this->log('archive: ' . $extra['note']);
         }
         $found = $this->youtube->topVideos($this->queries, $topN, 2, $extra['ids']);
-        $videos = $found['videos'];
+        $top = $found['videos'];
         $this->log(sprintf('%d candidates, %d excluded as non-Roblox, %d kept (%d found only through the archive)',
-            $found['stats']['candidates'], $found['stats']['excludedNonRoblox'], count($videos), $found['stats']['fromArchive'] ?? 0));
+            $found['stats']['candidates'], $found['stats']['excludedNonRoblox'], count($top), $found['stats']['fromArchive'] ?? 0));
+
+        // Second list: the newest videos of creators with an audience. Only
+        // the archive knows publication order and subscribers, so without it
+        // the list is simply absent.
+        $recent = [];
+        if ($this->archive !== null && $recentN > 0) {
+            $candidates = $this->archive->recent($recentN * 2, $this->recentMinSubscribers);
+            $this->log('recent: ' . $candidates['note']);
+            $recent = $this->youtube->recentVideos($candidates['ids'], $recentN);
+        }
+        // One analysis per video: a video in both lists is summarised once and
+        // counted once by the synthesis; the page shows it in both sections.
+        $lists = ['top' => array_column($top, 'id'), 'recent' => array_column($recent, 'id')];
+        $videos = $top;
+        foreach ($recent as $video) {
+            if (!in_array($video['id'], $lists['top'], true)) {
+                $videos[] = $video;
+            }
+        }
+        if ($recent !== []) {
+            $this->log(sprintf('lists: %d most watched + %d most recent = %d videos to analyse (%d in both)',
+                count($top), count($recent), count($videos), count($top) + count($recent) - count($videos)));
+        }
 
         $stored = $this->thumbnails->store($videos);
         foreach (array_keys(array_filter($stored, static fn (bool $ok): bool => !$ok)) as $id) {
@@ -118,6 +144,7 @@ final class VoicesBuilder
                                  'generated' => $transcript['generated'], 'chars' => $transcript['chars']],
                 'comments' => ['fetched' => $comments['fetched'], 'kept' => count($kept)],
                 'summary' => $summary,
+                'lists' => array_values(array_filter(['top', 'recent'], static fn (string $l): bool => in_array($id, $lists[$l], true))),
             ];
         }
 
@@ -152,6 +179,9 @@ final class VoicesBuilder
                         'excludedNonRoblox' => $found['stats']['excludedNonRoblox'],
                         'withTranscript' => $withTranscript],
             'videos' => $rows,
+            // Order of each section on the page; every id is also in `videos`.
+            'lists' => $lists,
+            'listRules' => ['recentMinSubscribers' => $this->recentMinSubscribers],
             'synthesis' => [],
         ];
         // A synthesis of summaries that have since been rewritten is not the

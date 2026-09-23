@@ -61,11 +61,17 @@ export function statsRow(data) {
   const why = [];
   if (disabled) why.push(`${fmtInt(disabled)} con i sottotitoli disabilitati`);
   if (unusable) why.push(`${fmtInt(unusable)} non recuperabili`);
-  // The list length is configuration (voices.topN), so never spell it out.
+  // The list lengths are configuration (voices.topN, voices.recentN), so never spell them out.
   const n = fmtInt(videos.length);
+  const top = arraySafe(data.lists?.top).length;
+  const recent = arraySafe(data.lists?.recent).length;
+  const analysed = recent
+    ? { label: 'Video analizzati', value: fmtInt(videos.length), sub: 'i più visti e i più recenti, senza doppioni',
+        how: `I ${fmtInt(top)} più visti e i ${fmtInt(recent)} più recenti di canali con un pubblico: ${n} in tutto, perché un video presente in entrambe le liste si analizza una volta sola.` }
+    : { label: 'Video analizzati', value: fmtInt(videos.length), sub: candidates ? `i più visti fra ${fmtInt(candidates)} candidati` : null,
+        how: `I ${n} video più visti che nominano il gioco nel titolo.` };
   return kpiRow([
-    { label: 'Video analizzati', value: fmtInt(videos.length), sub: candidates ? `i più visti fra ${fmtInt(candidates)} candidati` : null,
-      how: `I ${n} video più visti che nominano il gioco nel titolo.` },
+    analysed,
     { label: 'Visualizzazioni raccolte', value: fmtCompact(views), sub: span, accent: true,
       how: `Somma delle visualizzazioni dei ${n} video considerati.` },
     { label: 'Trascrizioni disponibili', value: `${fmtInt(withTranscript)} su ${fmtInt(videos.length)}`,

@@ -13,7 +13,11 @@ everything below follows their conventions.
 > `ManorLedger\Voices`, `bin/voices`, `data/voices.json` and `views/voci.js`
 > keep their original names throughout this document. It is also the sixth
 > view rather than the fifth — *Analisi Ads* was added later — and it analyses
-> the **fifteen** most-watched videos (`config/app.php`, `voices.topN`), not
+> the **fifteen** most-watched videos (`config/app.php`, `voices.topN`) plus,
+> with an archive (`voices.archive`), the fifteen most recent of channels with
+> at least 1,000 subscribers (`voices.recentN`, `voices.recentMinSubscribers`);
+> `videos` is their union, a video in both analysed once, and `lists` gives
+> each section its order. Not
 > ten. The rest of this document is kept as it was written, as the record of
 > the decisions and the measurements behind them.
 
@@ -278,9 +282,12 @@ rails as `deploy/install.sh`. Supports `--dry-run`.
         "oneLine": "Una frase in italiano che riassume il video.",
         "quotes": [ { "text": "verbatim, mai parafrasato", "likes": 20,
                       "topic": "a cosa si riferisce" } ]
-      }
+      },
+      "lists": ["top", "recent"]
     }
   ],
+  "lists": { "top": ["O8eWFVZxgcI", "…"], "recent": ["iwx6UZt3iJU", "O8eWFVZxgcI", "…"] },
+  "listRules": { "recentMinSubscribers": 1000 },
   "synthesis": {
     "status": "ok" | "stale",
     "generatedAt": "…", "model": "…",

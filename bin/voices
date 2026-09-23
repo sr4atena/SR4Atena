@@ -191,8 +191,10 @@ try {
             (float)($config['voices']['archiveMaxAgeHours'] ?? 72),
             (int)($config['voices']['archiveTake'] ?? 150),
         ),
+        (int)($config['voices']['recentMinSubscribers'] ?? 1000),
     );
     $options['topN'] ??= (int)$config['voices']['topN'];
+    $options['recentN'] ??= (int)($config['voices']['recentN'] ?? 0);
     $document = $builder->run($options);
     if ($options['dryRun'] === false) {
         $failed = count(array_filter($document['videos'], static fn (array $v): bool => $v['summary']['status'] !== 'ok'));

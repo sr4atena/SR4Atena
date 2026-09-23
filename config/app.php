@@ -79,6 +79,11 @@ return [
         // The tail is mostly shorts and memes, thin to summarise, and must not
         // outvote the substantial videos (see config/prompts/voices-synthesis.md).
         'topN'    => 15,
+        // A second list on the page: the newest videos of creators with at
+        // least `recentMinSubscribers` (needs `archive`). Analysed together
+        // with the top, a video in both counted once.
+        'recentN'              => 15,
+        'recentMinSubscribers' => 1000,
         'host'    => (string)$env('MANOR_VOICES_HOST', 'workstation'),
         // At most one caption request every two minutes, measured start to
         // start. YouTube throttles caption requests from one address, and the

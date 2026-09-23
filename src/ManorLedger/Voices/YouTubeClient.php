@@ -113,6 +113,28 @@ final class YouTubeClient
     }
 
     /**
+     * The most recent of a set of candidates (ArchiveSource::recent), with
+     * fresh statistics and the same other-platform rule as the top list.
+     *
+     * @param  list<string> $ids
+     * @return list<array<string, mixed>>
+     */
+    public function recentVideos(array $ids, int $limit): array
+    {
+        $ids = array_values(array_filter($ids, static fn ($id): bool => preg_match('/^[A-Za-z0-9_-]{11}$/', (string)$id) === 1));
+        $kept = [];
+        foreach ($this->videos($ids) as $video) {
+            if (!self::isOtherPlatform($video)) {
+                unset($video['description'], $video['tags']);
+                $kept[] = $video;
+            }
+        }
+        usort($kept, static fn (array $a, array $b): int => strcmp((string)$b['publishedTime'], (string)$a['publishedTime']));
+
+        return array_slice($kept, 0, max(0, $limit));
+    }
+
+    /**
      * Statistics and full snippets for a set of ids (50 per call, 1 unit each).
      *
      * @param  list<string> $ids
@@ -142,6 +164,8 @@ final class YouTubeClient
                     'channel'      => self::unescape((string)($snippet['channelTitle'] ?? '')),
                     'channelId'    => (string)($snippet['channelId'] ?? ''),
                     'publishedAt'  => substr((string)($snippet['publishedAt'] ?? ''), 0, 10),
+                    // The full timestamp, for ordering by recency within a day.
+                    'publishedTime'=> (string)($snippet['publishedAt'] ?? ''),
                     'views'        => (int)($stats['viewCount'] ?? 0),
                     'likes'        => (int)($stats['likeCount'] ?? 0),
                     'commentCount' => (int)($stats['commentCount'] ?? 0),
