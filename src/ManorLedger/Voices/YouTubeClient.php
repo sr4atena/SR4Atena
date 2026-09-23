@@ -113,6 +113,21 @@ final class YouTubeClient
     }
 
     /**
+     * The Roblox games a description links to, as place ids. A creator who
+     * plays several games in one video links each of them: that is how a
+     * mixed video is told apart from one about this game.
+     *
+     * @return list<int>
+     */
+    public static function gameLinks(string $description): array
+    {
+        preg_match_all('~roblox\.com/(?:[a-z]{2}(?:-[a-z]{2})?/)?games/(\d{5,})|[?&]placeId=(\d{5,})~i', $description, $m);
+        $ids = array_filter(array_merge($m[1] ?? [], $m[2] ?? []), static fn (string $id): bool => $id !== '');
+
+        return array_values(array_unique(array_map('intval', $ids)));
+    }
+
+    /**
      * The most recent of a set of candidates (ArchiveSource::recent), with
      * fresh statistics and the same other-platform rule as the top list.
      *
@@ -172,6 +187,7 @@ final class YouTubeClient
                     'url'          => 'https://www.youtube.com/watch?v=' . $id,
                     'thumbnailUrl' => (string)($snippet['thumbnails']['medium']['url'] ?? $snippet['thumbnails']['default']['url'] ?? ''),
                     'description'  => self::unescape((string)($snippet['description'] ?? '')),
+                    'gameLinks'    => self::gameLinks((string)($snippet['description'] ?? '')),
                     'tags'         => array_map(strval(...), $snippet['tags'] ?? []),
                 ];
             }

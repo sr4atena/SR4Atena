@@ -76,6 +76,15 @@ final class YouTubeClientTest extends TestCase
         self::assertStringNotContainsString('bad', (string)end($this->sent)['url']);
     }
 
+    public function testGameLinksAreReadFromEveryUrlShape(): void
+    {
+        self::assertSame([134208374070897, 97090732168175], YouTubeClient::gameLinks(
+            "Game 1: https://www.roblox.com/games/134208374070897/MONOCHROME\n"
+            . "Game 2: https://www.roblox.com/it/games/97090732168175/The-Locusts-Manor\n"
+            . 'again https://roblox.com/games/start?placeId=97090732168175 · profile https://www.roblox.com/users/159985305/profile'));
+        self::assertSame([], YouTubeClient::gameLinks('no links, only https://www.roblox.com/groups/123456/x'));
+    }
+
     public function testTitleFilterIsCaseAndEntityInsensitive(): void
     {
         self::assertTrue(YouTubeClient::titleMatches('THE LOCUST&#39;S MANOR'));

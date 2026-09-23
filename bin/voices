@@ -192,6 +192,7 @@ try {
             (int)($config['voices']['archiveTake'] ?? 150),
         ),
         (int)($config['voices']['recentMinSubscribers'] ?? 1000),
+        isset($config['voices']['placeId']) ? (int)$config['voices']['placeId'] : null,
     );
     $options['topN'] ??= (int)$config['voices']['topN'];
     $options['recentN'] ??= (int)($config['voices']['recentN'] ?? 0);

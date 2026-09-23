@@ -44,6 +44,10 @@ export function videoCard(v) {
   if (badge) flags.appendChild(pill('voci-pill-warn', badge[0], badge[1]));
   const sources = arraySafe(s.basedOn).map((b) => SOURCE_LABEL[b]).filter(Boolean);
   if (sources.length) flags.appendChild(pill('voci-pill-soft', 'da ' + sources.join(' + ')));
+  if (v.mixed === true) {
+    flags.appendChild(pill('voci-pill-warn', 'più giochi nel video',
+      'Il creatore gioca anche ad altri titoli nello stesso video: la scheda resta, ma non entra nella sintesi generale.'));
+  }
   if (flags.childNodes.length) body.appendChild(flags);
 
   if (failed) body.appendChild(failureNote(v));

@@ -40,6 +40,8 @@ export function heroSection(data) {
   const considered = arraySafe(s.videosConsidered).length;
   const total = arraySafe(data.videos).length;
   if (considered) bits.push(`${considered} video su ${total} con una sintesi utilizzabile`);
+  const mixed = arraySafe(data.videos).filter((v) => v.mixed === true).length;
+  if (mixed) bits.push(`${mixed} ${mixed === 1 ? 'escluso' : 'esclusi'} perché ${mixed === 1 ? 'mostra' : 'mostrano'} più giochi`);
   root.appendChild(el('p', 'voci-hero-meta', bits.join(' · ')));
   return root;
 }

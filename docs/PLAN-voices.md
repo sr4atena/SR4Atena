@@ -18,7 +18,9 @@ everything below follows their conventions.
 > at least 1,000 subscribers (`voices.recentN`, `voices.recentMinSubscribers`);
 > `videos` is their union, a video in both analysed once, and `lists` gives
 > each section its order. In both lists a video with neither captions nor
-> comments is skipped and the next candidate takes its place. Not
+> comments is skipped and the next candidate takes its place. A "mixed"
+> video, whose description links another Roblox game besides ours
+> (`voices.placeId`), keeps its card but stays out of the synthesis. Not
 > ten. The rest of this document is kept as it was written, as the record of
 > the decisions and the measurements behind them.
 
@@ -284,7 +286,8 @@ rails as `deploy/install.sh`. Supports `--dry-run`.
         "quotes": [ { "text": "verbatim, mai parafrasato", "likes": 20,
                       "topic": "a cosa si riferisce" } ]
       },
-      "lists": ["top", "recent"]
+      "lists": ["top", "recent"],
+      "mixed": false
     }
   ],
   "lists": { "top": ["O8eWFVZxgcI", "…"], "recent": ["iwx6UZt3iJU", "O8eWFVZxgcI", "…"] },

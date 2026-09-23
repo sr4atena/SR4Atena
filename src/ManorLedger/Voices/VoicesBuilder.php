@@ -42,6 +42,8 @@ final class VoicesBuilder
         private readonly ?ArchiveSource $archive = null,
         /** Audience rule for the "most recent" list: subscribers on the channel. */
         private readonly int $recentMinSubscribers = 1000,
+        /** This game's Roblox place id: a video linking another game too is "mixed". */
+        private readonly ?int $placeId = null,
     ) {
         $this->log = $log !== null ? Closure::fromCallable($log) : static fn (string $l): null => null;
         $this->now = $now !== null ? Closure::fromCallable($now) : static fn (): int => time();
@@ -240,13 +242,31 @@ final class VoicesBuilder
             'comments' => ['fetched' => $comments['fetched'], 'kept' => count($kept)],
             'summary' => $summary,
             'lists' => [],
+            // Several games in one video: the card stays, the synthesis leaves
+            // it out, because its captions and comments are partly about
+            // another game and would lend it their praise and complaints.
+            'mixed' => $this->isMixed($video),
         ];
+    }
+
+    /** @param array<string, mixed> $video */
+    private function isMixed(array $video): bool
+    {
+        if ($this->placeId === null) {
+            return false;
+        }
+
+        return array_diff(array_map('intval', $video['gameLinks'] ?? []), [$this->placeId]) !== [];
     }
 
     /** @param list<array<string, mixed>> $rows */
     private function synthesis(array $rows, array $previous, string $now, bool $force): array
     {
-        $summarised = array_values(array_filter($rows, static fn (array $r): bool => $r['summary']['status'] === 'ok'));
+        $summarised = array_values(array_filter($rows, static fn (array $r): bool => $r['summary']['status'] === 'ok' && !($r['mixed'] ?? false)));
+        $mixed = count(array_filter($rows, static fn (array $r): bool => ($r['mixed'] ?? false) === true));
+        if ($mixed > 0) {
+            $this->log(sprintf('synthesis: %d mixed %s left out (several games in one video)', $mixed, $mixed === 1 ? 'video' : 'videos'));
+        }
         $old = is_array($previous['synthesis'] ?? null) ? $previous['synthesis'] : [];
         if ($summarised === []) {
             $this->log('synthesis: no summarised video, keeping the previous one');

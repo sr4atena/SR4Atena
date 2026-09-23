@@ -116,6 +116,7 @@ final class VoicesBuilderTest extends TestCase
             static fn (): int => self::NOW,
             $archive,
             1000,
+            97090732168175,
         );
     }
 
@@ -138,7 +139,8 @@ final class VoicesBuilderTest extends TestCase
 
         $video = $document['videos'][0];
         self::assertSame(['id', 'title', 'channel', 'channelId', 'publishedAt', 'views', 'likes', 'commentCount',
-                          'url', 'thumbnail', 'transcript', 'comments', 'summary', 'lists'], array_keys($video));
+                          'url', 'thumbnail', 'transcript', 'comments', 'summary', 'lists', 'mixed'], array_keys($video));
+        self::assertFalse($video['mixed']);
         self::assertSame(['top'], $video['lists']);
         self::assertSame(['top' => ['CCCCCCCCCCC', 'AAAAAAAAAAA'], 'recent' => []], $document['lists'], 'no archive, no recent list');
         self::assertSame('CCCCCCCCCCC', $video['id'], 'sorted by views, not by search rank');
@@ -241,6 +243,35 @@ final class VoicesBuilderTest extends TestCase
         self::assertSame(['CCCCCCCCCCC'], $document['lists']['top']);
         self::assertSame(['CCCCCCCCCCC'], array_column($document['videos'], 'id'));
         self::assertStringContainsString('AAAAAAAAAAA: nothing to summarise', implode("\n", $this->log));
+    }
+
+    public function testAMixedVideoIsShownButLeftOutOfTheSynthesis(): void
+    {
+        $archive = $this->dir . '/archive.json';
+        file_put_contents($archive, json_encode(['videos' => [
+            'EEEEEEEEEEE' => ['views' => 1, 'subscribers' => 16000, 'seconds' => 900, 'publishedTime' => '2026-09-16T21:15:43Z'],
+        ]]));
+        $videos = json_decode(self::fixture('videos.json'), true);
+        $e = array_values(array_filter($videos['items'], static fn (array $i): bool => $i['id'] === 'AAAAAAAAAAA'))[0];
+        $e['id'] = 'EEEEEEEEEEE';
+        $e['snippet']['title'] = 'Roblox Monochrome Almost Made Me QUIT';
+        $e['snippet']['description'] = "Game 1: https://www.roblox.com/games/134208374070897/MONOCHROME\n"
+            . 'Game 2: https://www.roblox.com/games/97090732168175/The-Locusts-Manor';
+        $e['snippet']['publishedAt'] = '2026-09-16T21:15:43Z';
+
+        $document = $this->builder(
+            [self::fixture('summary-response.json'), self::fixture('summary-response.json'), self::fixture('summary-response.json'),
+             self::fixture('synthesis-response.json')],
+            new ArchiveSource($archive),
+            (string)json_encode(['items' => [$e]]),
+            3,
+        )->run(['recentN' => 15]);
+
+        $byId = array_column($document['videos'], null, 'id');
+        self::assertTrue($byId['EEEEEEEEEEE']['mixed'], 'it links another game as well');
+        self::assertSame('ok', $byId['EEEEEEEEEEE']['summary']['status'], 'its card keeps its summary');
+        self::assertNotContains('EEEEEEEEEEE', $document['synthesis']['videosConsidered'], 'but the synthesis leaves it out');
+        self::assertStringContainsString('1 mixed video left out', implode("\n", $this->log));
     }
 
     public function testASecondRunTheSameDayMakesNoModelCallAtAll(): void

@@ -79,6 +79,10 @@ return [
         // The tail is mostly shorts and memes, thin to summarise, and must not
         // outvote the substantial videos (see config/prompts/voices-synthesis.md).
         'topN'    => 15,
+        // The game's Roblox place id (public, it is in the game's URL). A video
+        // whose description links another game as well is shown but kept out
+        // of the synthesis.
+        'placeId' => (int)$env('MANOR_PLACE_ID', 97090732168175),
         // A second list on the page: the newest videos of creators with at
         // least `recentMinSubscribers` (needs `archive`). Analysed together
         // with the top, a video in both counted once.
