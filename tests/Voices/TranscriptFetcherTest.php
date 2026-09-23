@@ -36,11 +36,11 @@ final class TranscriptFetcherTest extends TestCase
     }
 
     /** @param float|list<float> $cooldownHours */
-    private function fetcher(string $script, ?callable $runner = null, float|array $cooldownHours = 6.0, ?int $now = null): TranscriptFetcher
+    private function fetcher(string $script, ?callable $runner = null, float|array $cooldownHours = 6.0, ?int $now = null, int $confirmations = 1): TranscriptFetcher
     {
         return new TranscriptFetcher('/bin/sh', $script, $this->dir . '/cache', 10, $runner, 5.0, 3, function (float $s): void {
             $this->slept[] = $s;
-        }, $cooldownHours, $now === null ? null : static fn (): int => $now);
+        }, $cooldownHours, $now === null ? null : static fn (): int => $now, $confirmations, 600.0);
     }
 
     public function testRunsTheScriptAndCachesTheResult(): void
@@ -119,6 +119,61 @@ final class TranscriptFetcherTest extends TestCase
         self::assertFalse($fetcher->isBlocked());
         self::assertSame([['id' => 'aaaaaaaaaa1', 'try' => 1, 'error' => 'HTTPError: 500']], $fetcher->errors());
         self::assertNull($fetcher->tripped(), 'an error is not a refusal: no pause');
+    }
+
+    public function testOneRefusedVideoIsASuspicionAndTheNextVideoDecides(): void
+    {
+        $answers = ['{"status":"blocked","error":"RequestBlocked: sign in"}', '{"status":"ok","text":"passa"}'];
+        $asked = [];
+        $runner = static function (string $py, string $sc, string $id) use (&$answers, &$asked): array {
+            $asked[] = $id;
+
+            return ['code' => 0, 'out' => (string)array_shift($answers)];
+        };
+        $fetcher = $this->fetcher($this->fakeScript('unused'), $runner, 6.0, null, 3);
+
+        self::assertSame('blocked', $fetcher->fetch('aaaaaaaaaa1')['status']);
+        self::assertFalse($fetcher->isBlocked(), 'one refused video is not a refused address');
+        self::assertSame('ok', $fetcher->fetch('aaaaaaaaaa2')['status']);
+        self::assertNull($fetcher->tripped());
+
+        // The refused video was walled on its own: cached as missing, and reported.
+        self::assertSame('missing', $fetcher->fetch('aaaaaaaaaa1')['status']);
+        self::assertSame(['aaaaaaaaaa1', 'aaaaaaaaaa2'], $asked, 'and never asked again');
+        self::assertStringContainsString('blocked on this video only', $fetcher->errors()[0]['error'] ?? '');
+        // Between the refusal and the next video, the longer spacing.
+        self::assertNotEmpty(array_filter($this->slept, static fn (float $s): bool => $s > 500.0));
+    }
+
+    public function testThreeRefusalsInARowOnDifferentVideosMakeABlock(): void
+    {
+        $asked = 0;
+        $runner = static function () use (&$asked): array {
+            $asked++;
+
+            return ['code' => 0, 'out' => '{"status":"blocked","error":"IpBlocked"}'];
+        };
+        $fetcher = $this->fetcher($this->fakeScript('unused'), $runner, 6.0, null, 3);
+        foreach (['aaaaaaaaaa1', 'aaaaaaaaaa2'] as $id) {
+            $fetcher->fetch($id);
+            self::assertFalse($fetcher->isBlocked());
+        }
+        $fetcher->fetch('aaaaaaaaaa3');
+        self::assertTrue($fetcher->isBlocked(), 'the third refusal in a row is the address');
+        $fetcher->fetch('aaaaaaaaaa4');
+        $fetcher->fetch('aaaaaaaaaa5');
+        self::assertSame(3, $asked, 'and after it nothing more is asked');
+        self::assertSame([], $fetcher->errors(), 'confirmed refusals go to the block alert, not the error list');
+    }
+
+    public function testRefusalsLeftUnexplainedAtTheEndAreReported(): void
+    {
+        $runner = static fn (): array => ['code' => 0, 'out' => '{"status":"blocked","error":"RequestBlocked"}'];
+        $fetcher = $this->fetcher($this->fakeScript('unused'), $runner, 6.0, null, 3);
+        $fetcher->fetch('aaaaaaaaaa1');
+
+        self::assertFalse($fetcher->isBlocked());
+        self::assertStringContainsString('not confirmed', $fetcher->errors()[0]['error'] ?? '');
     }
 
     public function testCaptionsDisabledIsNeverRetried(): void

@@ -18,9 +18,17 @@
  * be refused for the same reason, so retrying per video multiplies one refusal
  * by the videos left and by the tries allowed — useless work, and the surest
  * way to keep the refusal in place, since these limiters measure the last
- * request rather than the first. The first `blocked` answer therefore trips a
- * breaker: the rest of the run asks nothing at all, and a marker in the cache
- * directory keeps any run from asking again before the pause is over.
+ * request rather than the first.
+ *
+ * But `blocked` is also what a single video can answer: YouTube puts a
+ * sign-in wall in front of some videos and not others, from the same address
+ * at the same minute. So one refusal is a suspicion, not a verdict. After it
+ * the fetcher waits longer than usual (`afterBlockInterval`) and asks the next
+ * video; only `blockConfirmations` refusals in a row, on different videos,
+ * trip the breaker: the rest of the run asks nothing at all, and a marker in
+ * the cache directory keeps any run from asking again before the pause is
+ * over. When an answer gets through instead, the suspects were walls of their
+ * own videos: they are cached as `missing`, never asked again, and reported.
  *
  * The pause grows with each refusal in a row — 6 hours, then 12, then 24 and
  * 24 from there on — because a wall still standing after six hours is not a
@@ -71,6 +79,8 @@ final class TranscriptFetcher
     private array $errors = [];
     /** What the script said about its last non-permanent answer, exception name first. */
     private ?string $lastError = null;
+    /** @var list<array{id: string, error: string}> refused videos not yet explained */
+    private array $suspects = [];
 
     /** @param ?callable $runner fn(string $python, string $script, string $id, int $timeout): array{out: string, code: int} */
     public function __construct(
@@ -92,6 +102,10 @@ final class TranscriptFetcher
          */
         float|array $blockCooldownHours = [6.0, 12.0, 24.0],
         ?callable $now = null,
+        /** Refusals in a row, on different videos, that make a block of the address. */
+        private readonly int $blockConfirmations = 3,
+        /** The spacing after a refusal, before the next video tells us which kind it was. */
+        private readonly float $afterBlockInterval = 600.0,
     ) {
         $this->runner = $runner !== null ? Closure::fromCallable($runner) : Closure::fromCallable(self::run(...));
         $this->sleep = $sleep !== null ? Closure::fromCallable($sleep) : static fn (float $s) => usleep((int)($s * 1e6));
@@ -134,7 +148,12 @@ final class TranscriptFetcher
      */
     public function errors(): array
     {
-        return $this->errors;
+        // Refusals still unexplained when the run ends: fewer than the
+        // confirmations needed, and no answer after them to clear the address.
+        $open = array_map(static fn (array $s): array => ['id' => $s['id'], 'try' => 1,
+            'error' => 'blocked, not confirmed on other videos: ' . $s['error']], $this->blocked ? [] : $this->suspects);
+
+        return array_merge($this->errors, $open);
     }
 
     /**
@@ -231,6 +250,15 @@ final class TranscriptFetcher
             }
             if (in_array($transcript['status'], self::PERMANENT, true)) {
                 $store->write($transcript);
+                // The address is served, so the videos refused just before were
+                // refused for themselves: never ask them again, and say so.
+                foreach ($this->suspects as $s) {
+                    (new JsonStore($this->cacheDir . '/' . $s['id'] . '.json'))->write(self::normalise(['status' => 'missing']) + [
+                        'error' => 'video-level wall, the address was served right after: ' . $s['error'],
+                    ]);
+                    $this->errors[] = ['id' => $s['id'], 'try' => 1, 'error' => 'blocked on this video only, now skipped: ' . $s['error']];
+                }
+                $this->suspects = [];
                 // YouTube answered: whatever the count of refusals was, it ends here.
                 if ($this->streak > 0) {
                     $this->streak = 0;
@@ -239,10 +267,13 @@ final class TranscriptFetcher
 
                 return $transcript;
             }
-            // A refusal is about the address: the next video would be refused
-            // for the same reason, so stop here rather than ask again.
+            // A refusal is never retried on the same video. Whether it is
+            // about the address or about this video, the next videos decide.
             if ($transcript['status'] === 'blocked') {
-                $this->trip();
+                $this->suspects[] = ['id' => $videoId, 'error' => (string)$this->lastError];
+                if (count($this->suspects) >= max(1, $this->blockConfirmations)) {
+                    $this->trip();
+                }
 
                 return $transcript;
             }
@@ -298,7 +329,8 @@ final class TranscriptFetcher
     /** YouTube throttles a burst of caption requests from one IP: do not send one. */
     private function pace(): void
     {
-        $due = $this->lastRunAt + $this->minInterval - microtime(true);
+        $interval = $this->suspects !== [] ? max($this->minInterval, $this->afterBlockInterval) : $this->minInterval;
+        $due = $this->lastRunAt + $interval - microtime(true);
         if ($due > 0) {
             ($this->sleep)($due);
         }

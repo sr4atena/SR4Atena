@@ -132,6 +132,9 @@ try {
         3,
         null,
         $config['voices']['blockCooldownHours'] ?? [6.0, 12.0, 24.0],
+        null,
+        (int)($config['voices']['blockConfirmations'] ?? 3),
+        (float)($config['voices']['afterBlockInterval'] ?? 600),
     );
     // A refusal met during this run, however the run then ends (exit() skips
     // `finally`, shutdown functions it does not): tell the desk and schedule

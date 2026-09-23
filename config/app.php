@@ -89,6 +89,11 @@ return [
         // refusals in a row: 6, then 12, then 24 (the last step repeats). The
         // breaker in TranscriptFetcher stops the rest of the run at once.
         'blockCooldownHours' => [6.0, 12.0, 24.0],
+        // One refused video is not a refused address: YouTube walls single
+        // videos too. Three refusals in a row on different videos make a
+        // block; between them, ten minutes instead of two.
+        'blockConfirmations' => 3,
+        'afterBlockInterval' => 600.0,
         // What the workstation does about a refusal: a desktop alert (also
         // raised, and nothing more, for caption errors of any other kind), and a
         // one-shot systemd timer that starts this unit again when the pause
