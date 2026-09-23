@@ -20,7 +20,12 @@
  * way to keep the refusal in place, since these limiters measure the last
  * request rather than the first. The first `blocked` answer therefore trips a
  * breaker: the rest of the run asks nothing at all, and a marker in the cache
- * directory keeps a second run of the same day from repeating the attempt.
+ * directory keeps any run from asking again before the pause is over.
+ *
+ * The pause grows with each refusal in a row — 6 hours, then 12, then 24 and
+ * 24 from there on — because a wall still standing after six hours is not a
+ * six-hour wall. The count lives in the marker and survives the expiry of the
+ * pause; the first answer that gets through (`ok` or `missing`) clears it.
  * Everything else degrades as before — the summaries of videos already seen
  * come from their own cache, so a refused night costs the transcripts of new
  * videos and nothing more.
@@ -56,6 +61,12 @@ final class TranscriptFetcher
     private float $lastRunAt = 0.0;
     private bool $blocked = false;
     private ?int $blockedUntil = null;
+    /** Refusals in a row, as remembered by the marker; 0 when the last answer got through. */
+    private int $streak = 0;
+    /** @var ?array{streak: int, hours: float, until: int} set when this run tripped the breaker */
+    private ?array $tripped = null;
+    /** @var list<float> */
+    private array $cooldownLadder;
 
     /** @param ?callable $runner fn(string $python, string $script, string $id, int $timeout): array{out: string, code: int} */
     public function __construct(
@@ -68,18 +79,21 @@ final class TranscriptFetcher
         private readonly int $maxTries = 3,
         ?callable $sleep = null,
         /**
-         * How long to stay away after a block. Its only job is to stop a second
-         * run on the same day from re-probing, because with the breaker above
-         * the cost of trying again too early is exactly one request. Long
-         * enough to cover a manual re-run, short enough that the job of the
-         * next morning still gets to find out whether the wall has come down.
+         * How long to stay away after a block: one number, or a ladder indexed
+         * by the refusals in a row (the last step repeats). With the breaker
+         * above, trying again costs exactly one request, so the pause is about
+         * not being the address that keeps knocking.
+         *
+         * @var float|list<float>
          */
-        private readonly float $blockCooldownHours = 6.0,
+        float|array $blockCooldownHours = [6.0, 12.0, 24.0],
         ?callable $now = null,
     ) {
         $this->runner = $runner !== null ? Closure::fromCallable($runner) : Closure::fromCallable(self::run(...));
         $this->sleep = $sleep !== null ? Closure::fromCallable($sleep) : static fn (float $s) => usleep((int)($s * 1e6));
         $this->now = $now !== null ? Closure::fromCallable($now) : static fn (): int => time();
+        $ladder = array_values(array_map(static fn ($h): float => max(0.0, (float)$h), (array)$blockCooldownHours));
+        $this->cooldownLadder = $ladder === [] ? [6.0] : $ladder;
         $this->readMarker();
     }
 
@@ -96,6 +110,17 @@ final class TranscriptFetcher
     }
 
     /**
+     * What this run's refusal set, or null when this run met no refusal: the
+     * refusals in a row, the pause chosen for it and when it ends.
+     *
+     * @return ?array{streak: int, hours: float, until: int}
+     */
+    public function tripped(): ?array
+    {
+        return $this->tripped;
+    }
+
+    /**
      * Forget the block and ask again. Only worth doing once something outside
      * this code has established that YouTube is answering again.
      */
@@ -103,6 +128,7 @@ final class TranscriptFetcher
     {
         $this->blocked = false;
         $this->blockedUntil = null;
+        $this->streak = 0;
         @unlink($this->cacheDir . '/' . self::BLOCK_MARKER);
     }
 
@@ -171,6 +197,11 @@ final class TranscriptFetcher
             // poison the cache, and a disabled caption track will not change.
             if (in_array($transcript['status'], self::PERMANENT, true)) {
                 $store->write($transcript);
+                // YouTube answered: whatever the count of refusals was, it ends here.
+                if ($this->streak > 0) {
+                    $this->streak = 0;
+                    @unlink($this->cacheDir . '/' . self::BLOCK_MARKER);
+                }
 
                 return $transcript;
             }
@@ -195,19 +226,31 @@ final class TranscriptFetcher
      */
     private function trip(): void
     {
+        $this->streak++;
+        $hours = $this->cooldownLadder[min($this->streak, count($this->cooldownLadder)) - 1];
         $this->blocked = true;
-        $this->blockedUntil = ($this->now)() + (int)round(max(0.0, $this->blockCooldownHours) * 3600);
+        $this->blockedUntil = ($this->now)() + (int)round($hours * 3600);
+        $this->tripped = ['streak' => $this->streak, 'hours' => $hours, 'until' => $this->blockedUntil];
         JsonStore::ensureDir($this->cacheDir);
         (new JsonStore($this->cacheDir . '/' . self::BLOCK_MARKER))->write([
-            'at'    => gmdate('Y-m-d\TH:i:s\Z', ($this->now)()),
-            'until' => $this->blockedUntil,
+            'at'     => gmdate('Y-m-d\TH:i:s\Z', ($this->now)()),
+            'until'  => $this->blockedUntil,
+            'streak' => $this->streak,
+            'hours'  => $hours,
         ]);
     }
 
-    /** A block left behind by an earlier run, if it has not expired yet. */
+    /**
+     * A block left behind by an earlier run. The pause holds while it lasts;
+     * the count of refusals holds after it, until an answer gets through.
+     */
     private function readMarker(): void
     {
         $marker = (new JsonStore($this->cacheDir . '/' . self::BLOCK_MARKER))->read();
+        if ($marker === null) {
+            return;
+        }
+        $this->streak = max(1, (int)($marker['streak'] ?? 1));
         $until  = (int)($marker['until'] ?? 0);
         if ($until > ($this->now)()) {
             $this->blocked = true;

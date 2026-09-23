@@ -35,7 +35,8 @@ final class TranscriptFetcherTest extends TestCase
         return $path;
     }
 
-    private function fetcher(string $script, ?callable $runner = null, float $cooldownHours = 6.0, ?int $now = null): TranscriptFetcher
+    /** @param float|list<float> $cooldownHours */
+    private function fetcher(string $script, ?callable $runner = null, float|array $cooldownHours = 6.0, ?int $now = null): TranscriptFetcher
     {
         return new TranscriptFetcher('/bin/sh', $script, $this->dir . '/cache', 10, $runner, 5.0, 3, function (float $s): void {
             $this->slept[] = $s;
@@ -199,6 +200,58 @@ final class TranscriptFetcherTest extends TestCase
         self::assertFalse($insisting->isBlocked());
         self::assertNull($insisting->blockedUntil());
         self::assertSame('missing', $insisting->fetch('BNuGG3cOKBY')['status']);
+    }
+
+    public function testThePauseGrowsWithEachRefusalInARowAndStopsAtTheLastStep(): void
+    {
+        $blocked = static fn (): array => ['code' => 0, 'out' => '{"status":"blocked","error":"IpBlocked"}'];
+        $ladder = [6.0, 12.0, 24.0];
+        $t = 1_000_000;
+        $seen = [];
+        foreach (['aaaaaaaaaa1', 'aaaaaaaaaa2', 'aaaaaaaaaa3', 'aaaaaaaaaa4'] as $id) {
+            $fetcher = $this->fetcher($this->fakeScript('unused'), $blocked, $ladder, $t);
+            self::assertFalse($fetcher->isBlocked(), 'each run starts after the previous pause has ended');
+            $fetcher->fetch($id);
+            $tripped = $fetcher->tripped();
+            self::assertNotNull($tripped);
+            $seen[] = [$tripped['streak'], $tripped['hours'], $tripped['until'] - $t];
+            $t = $tripped['until'] + 1;
+        }
+        self::assertSame([[1, 6.0, 21_600], [2, 12.0, 43_200], [3, 24.0, 86_400], [4, 24.0, 86_400]], $seen);
+    }
+
+    public function testTheFirstAnswerThatGetsThroughResetsTheLadder(): void
+    {
+        $blocked = static fn (): array => ['code' => 0, 'out' => '{"status":"blocked","error":"IpBlocked"}'];
+        $ladder = [6.0, 12.0, 24.0];
+        $this->fetcher($this->fakeScript('unused'), $blocked, $ladder, 1_000_000)->fetch('aaaaaaaaaa1');
+        $this->fetcher($this->fakeScript('unused'), $blocked, $ladder, 1_021_601)->fetch('aaaaaaaaaa2');
+
+        $through = $this->fetcher($this->fakeScript('{"status":"ok","text":"funziona"}'), null, $ladder, 1_064_802);
+        self::assertSame('ok', $through->fetch('aaaaaaaaaa3')['status']);
+        self::assertNull($through->tripped());
+        self::assertFileDoesNotExist($this->dir . '/cache/' . TranscriptFetcher::BLOCK_MARKER);
+
+        $again = $this->fetcher($this->fakeScript('unused'), $blocked, $ladder, 1_100_000);
+        $again->fetch('aaaaaaaaaa4');
+        self::assertSame(1, $again->tripped()['streak'] ?? null, 'a new wall starts again from six hours');
+        self::assertSame(6.0, $again->tripped()['hours'] ?? null);
+    }
+
+    public function testAPauseWithNothingToAskKeepsTheCount(): void
+    {
+        $blocked = static fn (): array => ['code' => 0, 'out' => '{"status":"blocked","error":"IpBlocked"}'];
+        $ladder = [6.0, 12.0, 24.0];
+        $this->fetcher($this->fakeScript('unused'), $blocked, $ladder, 1_000_000)->fetch('aaaaaaaaaa1');
+
+        // A run after the pause that finds every video in the cache proves
+        // nothing about the wall, so the next refusal is still the second.
+        file_put_contents($this->dir . '/cache/aaaaaaaaaa2.json', '{"status":"ok","text":"in cache"}');
+        $this->fetcher($this->fakeScript('unused'), $blocked, $ladder, 1_030_000)->fetch('aaaaaaaaaa2');
+        $next = $this->fetcher($this->fakeScript('unused'), $blocked, $ladder, 1_030_000);
+        $next->fetch('aaaaaaaaaa3');
+        self::assertSame(2, $next->tripped()['streak'] ?? null);
+        self::assertSame(12.0, $next->tripped()['hours'] ?? null);
     }
 
     public function testAnEmptyTranscriptCountsAsMissing(): void

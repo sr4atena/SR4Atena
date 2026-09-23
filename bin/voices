@@ -24,6 +24,7 @@ declare(strict_types=1);
 use ManorLedger\Storage\JsonStore;
 use ManorLedger\Voices\CommentFilter;
 use ManorLedger\Voices\LlmClient;
+use ManorLedger\Voices\RefusalAlarm;
 use ManorLedger\Voices\Synthesizer;
 use ManorLedger\Voices\ThumbnailStore;
 use ManorLedger\Voices\TranscriptFetcher;
@@ -130,8 +131,23 @@ try {
         (float)($config['voices']['transcriptInterval'] ?? 120),
         3,
         null,
-        (float)($config['voices']['blockCooldownHours'] ?? 6),
+        $config['voices']['blockCooldownHours'] ?? [6.0, 12.0, 24.0],
     );
+    // A refusal met during this run, however the run then ends (exit() skips
+    // `finally`, shutdown functions it does not): tell the desk and schedule
+    // the next attempt for the end of the pause.
+    register_shutdown_function(static function () use ($fetcher, $config, $log): void {
+        $tripped = $fetcher->tripped();
+        if ($tripped !== null) {
+            (new RefusalAlarm(
+                (bool)($config['voices']['blockAlert'] ?? false),
+                (string)($config['voices']['blockRetryUnit'] ?? ''),
+                (string)($config['app']['timezone'] ?? 'Europe/Rome'),
+                null,
+                $log,
+            ))->raise($tripped, time());
+        }
+    });
     if ($clearBlock && $fetcher->isBlocked()) {
         $log('forgetting the block set at ' . gmdate('Y-m-d H:i', (int)$fetcher->blockedUntil()) . ' UTC and asking again');
         $fetcher->clearBlock();

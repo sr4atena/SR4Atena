@@ -85,10 +85,15 @@ return [
         // job has no deadline worth trading that for: most videos come from
         // the cache, and a new one costs two minutes, not a refusal.
         'transcriptInterval' => 120.0,
-        // After a refusal, how many hours before this address asks again. The
-        // breaker in TranscriptFetcher already stops the rest of the run; this
-        // only keeps a second run of the same day from re-probing.
-        'blockCooldownHours' => 6.0,
+        // After a refusal, how many hours before this address asks again, by
+        // refusals in a row: 6, then 12, then 24 (the last step repeats). The
+        // breaker in TranscriptFetcher stops the rest of the run at once.
+        'blockCooldownHours' => [6.0, 12.0, 24.0],
+        // What the workstation does about a refusal: a desktop alert, and a
+        // one-shot systemd timer that starts this unit again when the pause
+        // ends. Empty unit = no retry scheduled (the daily timer still runs).
+        'blockAlert'     => true,
+        'blockRetryUnit' => 'manor-voices.service',
     ],
     // One adapter, one profile per task, the model chosen by configuration:
     // ids drift (gemini-2.5-flash already 404s) and the free tier answers 503
