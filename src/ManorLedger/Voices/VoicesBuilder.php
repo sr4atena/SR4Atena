@@ -89,6 +89,11 @@ final class VoicesBuilder
                 break;
             }
             $id = (string)$video['id'];
+            if (!$this->isAboutThisGame($video)) {
+                $skippedTop++;
+                $this->log($id . ': several games and the title names another or none, not listed: ' . mb_substr((string)$video['title'], 0, 60, 'UTF-8'));
+                continue;
+            }
             $row = $this->row($video, $ctx, $transcriptStatuses, $regenerated);
             if ($row['summary']['status'] !== 'ok') {
                 $skippedTop++;
@@ -117,6 +122,11 @@ final class VoicesBuilder
                     break;
                 }
                 $id = (string)$video['id'];
+                if (!isset($rows[$id]) && !$this->isAboutThisGame($video)) {
+                    $skipped++;
+                    $this->log($id . ': several games and the title names another or none, not listed: ' . mb_substr((string)$video['title'], 0, 60, 'UTF-8'));
+                    continue;
+                }
                 // One analysis per video: a video in both lists is summarised
                 // once and counted once; the page shows it in both sections.
                 $row = $rows[$id] ?? $this->row($video, $ctx, $transcriptStatuses, $regenerated);
@@ -247,6 +257,21 @@ final class VoicesBuilder
             // another game and would lend it their praise and complaints.
             'mixed' => $this->isMixed($video),
         ];
+    }
+
+    /**
+     * Whether a video belongs on this game's page. A video that links only
+     * this game is about it, whatever language its title is in. A video that
+     * links other games as well stays only if its title names this game: one
+     * titled after another game ("… | House of The Locust Indonesia") or after
+     * no game at all is mostly about something else, and its views are not
+     * ours to show.
+     *
+     * @param array<string, mixed> $video
+     */
+    private function isAboutThisGame(array $video): bool
+    {
+        return !$this->isMixed($video) || YouTubeClient::titleMatches((string)$video['title']);
     }
 
     /** @param array<string, mixed> $video */

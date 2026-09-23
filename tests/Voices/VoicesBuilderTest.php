@@ -245,6 +245,38 @@ final class VoicesBuilderTest extends TestCase
         self::assertStringContainsString('AAAAAAAAAAA: nothing to summarise', implode("\n", $this->log));
     }
 
+    public function testAMixedVideoTitledAfterAnotherGameIsNotListedAtAll(): void
+    {
+        $archive = $this->dir . '/archive.json';
+        file_put_contents($archive, json_encode(['videos' => [
+            'HHHHHHHHHHH' => ['views' => 1, 'subscribers' => 90000, 'seconds' => 900, 'publishedTime' => '2026-09-16T22:00:00Z'],
+            'EEEEEEEEEEE' => ['views' => 1, 'subscribers' => 16000, 'seconds' => 900, 'publishedTime' => '2026-09-16T21:15:43Z'],
+        ]]));
+        $videos = json_decode(self::fixture('videos.json'), true);
+        $a = array_values(array_filter($videos['items'], static fn (array $i): bool => $i['id'] === 'AAAAAAAAAAA'))[0];
+        $h = $a;
+        $h['id'] = 'HHHHHHHHHHH';
+        $h['snippet']['title'] = 'Kabur Dari Anomali Boiled One & Locust Doctor Nowhere | House of The Locust Indonesia';
+        $h['snippet']['description'] = "Nama Game : Locust Manor https://www.roblox.com/games/97090732168175\n"
+            . 'Nama Game : House of The Locust https://www.roblox.com/games/86247128610772';
+        $h['snippet']['publishedAt'] = '2026-09-16T22:00:00Z';
+        $e = $a;
+        $e['id'] = 'EEEEEEEEEEE';
+        $e['snippet']['publishedAt'] = '2026-09-16T21:15:43Z';
+
+        $document = $this->builder(
+            [self::fixture('summary-response.json'), self::fixture('summary-response.json'), self::fixture('summary-response.json'),
+             self::fixture('synthesis-response.json')],
+            new ArchiveSource($archive),
+            (string)json_encode(['items' => [$h, $e]]),
+            3,
+        )->run(['recentN' => 1]);
+
+        self::assertSame(['EEEEEEEEEEE'], $document['lists']['recent'], 'titled after the other game: its place goes to the next');
+        self::assertNotContains('HHHHHHHHHHH', array_column($document['videos'], 'id'), 'neither shown nor analysed');
+        self::assertStringContainsString('HHHHHHHHHHH: several games and the title names another or none', implode("\n", $this->log));
+    }
+
     public function testAMixedVideoIsShownButLeftOutOfTheSynthesis(): void
     {
         $archive = $this->dir . '/archive.json';
@@ -254,7 +286,8 @@ final class VoicesBuilderTest extends TestCase
         $videos = json_decode(self::fixture('videos.json'), true);
         $e = array_values(array_filter($videos['items'], static fn (array $i): bool => $i['id'] === 'AAAAAAAAAAA'))[0];
         $e['id'] = 'EEEEEEEEEEE';
-        $e['snippet']['title'] = 'Roblox Monochrome Almost Made Me QUIT';
+        // Titled after this game, but with another one in the same video.
+        $e['snippet']['title'] = "The Locust's Manor and MONOCHROME back to back";
         $e['snippet']['description'] = "Game 1: https://www.roblox.com/games/134208374070897/MONOCHROME\n"
             . 'Game 2: https://www.roblox.com/games/97090732168175/The-Locusts-Manor';
         $e['snippet']['publishedAt'] = '2026-09-16T21:15:43Z';

@@ -20,7 +20,9 @@ everything below follows their conventions.
 > each section its order. In both lists a video with neither captions nor
 > comments is skipped and the next candidate takes its place. A "mixed"
 > video, whose description links another Roblox game besides ours
-> (`voices.placeId`), keeps its card but stays out of the synthesis. Not
+> (`voices.placeId`), stays out of the synthesis, and stays on the page only
+> if its title names this game; titled after another game or none, it is not
+> listed and the next candidate takes its place. Not
 > ten. The rest of this document is kept as it was written, as the record of
 > the decisions and the measurements behind them.
 
