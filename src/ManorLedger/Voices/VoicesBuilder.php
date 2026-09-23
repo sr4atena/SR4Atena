@@ -105,7 +105,7 @@ final class VoicesBuilder
             $top[] = $video;
         }
 
-        $this->log(sprintf('%d most watched kept, %d skipped for lack of material', count($top), $skippedTop));
+        $this->log(sprintf('%d most watched kept, %d skipped for lack of material or another game in the title', count($top), $skippedTop));
 
         // Second list: the newest videos of creators with an audience. Only
         // the archive knows publication order and subscribers, so without it
@@ -147,7 +147,7 @@ final class VoicesBuilder
         $rows = array_values($rows);
         $withTranscript = count(array_filter($rows, static fn (array $r): bool => $r['transcript']['status'] === 'ok'));
         if ($recentIds !== []) {
-            $this->log(sprintf('lists: %d most watched + %d most recent = %d videos to analyse (%d in both; skipped for lack of material: %d most watched, %d recent)',
+            $this->log(sprintf('lists: %d most watched + %d most recent = %d videos to analyse (%d in both; skipped, for lack of material or another game in the title: %d most watched, %d recent)',
                 count($top), count($recentIds), count($rows), count($top) + count($recentIds) - count($rows), $skippedTop, $skipped));
         }
         $stored = $this->thumbnails->store(array_values($picked));
