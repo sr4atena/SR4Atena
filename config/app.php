@@ -98,6 +98,12 @@ return [
         // raised, and nothing more, for caption errors of any other kind), and a
         // one-shot systemd timer that starts this unit again when the pause
         // ends. Empty unit = no retry scheduled (the daily timer still runs).
+        // Optional archive of videos kept by a date-ordered crawl (ArchiveSource):
+        // its most watched join the relevance search before the top is picked.
+        // Unset, missing or older than the limit: search only, as before.
+        'archive'            => (string)$env('MANOR_VOICES_ARCHIVE', ''),
+        'archiveMaxAgeHours' => 72,
+        'archiveTake'        => 150,
         'blockAlert'     => true,
         'blockRetryUnit' => 'manor-voices.service',
     ],

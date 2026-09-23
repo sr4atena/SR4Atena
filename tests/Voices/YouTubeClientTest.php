@@ -63,6 +63,19 @@ final class YouTubeClientTest extends TestCase
         self::assertArrayNotHasKey('description', $result['videos'][0], 'internal fields stay internal');
     }
 
+    public function testArchiveCandidatesJoinTheSearchBeforeTheSortByViews(): void
+    {
+        $empty = '{"items":[]}';
+        $client = new YouTubeClient('K', $this->transport([[$empty, $empty], [self::fixture('videos.json')]]));
+        $result = $client->topVideos(YouTubeClient::DEFAULT_QUERIES, 10, 1, ['CCCCCCCCCCC', 'AAAAAAAAAAA', 'BBBBBBBBBBB', 'bad id']);
+
+        // The search found nothing; the archive's candidates still make the top,
+        // except the Fortnite remake, which the platform rule keeps out.
+        self::assertSame(['CCCCCCCCCCC', 'AAAAAAAAAAA'], array_column($result['videos'], 'id'));
+        self::assertSame(2, $result['stats']['fromArchive']);
+        self::assertStringNotContainsString('bad', (string)end($this->sent)['url']);
+    }
+
     public function testTitleFilterIsCaseAndEntityInsensitive(): void
     {
         self::assertTrue(YouTubeClient::titleMatches('THE LOCUST&#39;S MANOR'));

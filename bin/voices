@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 use ManorLedger\Storage\JsonStore;
+use ManorLedger\Voices\ArchiveSource;
 use ManorLedger\Voices\CommentFilter;
 use ManorLedger\Voices\LlmClient;
 use ManorLedger\Voices\RefusalAlarm;
@@ -184,6 +185,12 @@ try {
         ['summary' => $config['llm']['profiles']['summary']['model'], 'synthesis' => $config['llm']['profiles']['synthesis']['model']],
         (string)$config['voices']['host'],
         $log,
+        null,
+        (string)($config['voices']['archive'] ?? '') === '' ? null : new ArchiveSource(
+            (string)$config['voices']['archive'],
+            (float)($config['voices']['archiveMaxAgeHours'] ?? 72),
+            (int)($config['voices']['archiveTake'] ?? 150),
+        ),
     );
     $options['topN'] ??= (int)$config['voices']['topN'];
     $document = $builder->run($options);

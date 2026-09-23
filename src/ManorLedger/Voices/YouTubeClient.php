@@ -48,9 +48,12 @@ final class YouTubeClient
 
     /**
      * @param  list<string> $queries
-     * @return array{videos: list<array<string, mixed>>, stats: array{candidates: int, excludedNonRoblox: int}}
+     * @param  list<string> $extraIds candidates found elsewhere (ArchiveSource): they skip the
+     *                                title filter, which only screens search noise, but not the
+     *                                other-platform exclusion
+     * @return array{videos: list<array<string, mixed>>, stats: array{candidates: int, excludedNonRoblox: int, fromArchive: int}}
      */
-    public function topVideos(array $queries = self::DEFAULT_QUERIES, int $limit = 10, int $pagesPerQuery = 2): array
+    public function topVideos(array $queries = self::DEFAULT_QUERIES, int $limit = 10, int $pagesPerQuery = 2, array $extraIds = []): array
     {
         $ids = [];
         $tokens = array_fill_keys($queries, null);
@@ -82,6 +85,12 @@ final class YouTubeClient
             }
         }
 
+        $searched = $ids;
+        foreach ($extraIds as $id) {
+            if (preg_match('/^[A-Za-z0-9_-]{11}$/', (string)$id) === 1) {
+                $ids[(string)$id] = true;
+            }
+        }
         $candidates = $this->videos(array_keys($ids));
         $kept = [];
         $excluded = 0;
@@ -94,10 +103,12 @@ final class YouTubeClient
             $kept[] = $video;
         }
         usort($kept, static fn (array $a, array $b): int => $b['views'] <=> $a['views']);
+        $top = array_slice($kept, 0, $limit);
 
         return [
-            'videos' => array_slice($kept, 0, $limit),
-            'stats'  => ['candidates' => count($candidates), 'excludedNonRoblox' => $excluded],
+            'videos' => $top,
+            'stats'  => ['candidates' => count($candidates), 'excludedNonRoblox' => $excluded,
+                         'fromArchive' => count(array_filter($top, static fn (array $v): bool => !isset($searched[$v['id']])))],
         ];
     }
 

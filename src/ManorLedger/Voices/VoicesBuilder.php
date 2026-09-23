@@ -39,6 +39,7 @@ final class VoicesBuilder
         private readonly string $host = 'workstation',
         ?callable $log = null,
         ?callable $now = null,
+        private readonly ?ArchiveSource $archive = null,
     ) {
         $this->log = $log !== null ? Closure::fromCallable($log) : static fn (string $l): null => null;
         $this->now = $now !== null ? Closure::fromCallable($now) : static fn (): int => time();
@@ -60,10 +61,14 @@ final class VoicesBuilder
 
         $now = gmdate('Y-m-d\TH:i:s\Z', ($this->now)());
         $this->log('searching YouTube: ' . implode(' / ', $this->queries));
-        $found = $this->youtube->topVideos($this->queries, $topN);
+        $extra = $this->archive?->ids() ?? ['ids' => [], 'note' => ''];
+        if ($this->archive !== null) {
+            $this->log('archive: ' . $extra['note']);
+        }
+        $found = $this->youtube->topVideos($this->queries, $topN, 2, $extra['ids']);
         $videos = $found['videos'];
-        $this->log(sprintf('%d candidates, %d excluded as non-Roblox, %d kept',
-            $found['stats']['candidates'], $found['stats']['excludedNonRoblox'], count($videos)));
+        $this->log(sprintf('%d candidates, %d excluded as non-Roblox, %d kept (%d found only through the archive)',
+            $found['stats']['candidates'], $found['stats']['excludedNonRoblox'], count($videos), $found['stats']['fromArchive'] ?? 0));
 
         $stored = $this->thumbnails->store($videos);
         foreach (array_keys(array_filter($stored, static fn (bool $ok): bool => !$ok)) as $id) {
