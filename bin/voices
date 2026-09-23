@@ -136,16 +136,19 @@ try {
     // A refusal met during this run, however the run then ends (exit() skips
     // `finally`, shutdown functions it does not): tell the desk and schedule
     // the next attempt for the end of the pause.
+    // Errors that are not refusals are only reported: the run goes on.
     register_shutdown_function(static function () use ($fetcher, $config, $log): void {
+        $alarm = new RefusalAlarm(
+            (bool)($config['voices']['blockAlert'] ?? false),
+            (string)($config['voices']['blockRetryUnit'] ?? ''),
+            (string)($config['app']['timezone'] ?? 'Europe/Rome'),
+            null,
+            $log,
+        );
+        $alarm->reportErrors($fetcher->errors());
         $tripped = $fetcher->tripped();
         if ($tripped !== null) {
-            (new RefusalAlarm(
-                (bool)($config['voices']['blockAlert'] ?? false),
-                (string)($config['voices']['blockRetryUnit'] ?? ''),
-                (string)($config['app']['timezone'] ?? 'Europe/Rome'),
-                null,
-                $log,
-            ))->raise($tripped, time());
+            $alarm->raise($tripped, time());
         }
     });
     if ($clearBlock && $fetcher->isBlocked()) {

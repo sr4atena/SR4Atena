@@ -89,7 +89,8 @@ return [
         // refusals in a row: 6, then 12, then 24 (the last step repeats). The
         // breaker in TranscriptFetcher stops the rest of the run at once.
         'blockCooldownHours' => [6.0, 12.0, 24.0],
-        // What the workstation does about a refusal: a desktop alert, and a
+        // What the workstation does about a refusal: a desktop alert (also
+        // raised, and nothing more, for caption errors of any other kind), and a
         // one-shot systemd timer that starts this unit again when the pause
         // ends. Empty unit = no retry scheduled (the daily timer still runs).
         'blockAlert'     => true,

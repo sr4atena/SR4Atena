@@ -67,6 +67,8 @@ final class TranscriptFetcher
     private ?array $tripped = null;
     /** @var list<float> */
     private array $cooldownLadder;
+    /** @var list<array{id: string, try: int, error: string}> every `error` answer of this run */
+    private array $errors = [];
 
     /** @param ?callable $runner fn(string $python, string $script, string $id, int $timeout): array{out: string, code: int} */
     public function __construct(
@@ -118,6 +120,19 @@ final class TranscriptFetcher
     public function tripped(): ?array
     {
         return $this->tripped;
+    }
+
+    /**
+     * Every `error` answer of this run, one per attempt, including those a
+     * later attempt recovered from. Not a reason to stop — errors are retried —
+     * but worth telling someone about, because a new kind of refusal that the
+     * script does not recognise yet would show up here first.
+     *
+     * @return list<array{id: string, try: int, error: string}>
+     */
+    public function errors(): array
+    {
+        return $this->errors;
     }
 
     /**
@@ -182,8 +197,10 @@ final class TranscriptFetcher
                     . gmdate('Y-m-d H:i', (int)$this->blockedUntil) . ' UTC']);
         }
         if (!is_file($this->script) || !is_executable($this->python)) {
-            return self::normalise(['status' => 'error',
-                'error' => 'cannot run ' . $this->python . ' ' . $this->script . ' (make voices-venv)']);
+            $why = 'cannot run ' . $this->python . ' ' . $this->script . ' (make voices-venv)';
+            $this->errors[] = ['id' => $videoId, 'try' => 0, 'error' => $why];
+
+            return self::normalise(['status' => 'error', 'error' => $why]);
         }
         $transcript = ['status' => 'error', 'language' => null, 'generated' => false, 'chars' => 0, 'text' => ''];
         for ($try = 1; $try <= max(1, $this->maxTries); $try++) {
@@ -212,6 +229,9 @@ final class TranscriptFetcher
 
                 return $transcript;
             }
+            $this->errors[] = ['id' => $videoId, 'try' => $try, 'error' => is_array($decoded)
+                ? (string)($decoded['error'] ?? 'error')
+                : 'unparsable output (exit ' . $result['code'] . ')'];
             if ($try < $this->maxTries) {
                 ($this->sleep)(self::BACKOFF * (2 ** ($try - 1)));
             }

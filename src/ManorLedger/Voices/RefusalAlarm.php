@@ -10,6 +10,9 @@
  * pause. Without it the next attempt would wait for the daily timer, and the
  * 6-hour step of the ladder would silently become 24.
  *
+ * Errors that are not refusals get an alert too, and nothing else: the run
+ * goes on and retries them.
+ *
  * Commands run as argv lists, never through a shell. Neither is essential:
  * when `notify-send` or `systemd-run` is missing the run logs it and goes on,
  * and the daily timer is still there.
@@ -75,6 +78,39 @@ final class RefusalAlarm
             if ($code !== 0) {
                 $this->say('desktop notification failed (notify-send exit ' . $code . ')');
             }
+        }
+    }
+
+    /**
+     * A desktop alert for the `error` answers of a run. The run is not
+     * stopped — errors are retried — this only makes sure they are seen.
+     *
+     * @param list<array{id: string, try: int, error: string}> $errors what TranscriptFetcher::errors() returned
+     */
+    public function reportErrors(array $errors): void
+    {
+        if ($errors === []) {
+            return;
+        }
+        $videos = array_values(array_unique(array_column($errors, 'id')));
+        $this->say(sprintf('%d caption errors on %d videos: %s', count($errors), count($videos), implode(', ', $videos)));
+        if (!$this->notify) {
+            return;
+        }
+        $lines = [];
+        foreach (array_slice($errors, 0, 5) as $e) {
+            $lines[] = sprintf('%s (tentativo %d): %s', $e['id'], $e['try'], mb_substr($e['error'], 0, 80, 'UTF-8'));
+        }
+        if (count($errors) > 5) {
+            $lines[] = sprintf('… e altri %d', count($errors) - 5);
+        }
+        $code = ($this->runner)([
+            'notify-send', '--urgency=critical', '--app-name=Manor Ledger', '--icon=dialog-warning',
+            sprintf('Errori sui sottotitoli: %d su %d video', count($errors), count($videos)),
+            "Il job continua e ritenta. Dettagli:\n" . implode("\n", $lines),
+        ]);
+        if ($code !== 0) {
+            $this->say('desktop notification failed (notify-send exit ' . $code . ')');
         }
     }
 

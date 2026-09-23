@@ -107,6 +107,20 @@ final class TranscriptFetcherTest extends TestCase
         self::assertCount(2, $waits, 'and the interval that keeps the next request off YouTube\'s throttle');
     }
 
+    public function testEveryErrorIsRecordedAndTheRunGoesOn(): void
+    {
+        $answers = ['{"status":"error","error":"HTTPError: 500"}', '{"status":"ok","text":"dopo"}', 'not json'];
+        $runner = static function () use (&$answers): array {
+            return ['code' => 0, 'out' => (string)array_shift($answers)];
+        };
+        $fetcher = $this->fetcher($this->fakeScript('unused'), $runner);
+
+        self::assertSame('ok', $fetcher->fetch('aaaaaaaaaa1')['status']);
+        self::assertFalse($fetcher->isBlocked());
+        self::assertSame([['id' => 'aaaaaaaaaa1', 'try' => 1, 'error' => 'HTTPError: 500']], $fetcher->errors());
+        self::assertNull($fetcher->tripped(), 'an error is not a refusal: no pause');
+    }
+
     public function testCaptionsDisabledIsNeverRetried(): void
     {
         $tries = 0;

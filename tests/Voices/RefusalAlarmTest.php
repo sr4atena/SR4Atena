@@ -47,6 +47,26 @@ final class RefusalAlarmTest extends TestCase
         self::assertStringContainsString('Nessun tentativo programmato', implode(' ', $this->ran[0]));
     }
 
+    public function testErrorsAreOnlyReportedWithOneAlert(): void
+    {
+        $this->alarm(true, 'manor-voices.service')->reportErrors([
+            ['id' => 'aaaaaaaaaa1', 'try' => 1, 'error' => 'HTTPError: 500'],
+            ['id' => 'aaaaaaaaaa1', 'try' => 2, 'error' => 'HTTPError: 500'],
+            ['id' => 'bbbbbbbbbb2', 'try' => 1, 'error' => 'TimeoutError'],
+        ]);
+
+        self::assertCount(1, $this->ran, 'one alert, and no retry scheduled: errors never stop or reschedule the job');
+        self::assertSame('notify-send', $this->ran[0][0]);
+        self::assertStringContainsString('3 su 2 video', implode(' ', $this->ran[0]));
+        self::assertStringContainsString('bbbbbbbbbb2 (tentativo 1): TimeoutError', implode(' ', $this->ran[0]));
+    }
+
+    public function testNoErrorsNoAlert(): void
+    {
+        $this->alarm(true, 'manor-voices.service')->reportErrors([]);
+        self::assertSame([], $this->ran);
+    }
+
     public function testAFailedScheduleIsSaidInTheAlert(): void
     {
         $this->alarm(true, 'manor-voices.service', 1)->raise(['streak' => 2, 'hours' => 12.0, 'until' => 2_000_043_200], 2_000_000_000);
